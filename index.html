@@ -871,10 +871,18 @@ function save() {
   ref.set({
     recipes: S.recipes,
     nextId: S.nextId,
-    catImages: S.catImages || {},
     catOrder: S.catOrder || null,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   }).catch(e => console.error('save config err:', e));
+}
+
+function saveCatImages() {
+  const ref = getDocRef('catImages');
+  if (!ref) return;
+  ref.set({
+    items: S.catImages || {},
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(e => console.error('save catImages err:', e));
 }
 
 async function loadFromFirestore() {
@@ -884,8 +892,20 @@ async function loadFromFirestore() {
       const d = configSnap.data();
       S.recipes = d.recipes || makeSeed();
       S.nextId = d.nextId || 200;
-      S.catImages = d.catImages || {};
       S.catOrder = d.catOrder || null;
+      // catImages 已移至獨立文件，但若舊資料還在 config 就遷移
+      const legacyCatImages = d.catImages || null;
+
+      const catImgSnap = await getDocRef('catImages').get();
+      if (catImgSnap.exists) {
+        S.catImages = catImgSnap.data().items || {};
+      } else if (legacyCatImages && Object.keys(legacyCatImages).length > 0) {
+        // 遷移：從 config 搬到獨立文件
+        S.catImages = legacyCatImages;
+        saveCatImages();
+      } else {
+        S.catImages = {};
+      }
     } else {
       // 首次使用：寫入種子資料
       S.recipes = makeSeed();
@@ -1510,7 +1530,7 @@ document.getElementById('cat-img-input').addEventListener('change', e=>{
       const c=document.createElement('canvas'); c.width=w; c.height=h;
       c.getContext('2d').drawImage(img,0,0,w,h);
       S.catImages[S.pendingCatImg]=c.toDataURL('image/jpeg',0.7);
-      S.pendingCatImg=null; save(); render();
+      S.pendingCatImg=null; saveCatImages(); render();
     };
     img.src=ev.target.result;
   };
@@ -2006,7 +2026,7 @@ function importData() {
         if (!confirm(`確定匯入備份嗎？\n（${data.recipes.length} 支配方，匯出於 ${data.exportedAt||'未知'}）\n\n⚠ 這會覆蓋目前所有資料`)) return;
         S.recipes = data.recipes;
         S.nextId = data.nextId || 200;
-        if (data.catImages && typeof data.catImages === 'object') S.catImages = data.catImages;
+        if (data.catImages && typeof data.catImages === 'object') { S.catImages = data.catImages; saveCatImages(); }
         if (data.catOrder) S.catOrder = data.catOrder;
         if (data.materials && Array.isArray(data.materials)) { saveMaterials(data.materials); }
         save();
