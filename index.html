@@ -1,0 +1,2106 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="SINUS NOTE">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#F5F1EB">
+<title>SINUS NOTE</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<link rel="manifest" id="pwa-manifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500&family=Noto+Sans+TC:wght@300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:         #F5F1EB;
+  --surface:    #F5F1EB;
+  --card:       #EDE8E0;
+  --ink:        #1A1A18;
+  --ink-2:      #6B6459;
+  --ink-3:      #6B6459;
+  --ink-4:      #D6CFC4;
+  --border:     #D6CFC4;
+  --border-2:   #D6CFC4;
+  --accent:     #8B6F52;
+  --nav-h:      52px;
+  --serif:      'Noto Serif TC', serif;
+  --sans:       'Noto Sans TC', sans-serif;
+
+  --success: #6e8c6a; --success-bg: #eef4ec; --success-b: #b8d4b4;
+  --fail:    #a06050; --fail-bg:    #f6edea; --fail-b:    #d8bab4;
+  --pending: #a08848; --pending-bg: #f5f0e4; --pending-b: #d8cca0;
+  --progress:#607898; --progress-bg:#edf0f6; --progress-b:#b4c0d4;
+  --order:   #806888; --order-bg:   #f2edf5; --order-b:   #c8b8d0;
+
+  --c-base:      #7f2d00;
+  --c-botanical: #a19a49;
+  --c-resin:     #c07141;
+  --c-tincture:  #478675;
+  --c-ferment:   #955254;
+  --c-wine:      #d8d8d8;
+  --c-binder:    #d3b385;
+
+  --cat-shrine:  #9a7a70;
+  --cat-improve: #a08860;
+  --cat-green:   #587868;
+  --cat-wood:    #7a5a3a;
+  --cat-floral:  #8c6878;
+  --cat-resin:   #7a6a38;
+  --cat-western: #586478;
+  --cat-special: #5a7068;
+  --cat-tincture:#406080;
+  --cat-test:    #686060;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { font-size: 15px; color-scheme: light; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.75;
+  min-height: 100vh;
+}
+
+/* ── TOP NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.nav-primary {
+  height: var(--nav-h);
+  display: flex; align-items: center;
+  padding: 0 24px;
+  max-width: 960px; margin: 0 auto;
+  gap: 0;
+}
+.nav-brand {
+  font-family: var(--serif); font-size: 16px; font-weight: 400;
+  letter-spacing: 0.2em; color: var(--ink); flex-shrink: 0;
+  margin-right: auto;
+}
+.nav-tabs {
+  display: flex; align-items: stretch; height: var(--nav-h);
+}
+.nav-tab {
+  padding: 0 20px; border: none; background: none; cursor: pointer;
+  font-family: var(--sans); font-weight: 300; font-size: 12px;
+  letter-spacing: 0.15em; color: var(--ink-3);
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+.nav-tab:hover { color: var(--ink); }
+.nav-tab.active { color: var(--ink); border-bottom-color: var(--ink); }
+.nav-new-btn {
+  margin-left: 16px; padding: 0 16px; height: 32px; align-self: center;
+  background: transparent; border: 1px solid var(--border);
+  font-family: var(--sans); font-weight: 300; font-size: 12px;
+  letter-spacing: 0.12em; color: var(--ink-2); cursor: pointer;
+  transition: border-color 0.2s, color 0.2s; flex-shrink: 0;
+}
+.nav-new-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+/* ── NAV MENU (收合選單) ── */
+.nav-menu-wrap { position: relative; align-self: center; margin-left: 8px; flex-shrink: 0; }
+.nav-menu-btn {
+  width: 36px; height: 32px; display: flex; align-items: center; justify-content: center;
+  background: transparent; border: 1px solid var(--border);
+  cursor: pointer; color: var(--ink-2); font-size: 16px; letter-spacing: 0.05em;
+  transition: border-color 0.2s, color 0.2s;
+}
+.nav-menu-btn:hover { border-color: var(--ink); color: var(--ink); }
+.nav-dropdown {
+  display: none; position: absolute; top: calc(100% + 6px); right: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  min-width: 120px; z-index: 200;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+.nav-dropdown.open { display: block; }
+.nav-dropdown-item {
+  display: block; width: 100%; padding: 11px 18px;
+  background: none; border: none; border-bottom: 1px solid var(--border);
+  text-align: left; cursor: pointer;
+  font-family: var(--sans); font-weight: 300; font-size: 13px;
+  color: var(--ink-2); letter-spacing: 0.1em;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.nav-dropdown-item:last-child { border-bottom: none; }
+.nav-dropdown-item:hover { background: var(--card); color: var(--ink); }
+
+/* home 搜尋列 + NEW 同行 */
+.home-toolbar { display: flex; gap: 8px; align-items: stretch; margin-bottom: 20px; }
+.home-toolbar .home-search { flex: 1; margin-bottom: 0; }
+.home-new-btn {
+  flex-shrink: 0; padding: 0 16px; height: 44px;
+  background: var(--ink); border: none;
+  font-family: var(--sans); font-weight: 300; font-size: 12px;
+  letter-spacing: 0.12em; color: var(--bg); cursor: pointer;
+  transition: background 0.2s; white-space: nowrap;
+}
+.home-new-btn:hover { background: var(--accent); }
+
+/* sub-bar: 顯示於 category / detail / form 頁 */
+.nav-sub-bar {
+  display: none;
+  height: 44px;
+  border-top: 1px solid var(--border);
+  align-items: center;
+  padding: 0 24px; gap: 12px;
+  max-width: 960px; margin: 0 auto;
+}
+#nav-back {
+  display: none; width: 32px; height: 32px;
+  border: none; background: none; cursor: pointer;
+  font-size: 16px; color: var(--ink-2);
+  align-items: center; justify-content: center;
+  transition: color 0.2s; flex-shrink: 0;
+}
+#nav-back:hover { color: var(--ink); }
+#nav-sub-title {
+  flex: 1; font-family: var(--serif); font-size: 15px; font-weight: 400;
+  letter-spacing: 0.06em; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#nav-sub-action {
+  flex-shrink: 0; padding: 0 16px; height: 30px;
+  border: 1px solid var(--border); background: transparent;
+  font-family: var(--sans); font-weight: 300; font-size: 12px;
+  letter-spacing: 0.1em; color: var(--ink-2); cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+#nav-sub-action:hover { border-color: var(--ink); color: var(--ink); }
+.nav-sub-save {
+  background: var(--ink) !important; color: var(--bg) !important;
+  border-color: var(--ink) !important;
+}
+.nav-sub-save:hover { background: var(--accent) !important; border-color: var(--accent) !important; }
+
+/* ── MAIN ── */
+main { padding-top: var(--nav-h); min-height: 100vh; padding-bottom: 20px; }
+.container { max-width: 960px; margin: 0 auto; padding: 28px 16px 60px; }
+
+/* ── HOME SEARCH (top of container) ── */
+.home-search {
+  display: flex; align-items: center;
+  border: 1px solid var(--border);
+  background: var(--bg); overflow: hidden; height: 44px;
+  max-width: 100%;
+}
+.home-search input {
+  flex: 1; padding: 0 14px; border: none; background: none;
+  font-size: 14px; font-family: var(--sans); font-weight: 300;
+  color: var(--ink); outline: none; height: 100%;
+}
+.home-search input::placeholder { color: var(--ink-4); }
+.home-search:focus-within { border-color: var(--ink); }
+.home-search-icon {
+  padding: 0 14px; color: var(--ink-3); font-size: 16px; flex-shrink: 0;
+  display: flex; align-items: center; height: 100%;
+  border-right: 1px solid var(--border); user-select: none;
+}
+
+/* ── CAT GRID ── */
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (max-width: 500px) { .cat-grid { grid-template-columns: 1fr; gap: 8px; } }
+
+.cat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  overflow: hidden; cursor: grab;
+  display: flex; flex-direction: row;
+  transition: border-color 0.2s, transform 0.15s;
+  min-height: 160px;
+  user-select: none;
+}
+.cat-card:hover { border-color: var(--accent); }
+.cat-img-wrap {
+  position: relative; flex-shrink: 0;
+  width: 90px; height: 160px;
+  overflow: hidden; background: var(--bg);
+}
+@media (min-width: 600px) { .cat-img-wrap { width: 100px; height: 180px; } }
+.cat-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cat-img-placeholder {
+  width: 100%; height: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px;
+}
+.cat-img-placeholder .ph-icon { font-size: 20px; opacity: 0.2; font-family: var(--serif); }
+.cat-img-placeholder .ph-text { font-size: 8px; color: var(--ink-4); letter-spacing: 0.12em; }
+.cat-img-upload-btn {
+  position: absolute; bottom: 8px; right: 8px;
+  width: 22px; height: 22px;
+  background: var(--bg); border: 1px solid var(--border);
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; font-size: 11px;
+  opacity: 0; transition: opacity 0.2s;
+}
+.cat-card:hover .cat-img-upload-btn { opacity: 1; }
+.cat-info {
+  flex: 1; padding: 14px 16px;
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column; justify-content: center; gap: 4px; min-width: 0;
+}
+.cat-name {
+  font-family: var(--serif); font-size: 17px; font-weight: 400;
+  letter-spacing: 0.06em; color: var(--ink);
+}
+.cat-sub { font-size: 12px; color: var(--ink-2); letter-spacing: 0.04em; }
+.cat-count { font-size: 11px; color: var(--ink-2); letter-spacing: 0.1em; margin-top: 6px; }
+.cat-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: middle; flex-shrink: 0; }
+
+.ornament { text-align: center; color: var(--border); letter-spacing: 0.3em; font-size: 12px; margin: 4px 0 16px; }
+
+/* ── RECIPE LIST ── */
+.recipe-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.recipe-row {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 16px 18px; cursor: pointer;
+  display: flex; align-items: center; gap: 14px;
+  transition: border-color 0.2s; color: inherit;
+}
+.recipe-row:hover { border-color: var(--accent); }
+.recipe-row-left { flex: 1; min-width: 0; }
+.recipe-num { font-size: 11px; color: var(--ink-4); letter-spacing: 0.12em; margin-bottom: 4px; }
+.recipe-name-sm {
+  font-family: var(--serif); font-size: 16px; font-weight: 400;
+  letter-spacing: 0.05em; color: var(--ink); margin-bottom: 6px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.recipe-row-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.recipe-row-right { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.recipe-comment-sm {
+  font-size: 13px; color: var(--ink-3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;
+}
+@media (max-width: 500px) { .recipe-comment-sm { display: none; } }
+
+/* ── STATUS BADGE ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 11px; padding: 2px 8px;
+  letter-spacing: 0.08em; border: 1px solid; flex-shrink: 0;
+  font-family: var(--sans); font-weight: 300;
+}
+.b-success { color: var(--success); background: var(--success-bg); border-color: var(--success-b); }
+.b-fail    { color: var(--fail);    background: var(--fail-bg);    border-color: var(--fail-b); }
+.b-pending { color: var(--pending); background: var(--pending-bg); border-color: var(--pending-b); }
+.b-progress{ color: var(--progress);background: var(--progress-bg);border-color: var(--progress-b); }
+.b-order   { color: var(--order);   background: var(--order-bg);   border-color: var(--order-b); }
+
+/* ── STARS ── */
+.stars { display: inline-flex; gap: 2px; }
+.star { font-size: 13px; color: var(--ink-4); line-height: 1; }
+.star.on { color: var(--accent); }
+
+/* ── PROCESS PILL ── */
+.pill { font-size: 11px; padding: 2px 8px; border: 1px solid; letter-spacing: 0.08em; font-family: var(--sans); font-weight: 300; }
+.pill-t { color: #406080; background: #e8f0f8; border-color: #b0c8dc; }
+.pill-f { color: #604878; background: #f0eaf6; border-color: #c4a8d4; }
+.pill-w { color: #703a50; background: #f5eaee; border-color: #d4a8b4; }
+
+/* ── TAGS ── */
+.tag-sm { font-size: 11px; padding: 2px 8px; border: 1px solid var(--border); color: var(--ink-3); background: transparent; letter-spacing: 0.08em; font-family: var(--sans); font-weight: 300; }
+
+/* ── DETAIL VIEW ── */
+.detail-wrap { max-width: 680px; margin: 0 auto; padding: 24px 16px 60px; }
+.detail-hero { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+.detail-num { font-size: 11px; color: var(--ink-4); letter-spacing: 0.15em; margin-bottom: 8px; }
+.detail-name { font-family: var(--serif); font-size: 24px; font-weight: 400; letter-spacing: 0.1em; color: var(--ink); line-height: 1.4; margin-bottom: 14px; }
+.detail-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.detail-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+
+.section-card { background: var(--card); border: 1px solid var(--border); padding: 20px 24px; margin-bottom: 10px; }
+.section-lbl { font-size: 11px; letter-spacing: 0.2em; color: var(--ink-3); text-transform: uppercase; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+
+/* version tabs */
+.ver-tabs { display: flex; gap: 0; margin-bottom: 14px; }
+.ver-tab {
+  padding: 8px 18px; font-size: 12px; cursor: pointer;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--ink-2); font-family: var(--sans); font-weight: 300;
+  letter-spacing: 0.08em; transition: all 0.2s; margin-right: -1px;
+}
+.ver-tab:hover { border-color: var(--ink); color: var(--ink); }
+.ver-tab.on { background: var(--ink); color: var(--bg); border-color: var(--ink); z-index: 1; position: relative; }
+
+/* ingredient groups */
+.ing-group { margin-bottom: 16px; }
+.ing-group-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.ing-group-label span { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.ing-group-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.ing-item { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--bg); font-size: 14px; }
+.ing-item:last-child { border-bottom: none; }
+.ing-name { color: var(--ink); font-weight: 300; }
+.ing-right { display: flex; align-items: center; gap: 8px; color: var(--ink-2); }
+.ing-pct { font-size: 12px; color: var(--ink-4); min-width: 38px; text-align: right; }
+
+/* proportion bar — 加粗 */
+.prop-bar { height: 6px; overflow: hidden; display: flex; margin-bottom: 12px; }
+.prop-seg { height: 100%; }
+.prop-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 14px; }
+.prop-li { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--ink-2); }
+.prop-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+/* timeline */
+.tl-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; font-size: 13px; }
+.tl-label { font-size: 11px; color: var(--ink-3); letter-spacing: 0.1em; min-width: 44px; }
+.tl-val { color: var(--ink); font-family: var(--serif); }
+.tl-status { display: inline-block; font-size: 12px; padding: 4px 12px; margin-top: 4px; letter-spacing: 0.06em; border: 1px solid; }
+.tl-active  { background: var(--success-bg); color: var(--success); border-color: var(--success-b); }
+.tl-waiting { background: var(--pending-bg); color: var(--pending); border-color: var(--pending-b); }
+.tl-done    { background: transparent; color: var(--ink-3); border-color: var(--border); }
+
+/* process */
+.proc-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+.proc-note { font-size: 12px; color: var(--ink-2); margin-top: 8px; font-family: var(--serif); font-style: italic; }
+
+/* comments */
+.cmt-item { display: flex; gap: 12px; margin-bottom: 14px; }
+.cmt-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--ink-2); font-family: var(--serif); flex-shrink: 0; }
+.cmt-tester { font-size: 12px; color: var(--ink-3); margin-bottom: 3px; letter-spacing: 0.06em; }
+.cmt-text { font-size: 14px; color: var(--ink); font-family: var(--serif); line-height: 1.75; }
+
+/* claude button */
+.claude-btn { width: 100%; margin-top: 12px; padding: 14px 20px; background: transparent; border: 1px solid var(--border); cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--sans); font-size: 12px; color: var(--ink-3); letter-spacing: 0.1em; transition: border-color 0.2s, color 0.2s; }
+.claude-btn:hover { border-color: var(--accent); color: var(--accent); }
+.claude-btn-icon { font-size: 14px; }
+
+/* ── FORM ── */
+.form-wrap { max-width: 680px; margin: 0 auto; padding: 16px 16px 60px; }
+.form-card { background: var(--card); border: 1px solid var(--border); padding: 20px 24px; margin-bottom: 10px; }
+.form-lbl { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-3); display: block; margin-bottom: 6px; }
+.fi { width: 100%; padding: 10px 14px; border: 1px solid var(--border); background: var(--bg); font-size: 13px; font-family: var(--sans); font-weight: 300; color: var(--ink); outline: none; transition: border-color 0.2s; }
+.fi:focus { border-color: var(--ink); }
+select.fi { cursor: pointer; }
+textarea.fi { resize: vertical; min-height: 68px; line-height: 1.75; }
+.form-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 500px) { .form-grid2 { grid-template-columns: 1fr; } }
+.form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.form-group:last-child { margin-bottom: 0; }
+.tag-list { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+.tag-rm { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 8px; border: 1px solid var(--border); background: transparent; color: var(--ink-2); letter-spacing: 0.06em; }
+.tag-x { cursor: pointer; color: var(--ink-4); font-size: 14px; line-height: 1; }
+.tag-x:hover { color: var(--fail); }
+.ing-form-row { display: grid; grid-template-columns: 1fr 62px 46px 24px; gap: 5px; margin-bottom: 5px; align-items: center; }
+@media (max-width: 500px) { .ing-form-row { grid-template-columns: 1fr 55px 42px 24px; } }
+.cat-sel { grid-column: 1 / -1; }
+.cat-sel select { font-size: 11px; padding: 4px 8px; }
+.rm-btn { width: 24px; height: 24px; border: none; background: none; cursor: pointer; color: var(--ink-4); font-size: 17px; line-height: 1; display: flex; align-items: center; justify-content: center; transition: color 0.2s; }
+.rm-btn:hover { color: var(--fail); }
+.add-row-btn { width: 100%; padding: 8px; border: 1px dashed var(--border); background: none; cursor: pointer; font-size: 11px; color: var(--ink-3); font-family: var(--sans); font-weight: 300; letter-spacing: 0.1em; transition: border-color 0.2s, color 0.2s; margin-top: 4px; }
+.add-row-btn:hover { border-color: var(--ink); color: var(--ink); }
+.proc-check-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; }
+.proc-chk { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 6px 14px; border: 1px solid var(--border); background: transparent; cursor: pointer; transition: all 0.2s; color: var(--ink-2); letter-spacing: 0.06em; }
+.proc-chk:hover { border-color: var(--ink); }
+.proc-chk.chk-t { border-color: #7aaBcc; background: #e8f0f8; color: #406080; }
+.proc-chk.chk-f { border-color: #b090cc; background: #f0eaf6; color: #604878; }
+.proc-chk.chk-w { border-color: #cc9090; background: #f5eaee; color: #703a50; }
+.star-edit { font-size: 20px; cursor: pointer; color: var(--ink-4); transition: color 0.15s; }
+.star-edit.on { color: var(--accent); }
+.stars-edit { display: inline-flex; gap: 3px; }
+.preset-row { display: flex; gap: 0; }
+.preset-btn { padding: 8px 16px; font-size: 12px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--ink-2); font-family: var(--sans); font-weight: 300; transition: all 0.2s; letter-spacing: 0.06em; margin-right: -1px; }
+.preset-btn:hover { border-color: var(--ink); color: var(--ink); }
+.preset-btn.on { background: var(--ink); color: var(--bg); border-color: var(--ink); z-index: 1; position: relative; }
+.ver-tabs-form { display: flex; gap: 0; flex-wrap: wrap; margin-bottom: 12px; }
+
+/* ── EMPTY ── */
+.empty { text-align: left; padding: 48px 0; color: var(--ink-3); font-family: var(--serif); font-size: 15px; letter-spacing: 0.08em; }
+.empty-sub { font-size: 11px; margin-top: 6px; color: var(--ink-4); font-family: var(--sans); }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+
+/* ── MATERIALS ── */
+.mat-header { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+.mat-title { font-family: var(--serif); font-size: 22px; font-weight: 400; letter-spacing: 0.12em; color: var(--ink); }
+.mat-total { font-size: 12px; color: var(--ink-3); letter-spacing: 0.06em; }
+.mat-cat-scroll { display: flex; gap: 0; overflow-x: auto; margin-bottom: 24px; border: 1px solid var(--border); background: var(--card); -webkit-overflow-scrolling: touch; }
+.mat-cat-scroll::-webkit-scrollbar { display: none; }
+.mat-cat-btn { flex-shrink: 0; padding: 10px 16px; font-size: 12px; cursor: pointer; border: none; border-right: 1px solid var(--border); background: transparent; color: var(--ink-3); font-family: var(--sans); font-weight: 300; letter-spacing: 0.08em; white-space: nowrap; transition: all 0.2s; position: relative; }
+.mat-cat-btn:last-child { border-right: none; }
+.mat-cat-btn:hover { background: var(--bg); color: var(--ink); }
+.mat-cat-btn.on { color: var(--ink); background: var(--bg); }
+.mat-cat-btn.on::after { content: ''; position: absolute; bottom: 0; left: 12px; right: 12px; height: 2px; background: var(--accent); }
+.mat-list { display: flex; flex-direction: column; gap: 8px; }
+.mat-card { background: var(--card); border: 1px solid var(--border); display: flex; align-items: stretch; overflow: hidden; transition: border-color 0.2s; }
+.mat-card:hover { border-color: var(--accent); }
+.mat-accent { width: 5px; flex-shrink: 0; }
+.mat-body { flex: 1; padding: 14px 18px; min-width: 0; }
+.mat-card-name { font-family: var(--serif); font-size: 15px; font-weight: 400; color: var(--ink); letter-spacing: 0.04em; margin-bottom: 5px; }
+.mat-card-meta { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 4px; }
+.mat-card-meta span { font-size: 12px; color: var(--ink-3); }
+.mat-card-note { font-size: 12px; color: var(--ink-2); line-height: 1.6; }
+.mat-card-right { padding: 14px 14px; display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: 8px; flex-shrink: 0; }
+.mat-si { width: 58px; padding: 6px 8px; border: 1px solid var(--border); background: var(--bg); font-size: 13px; font-family: var(--sans); font-weight: 300; color: var(--ink); outline: none; text-align: right; transition: border-color 0.2s; }
+.mat-si:focus { border-color: var(--ink); }
+.mat-si::placeholder { color: var(--ink-4); }
+.mat-unit { padding: 6px 8px; border: 1px solid var(--border); border-left: none; background: var(--bg); font-size: 12px; font-family: var(--sans); font-weight: 300; color: var(--ink-2); outline: none; cursor: pointer; transition: border-color 0.2s; -webkit-appearance: none; -moz-appearance: none; appearance: none; text-align: center; }
+.mat-unit:focus { border-color: var(--ink); }
+.mat-stock-wrap { display: flex; align-items: center; width: 100%; }
+.mat-stock-label { font-size: 11px; color: var(--ink-4); letter-spacing: 0.08em; }
+.mat-stock-empty { font-size: 12px; color: var(--ink-4); letter-spacing: 0.06em; }
+.mat-note-divider { border: none; border-top: 1px solid var(--border); margin: 8px 0 6px; }
+.mat-del { width: 26px; height: 26px; border: none; background: none; cursor: pointer; color: var(--ink-4); font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; transition: color 0.2s; }
+.mat-del:hover { color: var(--fail); }
+.mat-add-btn { width: 100%; padding: 12px; border: 1px dashed var(--border-2); background: transparent; cursor: pointer; font-size: 13px; color: var(--ink-3); font-family: var(--sans); font-weight: 300; letter-spacing: 0.1em; margin-top: 10px; transition: border-color 0.2s, color 0.2s; }
+.mat-add-btn:hover { border-color: var(--accent); color: var(--accent); }
+.mat-add-form { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent); padding: 20px 24px; margin-top: 10px; }
+.mat-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+@media (max-width: 500px) { .mat-form-grid { grid-template-columns: 1fr; } }
+.mat-fi { width: 100%; padding: 9px 12px; border: 1px solid var(--border); background: var(--bg); font-size: 13px; font-family: var(--sans); font-weight: 300; color: var(--ink); outline: none; transition: border-color 0.2s; }
+.mat-fi:focus { border-color: var(--ink); }
+.mat-fi::placeholder { color: var(--ink-4); }
+.mat-form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+.mat-confirm-btn { padding: 9px 22px; background: var(--ink); color: var(--bg); border: none; cursor: pointer; font-size: 13px; font-family: var(--sans); font-weight: 300; letter-spacing: 0.08em; transition: background 0.2s; }
+.mat-confirm-btn:hover { background: var(--accent); }
+.mat-cancel-btn { padding: 9px 18px; background: transparent; color: var(--ink-3); border: 1px solid var(--border); cursor: pointer; font-size: 13px; font-family: var(--sans); font-weight: 300; transition: border-color 0.2s, color 0.2s; }
+.mat-cancel-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+/* bottom nav — hidden, replaced by top tabs */
+.bottom-nav { display: none; }
+
+/* ── CAT SECTION LABELS ── */
+.cat-section-lbl { font-size: 10px; letter-spacing: 0.2em; color: var(--ink-4); text-transform: uppercase; margin-bottom: 10px; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.container, .detail-wrap, .form-wrap { animation: fadeUp 0.25s ease both; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div id="pw-overlay" style="position:fixed;inset:0;z-index:9999;background:#F5F1EB;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.6s ease;">
+  <div style="text-align:center;width:300px;padding:0 24px;">
+    <div style="font-family:'Noto Serif TC',serif;font-weight:400;font-size:22px;letter-spacing:0.22em;color:#1A1A18;margin-bottom:4px;">SINUS NOTE</div>
+    <div style="font-family:'Noto Sans TC',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.25em;color:#6B6459;text-transform:uppercase;margin-bottom:36px;">INCENSE DESIGN</div>
+    <div style="width:24px;height:1px;background:#D6CFC4;margin:0 auto 32px;"></div>
+    <input id="login-email" type="email" placeholder="Email" autocomplete="email"
+      style="width:100%;padding:11px 16px;border:1px solid #D6CFC4;background:#F5F1EB;font-family:'Noto Sans TC',sans-serif;font-weight:300;font-size:14px;color:#1A1A18;outline:none;letter-spacing:0.08em;text-align:center;transition:border-color 0.2s;margin-bottom:10px;"
+      onfocus="this.style.borderColor='#1A1A18'" onblur="this.style.borderColor='#D6CFC4'">
+    <input id="login-pw" type="password" placeholder="密碼" autocomplete="current-password"
+      style="width:100%;padding:11px 16px;border:1px solid #D6CFC4;background:#F5F1EB;font-family:'Noto Sans TC',sans-serif;font-weight:300;font-size:14px;color:#1A1A18;outline:none;letter-spacing:0.12em;text-align:center;transition:border-color 0.2s;"
+      onkeydown="if(event.key==='Enter')doLogin()"
+      onfocus="this.style.borderColor='#1A1A18'" onblur="this.style.borderColor='#D6CFC4'">
+    <div id="pw-err" style="font-family:'Noto Sans TC',sans-serif;font-weight:300;font-size:11px;color:#a06050;letter-spacing:0.1em;margin-top:8px;min-height:16px;opacity:0;transition:opacity 0.2s;"></div>
+    <button onclick="doLogin()" id="login-btn" style="margin-top:18px;width:100%;background:#1A1A18;color:#F5F1EB;border:none;padding:12px 24px;font-family:'Noto Sans TC',sans-serif;font-weight:300;font-size:12px;letter-spacing:0.18em;cursor:pointer;transition:background 0.2s;"
+      onmouseover="this.style.background='#8B6F52'" onmouseout="this.style.background='#1A1A18'">登入</button>
+  </div>
+</div>
+
+<!-- TOP NAV -->
+<nav>
+  <div class="nav-primary">
+    <span class="nav-brand">SINUS NOTE</span>
+    <div class="nav-tabs">
+      <button class="nav-tab active" id="nav-tab-home" onclick="goBottomHome()">配方</button>
+      <button class="nav-tab" id="nav-tab-mat" onclick="goBottomMat()">材料庫</button>
+    </div>
+    <div class="nav-menu-wrap" id="nav-menu-wrap">
+      <button class="nav-menu-btn" onclick="toggleNavMenu(event)" id="nav-menu-btn" title="選單">···</button>
+      <div class="nav-dropdown" id="nav-dropdown">
+        <button class="nav-dropdown-item" onclick="importData();closeNavMenu()">↑ 匯入</button>
+        <button class="nav-dropdown-item" onclick="exportData();closeNavMenu()">↓ 備份</button>
+        <button class="nav-dropdown-item" onclick="doLogout()">登出</button>
+      </div>
+    </div>
+  </div>
+  <!-- sub-bar: category / detail / form 頁顯示 -->
+  <div class="nav-sub-bar" id="nav-sub-bar">
+    <button id="nav-back" onclick="navBack()">←</button>
+    <span id="nav-sub-title"></span>
+    <button id="nav-sub-action"></button>
+  </div>
+</nav>
+
+<!-- bottom-nav 保留 DOM 供 JS 用，但隱藏 -->
+<div class="bottom-nav" id="bottom-nav">
+  <button class="bottom-nav-btn" id="bn-home" onclick="goBottomHome()"><span class="bn-icon">◉</span>配方</button>
+  <button class="bottom-nav-btn" id="bn-mat" onclick="goBottomMat()"><span class="bn-icon">◈</span>材料庫</button>
+</div>
+
+<main id="app"></main>
+<footer style="border-top:1px solid var(--border);padding:20px 24px;background:var(--surface);text-align:center;">
+  <span style="font-family:'Noto Sans TC',sans-serif;font-weight:300;font-size:11px;color:var(--ink-4);letter-spacing:0.12em;">© 2026 Sinus / Ryan Hong. All Rights Reserved.</span>
+</footer>
+<input type="file" id="cat-img-input" accept="image/*" style="display:none">
+
+<script>
+// ══════════════════════════════════════════
+//  CONSTANTS
+// ══════════════════════════════════════════
+const CATS = [
+  {id:'shrine',  name:'供香',    sub:'神明・客訂', color:'#9a7a70'},
+  {id:'improve', name:'待改進香', sub:'',          color:'#a08860'},
+  {id:'green',   name:'青綠香',  sub:'',          color:'#587868'},
+  {id:'wood',    name:'木質香',  sub:'',          color:'#7a5a3a'},
+  {id:'floral',  name:'花果香',  sub:'',          color:'#8c6878'},
+  {id:'resin',   name:'樹脂香',  sub:'',          color:'#7a6a38'},
+  {id:'western', name:'西方調香', sub:'',          color:'#586478'},
+  {id:'special', name:'特殊調香', sub:'',          color:'#5a7068'},
+  {id:'tincture',name:'酊劑香',  sub:'',          color:'#406080'},
+  {id:'test',    name:'測試香',  sub:'',          color:'#686060'},
+];
+const CAT_MAP = Object.fromEntries(CATS.map(c=>[c.id,c]));
+
+const ING_CATS = {
+  base:      {label:'基底木',   color:'#7f2d00'},
+  botanical: {label:'花果藥草', color:'#a19a49'},
+  resin:     {label:'樹脂',    color:'#c07141'},
+  tincture:  {label:'酊劑',    color:'#478675'},
+  ferment:   {label:'酒酵香泥', color:'#955254'},
+  wine:      {label:'泡酒香粉', color:'#d8d8d8'},
+  binder:    {label:'黏粉',    color:'#d3b385'},
+};
+const ING_CAT_ORDER = ['base','botanical','resin','tincture','ferment','wine','binder'];
+
+const STATUS = {
+  success:{label:'成功', icon:'⭕', cls:'b-success'},
+  fail:   {label:'失敗', icon:'❌', cls:'b-fail'},
+  pending:{label:'待定', icon:'❓', cls:'b-pending'},
+  progress:{label:'進行中',icon:'🧪',cls:'b-progress'},
+  order:  {label:'客訂', icon:'✶', cls:'b-order'},
+};
+
+// ══════════════════════════════════════════
+//  SEED DATA
+// ══════════════════════════════════════════
+function makeSeed() {
+  const def = (o={}) => ({tincture:false,ferment:false,wine:false,notes:'',...o});
+  const tl  = (o={}) => ({makeDate:'',dryDays:5,agingStart:'',agingNotes:'',...o});
+  const v   = (label,tw,ings,notes='',cmts=[]) => ({label,totalWeight:tw,ingredients:ings,notes,comments:cmts});
+  const i   = (cat,name,amount,unit='g') => ({cat,name,amount,unit});
+
+  return [
+  // ── MERGED: 綠檀+佛手柑 (test5+6) ──
+  {id:6,num:'06',name:'綠檀＋佛手柑',fragCat:'test',status:'success',rating:4,
+   tags:['綠檀','佛手柑','清新'],process:def(),timeline:tl({dryDays:5}),
+   versions:[
+    v('測試版',20,[i('base','正巴拉圭綠檀',10),i('botanical','佛手柑皮',1),i('botanical','廣藿香',1),i('botanical','檸檬葉',0.5),i('botanical','龍腦',0.5),i('resin','乳香',1),i('binder','黏粉',6)],'直接進到確認版',[{tester:'PO',text:'檀香味溫溫的順順的，適合早晨，適合一天的開始跟結尾'}]),
+    v('確認版',20,[i('base','正巴拉圭綠檀',10),i('botanical','佛手柑皮',1),i('botanical','廣藿香',1),i('botanical','檸檬葉',0.5),i('botanical','龍腦',0.5),i('resin','安息香',1),i('binder','黏粉',6)],'',[{tester:'禮洋',text:'有花香！'},{tester:'小嚕',text:'是好聞的味道'},{tester:'大殿下',text:'認證好味'}]),
+    v('加量版 40g',40,[i('base','正巴拉圭綠檀',20),i('botanical','佛手柑皮',2),i('botanical','廣藿香',1),i('botanical','檸檬薄荷',1),i('botanical','檸檬葉',1),i('botanical','龍腦',1),i('resin','安息香',2),i('binder','黏粉',11)],'安息香份量似乎可以再降？加水28.9g',[]),
+   ]},
+
+  // ── 涼涼香（月球上的霧）──
+  {id:12,num:'12',name:'涼涼香・月球上的霧',fragCat:'green',status:'success',rating:5,
+   tags:['涼感','森林','中秋賀禮'],process:def(),timeline:tl({dryDays:5}),
+   versions:[
+    v('GPT版',20,[i('base','綠檀',3),i('botanical','雪松',2.5),i('botanical','廣藿香',1),i('botanical','尤加利',1.8),i('botanical','檸檬薄荷',1.2),i('botanical','龍腦',1),i('resin','蘇合香',1),i('resin','熏陸',1.5),i('binder','黏粉',6)],'粗的不行',[{tester:'倫+VV',text:'森林涼'}]),
+    v('確認版 ✶',20.5,[i('base','綠檀',8.5),i('botanical','雪松',0.5),i('botanical','廣藿香',0.5),i('botanical','尤加利',1.5),i('botanical','龍腦',1.5),i('botanical','檸檬薄荷',1),i('resin','熏陸',1),i('binder','黏粉',6)],'確定使用這版做中秋賀禮，粗的比較適合',[{tester:'倫',text:'很幽微，仙草涼'}]),
+   ]},
+
+  // ── 岩蘭草不放棄 ──
+  {id:13,num:'13',name:'岩蘭草不放棄',fragCat:'wood',status:'success',rating:4,
+   tags:['岩蘭草','沉香','有個性'],process:def(),timeline:tl({dryDays:5}),
+   versions:[
+    v('綠檀+香柏版',20,[i('base','綠檀',8),i('base','承樂香柏',1),i('botanical','英國草本岩蘭草',2.5),i('botanical','大馬士革玫瑰',0.5),i('botanical','乾松',0.2),i('botanical','甜橙皮',0.3),i('resin','乳香',0.5),i('resin','安息香',0.5),i('binder','黏粉',6)],'',[{tester:'楟',text:'酸梅味？還不錯'}]),
+    v('伊利安沉香版',20,[i('base','伊利安沉香',9),i('botanical','英國草本岩蘭草',2.5),i('botanical','大馬士革玫瑰',0.5),i('botanical','乾松',0.2),i('botanical','甜橙皮',0.3),i('resin','黑蘇合香',1),i('binder','黏粉',6)],'連粗的都香',[{tester:'倫+VV',text:'主打歌——有個性，錢的味道'}]),
+   ]},
+
+  // ── 藏紅花 ──
+  {id:10,num:'10',name:'藏紅花',fragCat:'resin',status:'success',rating:4,
+   tags:['藏紅花','紫檀','艾草'],process:def(),timeline:tl({dryDays:5}),
+   versions:[
+    v('乾花粉版',20,[i('base','巴西紫檀',7),i('botanical','甘單艾草',1.5),i('botanical','雪柏',0.5),i('botanical','甘松',0.5),i('botanical','松果',1),i('botanical','番紅花',1),i('botanical','藏茴香',0.5),i('resin','乳香',1),i('resin','安息香',1),i('binder','黏粉',6)],'',[{tester:'我',text:'差異不算大'}]),
+    v('泡花水版',20,[i('base','巴西紫檀',5),i('base','10分沈粉',2),i('botanical','甘單艾草',1.5),i('botanical','番紅花',1),i('botanical','藏茴香',0.5),i('resin','乳香',1),i('resin','安息香',1),i('binder','黏粉',6)],'',[{tester:'我',text:'泡花水味道較濃'}]),
+   ]},
+
+  // ── 地中海橘園 ──
+  {id:16,num:'16',name:'地中海橘園',fragCat:'floral',status:'success',rating:4,
+   tags:['柑橘','沉香','地中海'],process:def(),timeline:tl({dryDays:5}),
+   versions:[
+    v('主版',20,[i('base','承樂-綠檀',7),i('base','伊利安沉香',2),i('botanical','佛手柑皮',1),i('botanical','柳橙皮',1),i('botanical','檸檬葉',0.5),i('botanical','大馬士革玫瑰',0.5),i('botanical','東加豆',0.5),i('resin','安息香',2),i('binder','黏粉',5)],'',[]),
+   ]},
+
+  // ── 夢境薰衣草 ──
+  {id:23,num:'23',name:'夢境薰衣草',fragCat:'floral',status:'success',rating:4,
+   tags:['薰衣草','岩蘭草','松針'],process:def(),timeline:tl({dryDays:5}),
+   versions:[
+    v('主版',20,[i('base','老山檀香',4),i('botanical','松針',4),i('botanical','薰衣草花',0.5),i('botanical','薰衣草梗',3),i('botanical','餘甘子',0.5),i('botanical','英國草本岩蘭草',2),i('resin','阿曼綠乳香',1.5),i('binder','黏粉',4.5)],'',[]),
+   ]},
+
+  // ── MERGED: 荔枝酊劑香 (test24+25) ──
+  {id:24,num:'24',name:'荔枝酊劑香',fragCat:'tincture',status:'success',rating:4,
+   tags:['酊劑','荔枝','花果'],process:def({tincture:true,notes:'荔枝酊劑'}),timeline:tl({dryDays:5}),
+   versions:[
+    v('花果系',20,[i('base','承樂綠檀',9),i('botanical','宜蘭玫瑰草',2),i('botanical','餘甘子',0.5),i('botanical','杜松果',1),i('resin','紅安息香（甘文煙）',1),i('resin','乳香',1),i('binder','黏粉',5)],'',[]),
+    v('果木系',20,[i('base','綠檀',7),i('base','西澳檀香根2號',2),i('botanical','杜松果',1.5),i('botanical','東加豆',1),i('botanical','廣藿香',1.5),i('resin','白柯巴',1.5),i('resin','金安息香',0.5),i('binder','黏粉',5)],'',[]),
+   ]},
+
+  // ── 伯爵茶 ──
+  {id:27,num:'27',name:'伯爵茶',fragCat:'tincture',status:'success',rating:4,
+   tags:['紅茶','佛手柑','酊劑'],process:def({tincture:true,notes:'紅茶酊劑2g加水'}),timeline:tl({dryDays:5}),
+   versions:[
+    v('黑蘇合版',20,[i('base','綠檀',8),i('base','二號西澳檀香根',2),i('botanical','佛手柑皮',1.2),i('botanical','柳橙皮',0.8),i('botanical','廣藿香',1),i('botanical','杜松果',0.5),i('botanical','佛手柑葉',0.5),i('resin','綠乳香',0.5),i('resin','黑蘇合香',0.5),i('tincture','紅茶酊劑',2),i('binder','黏粉',4)],'加水混合',[]),
+    v('紅安息香版',20,[i('base','綠檀',8),i('base','二號西澳檀香根',2),i('botanical','佛手柑皮',1.2),i('botanical','柳橙皮',0.8),i('botanical','廣藿香',1),i('botanical','杜松果',0.5),i('botanical','佛手柑葉',0.5),i('resin','紅安息香',1),i('tincture','紅茶酊劑',2),i('binder','黏粉',4)],'加水混合',[]),
+   ]},
+
+  // ── 酊劑測試 ──
+  {id:29,num:'29',name:'酊劑測試・泰國系',fragCat:'tincture',status:'progress',rating:0,
+   tags:['酊劑','進行中'],process:def({tincture:true,notes:'泰國酸橙 vs 泰國香葉'}),timeline:tl({dryDays:3}),
+   versions:[
+    v('泰國酸橙',20,[i('base','綠檀',6),i('base','新山總粉',2),i('botanical','檸檬草',2),i('botanical','杜松',1),i('botanical','歐薄荷',0.5),i('botanical','宜蘭岩蘭草',1),i('botanical','檸檬葉',1),i('resin','綠乳香',1),i('tincture','泰國酸橙酊劑',2),i('binder','黏粉',5)],'',[]),
+    v('泰國香葉',20,[i('base','綠檀',6),i('base','新山總粉',2),i('botanical','檸檬草',2),i('botanical','宜蘭岩蘭草',1),i('botanical','檸檬葉',1),i('resin','綠乳香',1),i('tincture','泰國香葉酊劑',2),i('binder','黏粉',5)],'',[]),
+   ]},
+
+  // ── 玉蘭花 ──
+  {id:30,num:'30',name:'玉蘭花・泡酊餘花版',fragCat:'special',status:'progress',rating:0,
+   tags:['玉蘭','酊劑','進行中'],process:def({tincture:true,notes:'滴入酊劑約4ML'}),timeline:tl({dryDays:5}),
+   versions:[
+    v('主版',20,[i('base','浪活綠檀',9.6),i('base','西澳2號根',1.2),i('tincture','泡酊後乾燥玉蘭花粉',2.8),i('resin','乳香',0.8),i('resin','蘇合香',0.4),i('botanical','杜松果',0.2),i('botanical','松針',0.4),i('binder','楠木黏',20)],'滴入酊劑約4ML',[]),
+   ]},
+
+  // ── 歐式聖靈風格 ──
+  {id:22,num:'22',name:'歐式聖靈風格',fragCat:'western',status:'pending',rating:3,
+   tags:['玫瑰木','西方'],process:def(),timeline:tl({dryDays:3}),
+   versions:[
+    v('主版',20,[i('base','正非洲玫瑰木',13),i('resin','混合香脂 Jerusalem Nard',2),i('binder','黏粉',5)],'過篩後15.1g',[]),
+   ]},
+
+  // ── 綠意森林 ──
+  {id:28,num:'28',name:'綠意森林',fragCat:'green',status:'pending',rating:3,
+   tags:['杜松','迷迭香','森林'],process:def(),timeline:tl({dryDays:5}),
+   versions:[
+    v('綠檀底',20,[i('base','綠檀',8),i('botanical','杜松葉',1),i('botanical','神香草',2),i('botanical','杜松果',1),i('botanical','迷迭香',0.5),i('botanical','檸檬薄荷',0.5),i('resin','廣藿香脂',0.5),i('resin','阿勒頗松脂',1.5),i('binder','黏粉',5)],'',[]),
+    v('西澳根底',20,[i('base','2號西澳根',8),i('botanical','杜松葉',1),i('botanical','神香草',2),i('botanical','杜松果',1),i('botanical','迷迭香',0.5),i('resin','阿勒頗松脂',1.5),i('binder','黏粉',5)],'',[]),
+   ]},
+
+  // ── 拉拉山紅檜 ──
+  {id:1,num:'01',name:'拉拉山紅檜',fragCat:'improve',status:'fail',rating:1,
+   tags:['木質','宗教'],process:def(),timeline:tl({dryDays:3}),
+   versions:[v('主版',20,[i('base','拉拉山紅檜',10),i('botanical','浪活中藥香',3),i('resin','乳香',1),i('binder','黏粉',6)],'',[{tester:'VV',text:'苦的宗教藥味'}])]},
+
+  // ── 檸檬草大失敗 ──
+  {id:11,num:'11',name:'檸檬草（大失敗）',fragCat:'improve',status:'fail',rating:1,
+   tags:['檸檬草','大失敗'],process:def(),timeline:tl({dryDays:3}),
+   versions:[v('主版',40,[i('base','富山老山檀3.8',12),i('base','伊利安沉香',2),i('botanical','檸檬草',7),i('botanical','Kaffir Lime',1),i('botanical','甘松',2),i('resin','乳香',4),i('binder','黏粉',10)],'',[{tester:'我',text:'大失敗，超級無敵大失敗'}])]},
+
+  // ── 薰衣草 ──
+  {id:17,num:'17',name:'薰衣草',fragCat:'improve',status:'fail',rating:2,
+   tags:['薰衣草'],process:def(),timeline:tl({dryDays:3}),
+   versions:[v('主版',20,[i('base','綠檀',6),i('base','老山檀',2),i('botanical','薰衣草花',1),i('botanical','薰衣草梗',3),i('botanical','餘甘子',1),i('resin','安息香',1.5),i('binder','黏粉',5.5)],'安息香味道太甜搶掉薰衣草味',[]),]},
+
+  // ── 三清宮 ──
+  {id:18,num:'18',name:'三清宮・老山+泰緬寮沉',fragCat:'shrine',status:'fail',rating:2,
+   tags:['宗教','沉香','檀香'],process:def(),timeline:tl({dryDays:7}),
+   versions:[v('主版',20,[i('base','上老山檀香',9),i('base','泰緬寮總和沉香',3),i('resin','阿拉伯沒藥',2),i('binder','黏粉',6)],'',[]),]},
+
+  // ── 供香測試 ──
+  {id:19,num:'19',name:'供香測試・沒藥系列',fragCat:'shrine',status:'fail',rating:2,
+   tags:['供香','沒藥'],process:def(),timeline:tl({dryDays:7}),
+   versions:[
+    v('沒藥版',10,[i('base','老山檀香',4.5),i('base','泰緬寮沉',1),i('botanical','白鮮皮',0.5),i('resin','阿拉伯沒藥',1.5),i('binder','黏粉',2.5)],'',[]),
+    v('老沒藥版',10,[i('base','老山檀香',4.5),i('base','泰緬寮沉',1),i('botanical','白鮮皮',0.5),i('resin','德昌老沒藥粉',1.5),i('binder','黏粉',2.5)],'',[]),
+   ]},
+
+  // ── 信靈香 ──
+  {id:20,num:'20',name:'信靈香・古法',fragCat:'shrine',status:'fail',rating:2,
+   tags:['宗教','降真香','靈香'],process:def(),timeline:tl({dryDays:7}),
+   versions:[v('主版',20,[i('base','印尼降真香',9.66),i('base','伊利安沉香',3),i('botanical','甘松',2),i('botanical','藿香',1.5),i('botanical','廣藿香',0.5),i('botanical','靈香',2)],'',[]),]},
+
+  // ── 客訂：金龍太子香 ──
+  {id:101,num:'客01',name:'金龍太子香・龍雲',fragCat:'shrine',status:'order',rating:5,
+   tags:['客訂','檀香','仙界'],process:def(),timeline:tl({dryDays:7}),
+   versions:[
+    v('認證款',100,[i('base','百年西澳檀香根',70,'%'),i('binder','黏粉',30,'%')],'',[]),
+    v('改進款',100,[i('base','百年西澳檀香根',60,'%'),i('resin','黑蘇合香',10,'%'),i('binder','黏粉',30,'%')],'',[]),
+   ]},
+
+  // ── 客訂：玉蘭降真 ──
+  {id:102,num:'客02',name:'玉蘭降真・土地公',fragCat:'shrine',status:'order',rating:4,
+   tags:['客訂','降真香','玉蘭'],process:def({tincture:true,notes:'揉完後噴酊劑於表面兩次'}),timeline:tl({dryDays:7}),
+   versions:[
+    v('主版',60,[i('base','浪活綠檀',18.6),i('base','承樂印尼沉水降真',9),i('base','浪活伊利安沉香',1.5),i('tincture','泡酊玉蘭',5.5),i('resin','綠乳香',3),i('botanical','桂花',1.7),i('botanical','藿香',1.5),i('botanical','玫瑰草',0.9),i('botanical','龍腦',0.6),i('binder','黏粉',18)],'揉完後噴酊劑於表面兩次。過篩後54.2g。意外很喜歡，玉蘭濃度可再高',[]),
+   ]},
+
+  // ── 客訂：三清信靈香 ──
+  {id:103,num:'客03',name:'三清・信靈香（香乘版）',fragCat:'shrine',status:'progress',rating:0,
+   tags:['客訂','三清','宗教'],process:def(),timeline:tl({dryDays:7}),
+   versions:[v('開發中',0,[],'',[])],},
+  {id:104,num:'客04',name:'三清・信靈香（玉冊版）',fragCat:'shrine',status:'progress',rating:0,
+   tags:['客訂','三清','宗教'],process:def(),timeline:tl({dryDays:7}),
+   versions:[v('開發中',0,[],'',[])],},
+  ];
+}
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let currentTab = 'home'; // 'home' | 'mat'
+let S = {
+  screen: 'home',  // home | category | detail | form
+  catId: null,
+  recipeId: null,
+  editData: null,
+  recipes: [],
+  catImages: {},
+  nextId: 200,
+  vi: {},           // recipeId -> version index
+  pendingCatImg: null,
+  search: '',
+};
+
+// ══════════════════════════════════════════
+//  FIREBASE INIT
+// ══════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyDWBpYLFY6bf1WbApaVu9Zvee5w_WOPsWk",
+  authDomain: "sinus-note-c03c6.firebaseapp.com",
+  projectId: "sinus-note-c03c6",
+  storageBucket: "sinus-note-c03c6.firebasestorage.app",
+  messagingSenderId: "892365273822",
+  appId: "1:892365273822:web:7fcc739f695a2f74ae204f"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+// 啟用離線快取
+db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
+
+function getDocRef(path) {
+  const u = auth.currentUser;
+  if (!u) return null;
+  return db.collection('appData').doc(u.uid).collection('store').doc(path);
+}
+
+// ══════════════════════════════════════════
+//  STORAGE (Firestore)
+// ══════════════════════════════════════════
+function save() {
+  const ref = getDocRef('config');
+  if (!ref) return;
+  ref.set({
+    recipes: S.recipes,
+    nextId: S.nextId,
+    catImages: S.catImages || {},
+    catOrder: S.catOrder || null,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(e => console.error('save config err:', e));
+}
+
+async function loadFromFirestore() {
+  try {
+    const configSnap = await getDocRef('config').get();
+    if (configSnap.exists) {
+      const d = configSnap.data();
+      S.recipes = d.recipes || makeSeed();
+      S.nextId = d.nextId || 200;
+      S.catImages = d.catImages || {};
+      S.catOrder = d.catOrder || null;
+    } else {
+      // 首次使用：寫入種子資料
+      S.recipes = makeSeed();
+      S.nextId = 200;
+      S.catImages = {};
+      S.catOrder = null;
+      save();
+    }
+    const matSnap = await getDocRef('materials').get();
+    if (matSnap.exists) {
+      const rawMats = matSnap.data().items || makeMaterialsSeed();
+      // migration: herb → botanical
+      rawMats.forEach(m=>{
+        if(m.cat==='herb') m.cat='botanical';
+        // migration: stock 字串 → 結構
+        if (typeof m.stock !== 'object' || m.stock === null) {
+          m.stock = {qty:0, unit:'g', note: typeof m.stock==='string' ? m.stock : ''};
+        }
+      });
+      S._materials = rawMats;
+    } else {
+      S._materials = makeMaterialsSeed();
+      saveMaterials(S._materials);
+    }
+  } catch(e) {
+    console.error('loadFromFirestore err:', e);
+    S.recipes = makeSeed();
+    S._materials = makeMaterialsSeed();
+  }
+}
+
+function setupRealtimeSync() {
+  const u = auth.currentUser;
+  if (!u) return;
+  // 監聽 config 變更（其他裝置修改時同步）
+  db.collection('appData').doc(u.uid).collection('store').doc('config')
+    .onSnapshot(snap => {
+      if (!snap.exists || !snap.metadata.hasPendingWrites) return;
+    }, err => console.error('sync err:', err));
+}
+
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function badge(status) {
+  const st = STATUS[status]||STATUS.progress;
+  return `<span class="badge ${st.cls}">${st.icon} ${st.label}</span>`;
+}
+
+function renderStars(n, edit=false) {
+  if (edit) return `<div class="stars-edit" id="se">${[1,2,3,4,5].map(i=>`<span class="star-edit${i<=n?' on':''}" data-v="${i}">✶</span>`).join('')}</div>`;
+  return `<span class="stars">${[1,2,3,4,5].map(i=>`<span class="star${i<=n?' on':''}">✶</span>`).join('')}</span>`;
+}
+
+function processPills(p) {
+  const out=[];
+  if(p.tincture) out.push(`<span class="pill pill-t">✦ 酊劑</span>`);
+  if(p.ferment)  out.push(`<span class="pill pill-f">✦ 酒酵法</span>`);
+  if(p.wine)     out.push(`<span class="pill pill-w">✦ 泡酒香粉</span>`);
+  return out.join('');
+}
+
+function propBar(ings) {
+  const gs = ings.filter(i=>i.unit==='g'||i.unit==='%');
+  const tot = gs.reduce((s,i)=>s+i.amount,0); if(!tot) return '';
+  const segs = gs.map(i=>`<div class="prop-seg" style="width:${(i.amount/tot*100).toFixed(1)}%;background:${(ING_CATS[i.cat]||{color:'#888'}).color};" title="${i.name}"></div>`).join('');
+  const catTots={};
+  gs.forEach(i=>{if(!catTots[i.cat])catTots[i.cat]=0;catTots[i.cat]+=i.amount;});
+  const legend = ING_CAT_ORDER.filter(c=>catTots[c]).map(c=>{
+    const ic=ING_CATS[c]||{label:c,color:'#888'};
+    return `<span class="prop-li"><span class="prop-dot" style="background:${ic.color}"></span>${ic.label} ${Math.round(catTots[c]/tot*100)}%</span>`;
+  }).join('');
+  return `<div class="prop-bar" style="margin-bottom:8px;">${segs}</div><div class="prop-legend" style="margin-bottom:14px;">${legend}</div>`;
+}
+
+function tlStatus(r) {
+  const t = r.timeline; if(!t||!t.makeDate) return '';
+  const make = new Date(t.makeDate);
+  const dryEnd = new Date(make.getTime() + (t.dryDays||5)*86400000);
+  const now = new Date();
+  const fmt = d=>`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+  if(now < dryEnd) {
+    const d = Math.ceil((dryEnd-now)/86400000);
+    return `<span class="tl-status tl-active">陰乾中・剩 ${d} 天（至 ${fmt(dryEnd)}）</span>`;
+  }
+  if(!t.agingStart) return `<span class="tl-status tl-waiting">陰乾完成・可入窖藏</span>`;
+  const aging = new Date(t.agingStart);
+  const days = Math.floor((now-aging)/86400000);
+  return `<span class="tl-status tl-done">窖藏中・第 ${days} 天</span>`;
+}
+
+function getVI(r) { return Math.min(S.vi[r.id]||0, r.versions.length-1); }
+
+function claudeURL(r) {
+  const v = r.versions[getVI(r)];
+  const msg = `我想討論一支製香配方的問題：
+
+配方名稱：${r.name}（第 ${r.num} 號）
+狀態：${STATUS[r.status]?.label||r.status}｜評分：${r.rating}/5
+
+【${v.label}】材料組成（總重 ${v.totalWeight}g）：
+${(v.ingredients||[]).map(i=>`・${i.name} ${i.amount}${i.unit}`).join('\n')}
+
+試聞評語：${v.comments.map(c=>c.tester+'：'+c.text).join('；')||'無'}
+製作筆記：${v.notes||'無'}
+
+請幫我分析這支配方可能的問題，並建議改進方向。`;
+  return `https://claude.ai/new?q=${encodeURIComponent(msg)}`;
+}
+
+// ══════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════
+function updateNav() {
+  const back   = document.getElementById('nav-back');
+  const newBtn = document.getElementById('nav-new');
+  const subBar = document.getElementById('nav-sub-bar');
+  const subTitle = document.getElementById('nav-sub-title');
+  const subAction = document.getElementById('nav-sub-action');
+  const mainEl = document.querySelector('main');
+
+  // sub-bar 顯示條件：非 home 頁
+  const isHome = (S.screen === 'home');
+  if (subBar) subBar.style.display = isHome ? 'none' : 'flex';
+  if (back) back.style.display = isHome ? 'none' : 'flex';
+  if (mainEl) mainEl.style.paddingTop = isHome ? 'var(--nav-h)' : 'calc(var(--nav-h) + 44px)';
+
+  if (S.screen === 'category') {
+    const cat = CAT_MAP[S.catId];
+    if (subTitle) subTitle.textContent = cat ? cat.name : '';
+    if (subAction) { subAction.textContent = '＋ 新增'; subAction.style.display=''; subAction.onclick=navAction; }
+  } else if (S.screen === 'detail') {
+    const r = S.recipes.find(x=>x.id===S.recipeId);
+    if (subTitle) subTitle.textContent = r ? r.name : '';
+    if (subAction) { subAction.textContent = '編輯'; subAction.style.display=''; subAction.onclick=()=>goForm(S.recipeId); }
+  } else if (S.screen === 'form') {
+    if (subTitle) subTitle.textContent = S.editData?.id ? '編輯配方' : '新增配方';
+    if (subAction) { subAction.textContent = '儲存'; subAction.style.display=''; subAction.className='nav-sub-save'; subAction.onclick=saveForm; }
+  }
+}
+function navBack() {
+  if (S.screen==='form') {
+    if (!confirm('尚未儲存，確定離開？')) return;
+    S.editData=null; S.screen=S.recipeId?'detail':'category';
+  }
+  else if (S.screen==='detail') { S.screen='category'; }
+  else if (S.screen==='category') { S.screen='home'; }
+  render();
+}
+function navAction() {
+  if (S.screen==='home'||S.screen==='category') goForm(null);
+}
+
+// ══════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════
+function goCat(catId) {
+  if (touchDragging) return;
+  S.screen='category'; S.catId=catId; render();
+}
+function goDetail(id)  { S.screen='detail'; S.recipeId=id; render(); }
+function goForm(id) {
+  if (id) {
+    const r = S.recipes.find(x=>x.id===id);
+    S.editData = JSON.parse(JSON.stringify(r));
+  } else {
+    // 自動計算下一個編號
+    const usedNums = S.recipes.filter(r=>!r.num.startsWith('客')).map(r=>parseInt(r.num)).filter(n=>!isNaN(n));
+    const nextNum = usedNums.length > 0 ? Math.max(...usedNums) + 1 : 1;
+    S.editData = {
+      id:null, num:String(nextNum).padStart(2,'0'), name:'', fragCat:S.catId||'test',
+      status:'progress', rating:0, tags:[],
+      process:{tincture:false,ferment:false,wine:false,notes:''},
+      timeline:{makeDate:'',dryDays:5,agingStart:'',agingNotes:''},
+      versions:[{label:'主版',totalWeight:20,ingredients:[{cat:'base',name:'',amount:0,unit:'g'}],notes:'',comments:[]}],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    S.vi[null] = 0;
+  }
+  S.screen='form'; render();
+}
+
+// ══════════════════════════════════════════
+//  RENDER: HOME
+// ══════════════════════════════════════════
+function renderHome() {
+  const q = (S.search||'').trim();
+  let filteredRecipes = [];
+  if (q) {
+    filteredRecipes = S.recipes.filter(r=>
+      r.name.includes(q)||r.tags.some(t=>t.includes(q))||
+      r.versions.some(v=>v.ingredients.some(i=>i.name.includes(q)))
+    );
+  }
+  // 套用自定義排序
+  const orderedCats = S.catOrder
+    ? S.catOrder.map(id=>CATS.find(c=>c.id===id)).filter(Boolean)
+    : CATS;
+  const catCards = orderedCats.map(cat => {
+    const count = S.recipes.filter(r=>r.fragCat===cat.id).length;
+    const img = S.catImages[cat.id];
+    return `
+    <div class="cat-card" draggable="true" data-catid="${cat.id}"
+      onclick="goCat('${cat.id}')"
+      ontouchstart="dragTouchStart(event,this)" ontouchmove="dragTouchMove(event)" ontouchend="dragTouchEnd(event)">
+      <div class="cat-img-wrap">
+        ${img ? `<img src="${img}" alt="${esc(cat.name)}">` : `<div class="cat-img-placeholder"><div class="ph-icon" style="font-size:22px;opacity:0.25;font-family:var(--serif);">香</div><div class="ph-text">點擊上傳圖片</div></div>`}
+        <div class="cat-img-upload-btn" onclick="event.stopPropagation();uploadCatImg('${cat.id}')">📷</div>
+      </div>
+      <div class="cat-info">
+        <div class="cat-name"><span class="cat-dot" style="background:${cat.color}"></span>${esc(cat.name)}</div>
+        ${cat.sub?`<div class="cat-sub">${esc(cat.sub)}</div>`:''}
+        <div class="cat-count">${count} 支配方</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const searchResults = q ? `
+  <div style="margin-bottom:24px;">
+    <div style="font-size:11px;color:var(--ink-3);letter-spacing:0.1em;margin-bottom:12px;">搜尋「${esc(q)}」・${filteredRecipes.length} 筆結果</div>
+    <div class="recipe-list">${filteredRecipes.length>0 ? filteredRecipes.map(recipeRow).join('') : `<div class="empty">沒有找到符合的配方<div class="empty-sub">試試其他關鍵字</div></div>`}</div>
+  </div>` : '';
+
+  const sortBtn = `<button onclick="matSort=matSort==='stock'?'name':'stock';renderApp();"
+    style="flex-shrink:0;padding:8px 14px;border:1px solid var(--border);background:${matSort==='stock'?'var(--ink)':'transparent'};
+    color:${matSort==='stock'?'var(--bg)':'var(--ink-3)'};font-size:11px;font-family:var(--sans);font-weight:300;
+    letter-spacing:0.1em;cursor:pointer;white-space:nowrap;transition:all 0.2s;">
+    ${matSort==='stock'?'庫存↑':'庫存排序'}
+  </button>`;
+
+  return `
+  <div class="container">
+    <div class="home-toolbar">
+      <div class="home-search">
+        <span class="home-search-icon">⌕</span>
+        <input type="text" placeholder="搜尋配方、材料、標籤… (Enter)" value="${esc(S.search)}" id="search-input" autocomplete="off" autocorrect="off" autocapitalize="off" onkeydown="if(event.key==='Enter'){S.search=this.value;render();}">
+        ${S.search ? `<button onclick="S.search='';render();" style="padding:0 14px;border:none;background:none;color:var(--ink-4);cursor:pointer;font-size:16px;height:100%;border-left:1px solid var(--border);">×</button>` : ''}
+      </div>
+      <button class="home-new-btn" onclick="navAction()">+ NEW</button>
+    </div>
+    ${searchResults}
+    <div style="height:1px;background:var(--border);margin-bottom:24px;"></div>
+    <div class="cat-grid">${catCards}</div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════
+//  RENDER: CATEGORY
+// ══════════════════════════════════════════
+function recipeRow(r) {
+  const v = r.versions[getVI(r)];
+  const allC = r.versions.flatMap(vv=>vv.comments);
+  const lastC = allC[allC.length-1];
+  const pills = processPills(r.process);
+  const statusColors = {success:'var(--success)',fail:'var(--fail)',pending:'var(--pending)',order:'var(--order)',progress:'var(--progress)'};
+  const borderCol = statusColors[r.status] || 'var(--progress)';
+  return `
+  <div class="recipe-row" onclick="goDetail(${r.id})" style="border-left:3px solid ${borderCol};">
+    <div class="recipe-row-left">
+      <div class="recipe-num">No. ${esc(r.num)}</div>
+      <div class="recipe-name-sm">${esc(r.name)}</div>
+      <div class="recipe-row-meta">
+        ${badge(r.status)}
+        ${r.rating>0?renderStars(r.rating):''}
+        ${v.totalWeight>0?`<span style="font-size:12px;color:var(--ink-4)">${v.totalWeight}g</span>`:''}
+        ${r.versions.length>1?`<span style="font-size:12px;color:var(--ink-4)">${r.versions.length}版本</span>`:''}
+        ${pills}
+      </div>
+    </div>
+    <div class="recipe-row-right">
+      ${lastC?`<div class="recipe-comment-sm">${esc(lastC.tester)}：${esc(lastC.text)}</div>`:''}
+      ${r.tags.slice(0,2).map(t=>`<span class="tag-sm">${esc(t)}</span>`).join('')}
+    </div>
+  </div>`;
+}
+
+let catSort = 'status'; // 'status' | 'rating' | 'name'
+function renderCategory() {
+  const cat = CAT_MAP[S.catId];
+  let recipes = S.recipes.filter(r=>r.fragCat===S.catId);
+  // 分類內搜尋
+  const cq = (S._catSearch||'').trim();
+  if (cq) {
+    recipes = recipes.filter(r=>
+      r.name.includes(cq)||r.tags.some(t=>t.includes(cq))||
+      r.versions.some(v=>v.ingredients.some(i=>i.name.includes(cq)))
+    );
+  }
+  // 排序
+  if (catSort==='rating') recipes.sort((a,b)=>b.rating-a.rating);
+  else if (catSort==='name') recipes.sort((a,b)=>a.name.localeCompare(b.name,'zh'));
+
+  const grouped = {
+    success: recipes.filter(r=>r.status==='success'||r.status==='order'),
+    progress: recipes.filter(r=>r.status==='progress'||r.status==='pending'),
+    fail: recipes.filter(r=>r.status==='fail'),
+  };
+  const section = (label, rs) => rs.length===0?'':`
+  <div style="margin-bottom:24px;">
+    <div class="cat-section-lbl">${label}</div>
+    <div class="recipe-list">${rs.map(recipeRow).join('')}</div>
+  </div>`;
+  const img = S.catImages[S.catId];
+  const sortBtns = ['status','rating','name'].map(k=>{
+    const labels={status:'狀態',rating:'評分',name:'名稱'};
+    return `<button onclick="catSort='${k}';render()" style="padding:4px 10px;font-size:11px;border:1px solid ${catSort===k?'var(--ink)':'var(--border)'};background:${catSort===k?'var(--ink)':'transparent'};color:${catSort===k?'var(--bg)':'var(--ink-3)'};cursor:pointer;font-family:var(--sans);font-weight:300;letter-spacing:0.06em;transition:all 0.2s;margin-right:-1px;">${labels[k]}</button>`;
+  }).join('');
+  const sortBtn = `<button onclick="matSort=matSort==='stock'?'name':'stock';renderApp();"
+    style="flex-shrink:0;padding:8px 14px;border:1px solid var(--border);background:${matSort==='stock'?'var(--ink)':'transparent'};
+    color:${matSort==='stock'?'var(--bg)':'var(--ink-3)'};font-size:11px;font-family:var(--sans);font-weight:300;
+    letter-spacing:0.1em;cursor:pointer;white-space:nowrap;transition:all 0.2s;">
+    ${matSort==='stock'?'庫存↑':'庫存排序'}
+  </button>`;
+
+  return `
+  <div class="container">
+    ${img?`<div style="width:100%;max-height:200px;overflow:hidden;margin-bottom:24px;"><img src="${img}" style="width:100%;height:200px;object-fit:cover;display:block;"></div>`:''}
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px;">
+      <div style="font-family:var(--serif);font-size:22px;font-weight:300;letter-spacing:0.12em;">${cat?cat.name:''}</div>
+      ${cat&&cat.sub?`<div style="font-size:13px;color:var(--ink-3);letter-spacing:0.05em;">${cat.sub}</div>`:''}
+      <div style="font-size:11px;color:var(--ink-4);margin-left:auto;">${recipes.length} 支配方</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap;">
+      <div class="home-search" style="flex:1;min-width:180px;height:36px;">
+        <span style="padding:0 10px;color:var(--ink-3);font-size:14px;">⌕</span>
+        <input type="text" placeholder="在此分類中搜尋…" value="${esc(cq)}" style="flex:1;padding:0 8px;border:none;background:none;font-size:13px;font-family:var(--sans);font-weight:300;color:var(--ink);outline:none;height:100%;"
+          oninput="S._catSearch=this.value;render();" onkeydown="if(event.key==='Enter'){render();}">
+        ${cq?`<button onclick="S._catSearch='';render();" style="padding:0 10px;border:none;background:none;color:var(--ink-4);cursor:pointer;font-size:14px;height:100%;">×</button>`:''}
+      </div>
+      <div style="display:flex;">${sortBtns}</div>
+    </div>
+    ${recipes.length===0?`<div class="empty">${cq?'沒有符合的配方':'這個分類尚無配方'}<div class="empty-sub">${cq?'試試其他關鍵字':'點擊右上角 ＋ 新增'}</div></div>`:
+      catSort==='status'?(section('成功・客訂',grouped.success)+section('進行中・待定',grouped.progress)+section('待改進',grouped.fail)):
+      `<div class="recipe-list">${recipes.map(recipeRow).join('')}</div>`}
+  </div>`;
+}
+
+// ══════════════════════════════════════════
+//  RENDER: DETAIL
+// ══════════════════════════════════════════
+function renderDetail() {
+  const r = S.recipes.find(x=>x.id===S.recipeId);
+  if (!r) { S.screen='category'; return renderCategory(); }
+  const vi = getVI(r);
+  const v = r.versions[vi];
+  const grouped={};
+  ING_CAT_ORDER.forEach(c=>grouped[c]=[]);
+  (v.ingredients||[]).forEach(ing=>{
+    const c=ing.cat||'botanical';
+    if(!grouped[c])grouped[c]=[];
+    grouped[c].push(ing);
+  });
+  const gTot = v.ingredients.filter(i=>i.unit==='g'||i.unit==='%').reduce((s,i)=>s+i.amount,0);
+  const ingHTML = ING_CAT_ORDER.filter(c=>grouped[c].length>0).map(c=>{
+    const ic=ING_CATS[c]||{label:c,color:'#888'};
+    const rows=grouped[c].map(ing=>{
+      const pct=(ing.unit==='g'||ing.unit==='%')&&gTot>0?`<span class="ing-pct">${(ing.amount/gTot*100).toFixed(1)}%</span>`:'';
+      return `<div class="ing-item"><span class="ing-name">${esc(ing.name)}</span><span class="ing-right">${ing.amount}${ing.unit}${pct}</span></div>`;
+    }).join('');
+    return `<div class="ing-group">
+      <div class="ing-group-label"><span style="background:${ic.color}"></span>${ic.label}</div>
+      ${rows}
+    </div>`;
+  }).join('');
+  const t=r.timeline;
+  const fmt=d=>{const dt=new Date(d);return dt.getFullYear()+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+String(dt.getDate()).padStart(2,'0');};
+  return `
+  <div class="detail-wrap">
+    <div class="detail-hero">
+      <div class="detail-num">No. ${esc(r.num)} · ${r.fragCat&&CAT_MAP[r.fragCat]?CAT_MAP[r.fragCat].name:''}·${r.status==='order'?'客訂':'自製'}</div>
+      <div class="detail-name">${esc(r.name)}</div>
+      <div class="detail-meta">
+        ${badge(r.status)}
+        ${r.rating>0?renderStars(r.rating):''}
+        ${processPills(r.process)}
+      </div>
+      ${r.tags.length?`<div class="detail-tags">${r.tags.map(t=>`<span class="tag-sm">${esc(t)}</span>`).join('')}</div>`:''}
+    </div>
+
+    ${r.versions.length>1?`<div class="ver-tabs">${r.versions.map((vv,i)=>`<button class="ver-tab${i===vi?' on':''}" onclick="S.vi[${r.id}]=${i};render()">${esc(vv.label)}</button>`).join('')}</div>`:''}
+
+    <div class="section-card">
+      <div class="section-lbl">配方組成 · ${esc(v.label)}${v.totalWeight>0?` · 總重 ${v.totalWeight}g`:''}</div>
+      ${v.ingredients.length>0?propBar(v.ingredients)+ingHTML:'<div style="color:var(--ink-4);font-size:13px;">尚無配方資料</div>'}
+    </div>
+
+    ${r.process.tincture||r.process.ferment||r.process.wine||r.process.notes?`
+    <div class="section-card">
+      <div class="section-lbl">特殊製程</div>
+      <div class="proc-wrap">${processPills(r.process)}</div>
+      ${r.process.notes?`<div class="proc-note">${esc(r.process.notes)}</div>`:''}
+    </div>`:''}
+
+    ${t&&t.makeDate?`
+    <div class="section-card">
+      <div class="section-lbl">時間軸</div>
+      <div class="tl-row"><span class="tl-label">製作日</span><span class="tl-val">${esc(t.makeDate)}</span><span style="font-size:12px;color:var(--ink-4)">→ 陰乾 ${t.dryDays} 天</span></div>
+      ${tlStatus(r)}
+      ${t.agingStart?`<div class="tl-row" style="margin-top:8px;"><span class="tl-label">窖藏</span><span class="tl-val">${esc(t.agingStart)} 起</span></div>`:''}
+      ${t.agingNotes?`<div style="font-size:12px;color:var(--ink-2);margin-top:4px;">${esc(t.agingNotes)}</div>`:''}
+    </div>`:''}
+
+    ${v.notes?`
+    <div class="section-card">
+      <div class="section-lbl">製作筆記</div>
+      <p style="font-size:13px;color:var(--ink);line-height:1.8;font-family:var(--serif);">${esc(v.notes)}</p>
+    </div>`:''}
+
+    ${v.comments&&v.comments.length>0?`
+    <div class="section-card">
+      <div class="section-lbl">試聞評語</div>
+      ${v.comments.map(c=>`<div class="cmt-item">
+        <div class="cmt-avatar">${esc(c.tester.slice(0,2))}</div>
+        <div><div class="cmt-tester">${esc(c.tester)}</div><div class="cmt-text">「${esc(c.text)}」</div></div>
+      </div>`).join('')}
+    </div>`:''}
+
+    <a class="claude-btn" href="${claudeURL(r)}" target="_blank" rel="noopener">
+      <span class="claude-btn-icon">◈</span>用 Claude 討論這支配方
+    </a>
+
+    <button onclick="deleteRecipe(${r.id})" style="width:100%;margin-top:8px;padding:12px 20px;background:transparent;border:1px solid var(--fail-b);cursor:pointer;font-family:var(--sans);font-size:12px;color:var(--fail);letter-spacing:0.1em;transition:all 0.2s;"
+      onmouseover="this.style.background='var(--fail-bg)'" onmouseout="this.style.background='transparent'">刪除此配方</button>
+
+  </div>`;
+}
+
+// ══════════════════════════════════════════
+//  RENDER: FORM
+// ══════════════════════════════════════════
+function renderForm() {
+  const r = S.editData;
+  const vi = Math.min(S.vi[r.id||'new']||0, r.versions.length-1);
+  const v = r.versions[vi];
+  const tagHtml = r.tags.map(t=>`<span class="tag-rm">${esc(t)}<span class="tag-x" onclick="rmTag('${esc(t)}')">×</span></span>`).join('');
+  // 建立材料名稱建議清單
+  const allMatNames = [...new Set([...getMaterials().map(m=>m.name), ...S.recipes.flatMap(rx=>rx.versions.flatMap(vv=>vv.ingredients.map(ig=>ig.name)))])].filter(Boolean);
+  const datalistHtml = `<datalist id="mat-suggestions">${allMatNames.map(n=>`<option value="${esc(n)}">`).join('')}</datalist>`;
+  const ingRows = (v.ingredients||[]).map((ing,idx)=>`
+    <div class="ing-form-row">
+      <input class="fi" value="${esc(ing.name)}" placeholder="材料名稱" list="mat-suggestions" oninput="fIng(${idx},'name',this.value)">
+      <input class="fi" type="number" step="0.1" value="${ing.amount}" oninput="fIng(${idx},'amount',parseFloat(this.value)||0)">
+      <select class="fi" onchange="fIng(${idx},'unit',this.value)">
+        ${['g','d','%','ml'].map(u=>`<option${ing.unit===u?' selected':''}>${u}</option>`).join('')}
+      </select>
+      <button class="rm-btn" onclick="rmIng(${idx})">×</button>
+    </div>
+    <div class="cat-sel"><select class="fi" onchange="fIng(${idx},'cat',this.value)">
+      ${ING_CAT_ORDER.map(c=>`<option value="${c}"${ing.cat===c?' selected':''}>${ING_CATS[c]?.label||c}</option>`).join('')}
+    </select></div>`).join('');
+  const cmtRows = (v.comments||[]).map((c,idx)=>`
+    <div style="display:flex;gap:5px;margin-bottom:6px;align-items:center;">
+      <input class="fi" style="width:65px" value="${esc(c.tester)}" placeholder="誰" oninput="fCmt(${idx},'tester',this.value)">
+      <input class="fi" style="flex:1" value="${esc(c.text)}" placeholder="評語…" oninput="fCmt(${idx},'text',this.value)">
+      <button class="rm-btn" onclick="rmCmt(${idx})">×</button>
+    </div>`).join('');
+
+  return `
+  ${datalistHtml}
+  <div class="form-wrap">
+    <div class="form-card">
+      <div style="font-size:11px;letter-spacing:0.16em;color:var(--ink-3);text-transform:uppercase;margin-bottom:16px;">基本資訊</div>
+      <div class="form-grid2" style="margin-bottom:12px;">
+        <div class="form-group"><label class="form-lbl">編號</label><input class="fi" id="f-num" value="${esc(r.num)}" placeholder="01"></div>
+        <div class="form-group"><label class="form-lbl">分類</label>
+          <select class="fi" id="f-fragcat">
+            ${CATS.map(c=>`<option value="${c.id}"${r.fragCat===c.id?' selected':''}>${c.name}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-lbl">配方名稱</label><input class="fi" id="f-name" value="${esc(r.name)}" placeholder="配方名稱"></div>
+      <div class="form-grid2">
+        <div class="form-group"><label class="form-lbl">狀態</label>
+          <select class="fi" id="f-status">
+            ${Object.entries(STATUS).map(([k,v])=>`<option value="${k}"${r.status===k?' selected':''}>${v.icon} ${v.label}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-lbl">評分</label>${renderStars(r.rating,true)}</div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="cat-section-lbl">標籤</div>
+      <div class="tag-list" id="tag-list">${tagHtml}</div>
+      <div style="display:flex;gap:6px;">
+        <input class="fi" id="tag-in" placeholder="輸入標籤，Enter 新增" onkeydown="if(event.key==='Enter'){addTag();event.preventDefault();}">
+        <button style="padding:0 14px;border:0.5px solid var(--border);background:var(--card);border-radius:3px;cursor:pointer;font-size:12px;color:var(--ink-2);font-family:var(--sans);" onclick="addTag()">新增</button>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div style="font-size:9px;letter-spacing:0.2em;color:var(--ink-3);text-transform:uppercase;margin-bottom:12px;">特殊製程</div>
+      <div class="proc-check-row" id="proc-row">
+        <label class="proc-chk${r.process.tincture?' chk-t':''}" onclick="toggleProc('tincture')">✦ 酊劑</label>
+        <label class="proc-chk${r.process.ferment?' chk-f':''}" onclick="toggleProc('ferment')">✦ 酒酵法</label>
+        <label class="proc-chk${r.process.wine?' chk-w':''}" onclick="toggleProc('wine')">✦ 泡酒香粉</label>
+      </div>
+      <div class="form-group"><label class="form-lbl">製程備注</label><input class="fi" id="f-proc-notes" value="${esc(r.process.notes||'')}" placeholder="例：荔枝酊劑2g…"></div>
+    </div>
+
+    <div class="form-card">
+      <div style="font-size:9px;letter-spacing:0.2em;color:var(--ink-3);text-transform:uppercase;margin-bottom:12px;">時間軸</div>
+      <div class="form-grid2" style="margin-bottom:12px;">
+        <div class="form-group"><label class="form-lbl">製作日期</label><input class="fi" type="date" id="f-makedate" value="${esc(r.timeline.makeDate||'')}"></div>
+        <div class="form-group"><label class="form-lbl">陰乾天數</label>
+          <div class="preset-row" id="dry-row">
+            ${[3,5,7].map(d=>`<button class="preset-btn${r.timeline.dryDays===d?' on':''}" onclick="setDry(${d})">${d} 天</button>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="form-grid2">
+        <div class="form-group"><label class="form-lbl">窖藏起始日</label><input class="fi" type="date" id="f-aging" value="${esc(r.timeline.agingStart||'')}"></div>
+        <div class="form-group"><label class="form-lbl">窖藏備注</label><input class="fi" id="f-aging-notes" value="${esc(r.timeline.agingNotes||'')}" placeholder="環境、容器…"></div>
+      </div>
+    </div>
+
+    ${r.versions.length>1?`<div class="ver-tabs-form">${r.versions.map((vv,i)=>`<span style="display:inline-flex;align-items:center;position:relative;"><button class="ver-tab${i===vi?' on':''}" onclick="fSetVI(${i})">${esc(vv.label)}</button>${r.versions.length>1?`<button onclick="deleteVer(${i})" style="position:absolute;top:-6px;right:-4px;width:16px;height:16px;border-radius:50%;border:1px solid var(--border);background:var(--bg);cursor:pointer;font-size:10px;color:var(--ink-4);display:flex;align-items:center;justify-content:center;line-height:1;z-index:2;" title="刪除此版本">×</button>`:''}</span>`).join('')}<button class="ver-tab" onclick="addVer()">＋ 版本</button></div>`:
+    `<div style="margin-bottom:8px;"><button class="add-row-btn" onclick="addVer()">＋ 新增比較版本</button></div>`}
+
+    <div class="form-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:9px;letter-spacing:0.2em;color:var(--ink-3);text-transform:uppercase;">配方材料 · ${esc(v.label)}</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <label class="form-lbl" style="margin-bottom:0;">版本標籤</label><input class="fi" style="width:100px;" id="f-verlabel" value="${esc(v.label)}" oninput="fVerLabel(this.value)">
+          <label class="form-lbl" style="margin-bottom:0;">總重</label><input class="fi" style="width:70px;" type="number" id="f-totalw" value="${v.totalWeight}" oninput="fTotalW(parseFloat(this.value)||0)"><span style="font-size:12px;color:var(--ink-3)">g</span>
+        </div>
+      </div>
+      <div id="ing-list">${ingRows}</div>
+      <button class="add-row-btn" onclick="addIng()">＋ 新增材料</button>
+    </div>
+
+    <div class="form-card">
+      <div class="cat-section-lbl">製作筆記</div>
+      <textarea class="fi" id="f-notes" placeholder="製作過程、注意事項、改進方向…">${esc(v.notes)}</textarea>
+    </div>
+
+    <div class="form-card">
+      <div class="cat-section-lbl">試聞評語</div>
+      <div id="cmt-list">${cmtRows}</div>
+      <button class="add-row-btn" onclick="addCmt()">＋ 新增評語</button>
+    </div>
+
+    <div style="height:40px;"></div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════
+//  FORM ACTIONS
+// ══════════════════════════════════════════
+function fVI() { return Math.min(S.vi[S.editData.id||'new']||0, S.editData.versions.length-1); }
+function fV()  { return S.editData.versions[fVI()]; }
+function fIng(idx,k,v){ fV().ingredients[idx][k]=v; }
+function fCmt(idx,k,v){ fV().comments[idx][k]=v; }
+function fVerLabel(v){ fV().label=v; }
+function fTotalW(v){ fV().totalWeight=v; }
+function fSetVI(i){ S.vi[S.editData.id||'new']=i; render(); }
+function addVer(){ const r=S.editData; r.versions.push({label:'v'+(r.versions.length+1),totalWeight:20,ingredients:[],notes:'',comments:[]}); S.vi[r.id||'new']=r.versions.length-1; render(); }
+function addIng(){ const ings=fV().ingredients; const lastCat=ings.length>0?ings[ings.length-1].cat:'base'; ings.push({cat:lastCat,name:'',amount:0,unit:'g'}); render(); }
+function rmIng(idx){ fV().ingredients.splice(idx,1); render(); }
+function addCmt(){ fV().comments.push({tester:'',text:''}); render(); }
+function rmCmt(idx){ fV().comments.splice(idx,1); render(); }
+function toggleProc(k){ S.editData.process[k]=!S.editData.process[k]; render(); }
+function setDry(d){ S.editData.timeline.dryDays=d; render(); }
+
+function addTag(){
+  const inp=document.getElementById('tag-in'); if(!inp)return;
+  const v=inp.value.trim();
+  if(v&&!S.editData.tags.includes(v)){S.editData.tags.push(v);}
+  inp.value='';
+  const el=document.getElementById('tag-list');
+  if(el)el.innerHTML=S.editData.tags.map(t=>`<span class="tag-rm">${esc(t)}<span class="tag-x" onclick="rmTag('${esc(t)}')">×</span></span>`).join('');
+}
+function rmTag(t){
+  S.editData.tags=S.editData.tags.filter(x=>x!==t);
+  const el=document.getElementById('tag-list');
+  if(el)el.innerHTML=S.editData.tags.map(t=>`<span class="tag-rm">${esc(t)}<span class="tag-x" onclick="rmTag('${esc(t)}')">×</span></span>`).join('');
+}
+
+function saveForm(){
+  const r=S.editData;
+  r.num=document.getElementById('f-num')?.value||r.num;
+  r.name=document.getElementById('f-name')?.value||r.name;
+  r.fragCat=document.getElementById('f-fragcat')?.value||r.fragCat;
+  r.status=document.getElementById('f-status')?.value||r.status;
+  r.process.notes=document.getElementById('f-proc-notes')?.value||'';
+  r.timeline.makeDate=document.getElementById('f-makedate')?.value||'';
+  r.timeline.agingStart=document.getElementById('f-aging')?.value||'';
+  r.timeline.agingNotes=document.getElementById('f-aging-notes')?.value||'';
+  const v=fV();
+  v.label=document.getElementById('f-verlabel')?.value||v.label;
+  v.totalWeight=parseFloat(document.getElementById('f-totalw')?.value)||0;
+  v.notes=document.getElementById('f-notes')?.value||'';
+  r.updatedAt = new Date().toISOString();
+  if(r.id){ S.recipes=S.recipes.map(x=>x.id===r.id?r:x); S.recipeId=r.id; }
+  else{ r.id=S.nextId++; if(!r.createdAt) r.createdAt=r.updatedAt; S.recipes.push(r); S.recipeId=r.id; S.catId=r.fragCat; }
+  S.screen='detail'; S.editData=null; save(); render();
+}
+
+// ══════════════════════════════════════════
+//  CATEGORY IMAGE UPLOAD
+// ══════════════════════════════════════════
+function uploadCatImg(catId){
+  S.pendingCatImg=catId;
+  document.getElementById('cat-img-input').click();
+}
+document.getElementById('cat-img-input').addEventListener('change', e=>{
+  const file=e.target.files[0]; if(!file||!S.pendingCatImg) return;
+  // 壓縮圖片再存（避免 Firestore 文件過大）
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const MAX=600;
+      let w=img.width, h=img.height;
+      if(w>MAX||h>MAX){ const s=MAX/Math.max(w,h); w=Math.round(w*s); h=Math.round(h*s); }
+      const c=document.createElement('canvas'); c.width=w; c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      S.catImages[S.pendingCatImg]=c.toDataURL('image/jpeg',0.7);
+      S.pendingCatImg=null; save(); render();
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value='';
+});
+
+// ══════════════════════════════════════════
+//  STARS EDIT (after render)
+// ══════════════════════════════════════════
+function bindStars(){
+  const el=document.getElementById('se'); if(!el)return;
+  el.addEventListener('click',e=>{
+    const v=parseInt(e.target.dataset.v); if(!v)return;
+    S.editData.rating=v;
+    el.querySelectorAll('.star-edit').forEach((s,i)=>s.className='star-edit'+(i<v?' on':''));
+  });
+}
+
+// ══════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════
+let _lastScreen = 'home';
+function render(){
+  const app=document.getElementById('app');
+  if(S.screen==='home')     app.innerHTML=renderHome();
+  else if(S.screen==='category') app.innerHTML=renderCategory();
+  else if(S.screen==='detail')   app.innerHTML=renderDetail();
+  else if(S.screen==='form')     app.innerHTML=renderForm();
+  updateNav();
+  bindStars();
+  if(S.screen==='home') {
+    initDragEvents();
+    const si = document.getElementById('search-input');
+    if(si && document.activeElement !== si) si.value = S.search;
+  }
+  if(_lastScreen !== S.screen) { window.scrollTo(0,0); _lastScreen = S.screen; }
+}
+
+function deleteRecipe(id) {
+  const r = S.recipes.find(x=>x.id===id);
+  if (!r) return;
+  if (!confirm(`確定刪除「${r.name}」？\n此操作無法復原。`)) return;
+  S.recipes = S.recipes.filter(x=>x.id!==id);
+  save();
+  S.screen = 'category';
+  S.recipeId = null;
+  render();
+}
+
+function deleteVer(idx) {
+  if (!S.editData || S.editData.versions.length <= 1) return;
+  const label = S.editData.versions[idx].label;
+  if (!confirm(`確定刪除版本「${label}」？`)) return;
+  S.editData.versions.splice(idx, 1);
+  const key = S.editData.id || 'new';
+  if ((S.vi[key]||0) >= S.editData.versions.length) S.vi[key] = S.editData.versions.length - 1;
+  render();
+}
+
+
+// ══════════════════════════════════════════
+//  MATERIALS INVENTORY
+// ══════════════════════════════════════════
+const MAT_CATS = [
+  {id:'base',    label:'基底木粉'},
+  {id:'botanical', label:'花果藥草'},
+  {id:'resin',   label:'樹脂'},
+  {id:'tincture',label:'酊劑'},
+  {id:'ferment', label:'酒酵香泥'},
+  {id:'wine',    label:'泡酒香粉'},
+  {id:'binder',  label:'黏粉'},
+];
+
+function makeMaterialsSeed() {
+  return [
+    // 基底木粉
+    {id:'m1', cat:'base', name:'正伊利安野生沉香', origin:'印尼伊利安島', supplier:'浪活', note:'高級定香，深沉木質', stock:''},
+    {id:'m2', cat:'base', name:'泰國水沉香抽油＋巴西千年紫檀混粉', origin:'泰國/巴西', supplier:'浪活', note:'木質沉穩，帶偏乾燥味濃', stock:''},
+    {id:'m3', cat:'base', name:'西澳百年檀香根', origin:'西澳', supplier:'浪活', note:'基底木，厚實清新木香', stock:''},
+    {id:'m4', cat:'base', name:'巴西千年紫檀', origin:'巴西', supplier:'浪活', note:'基底木，辛香木質', stock:''},
+    {id:'m5', cat:'base', name:'特級新山檀總粉', origin:'澳洲', supplier:'承樂', note:'甜潤基底，助燃佳', stock:''},
+    {id:'m6', cat:'base', name:'正巴拉圭綠檀', origin:'巴拉圭', supplier:'浪活/承樂', note:'清爽木質，基底粉', stock:''},
+    {id:'m7', cat:'base', name:'正非洲玫瑰木', origin:'非洲', supplier:'浪活', note:'花果木質調', stock:''},
+    {id:'m8', cat:'base', name:'古崖柏', origin:'中國', supplier:'承樂', note:'藥草木質，冷冽感', stock:''},
+    {id:'m9', cat:'base', name:'百年香柏', origin:'中國', supplier:'承樂', note:'花香木質，沉穩基調', stock:''},
+    {id:'m10',cat:'base', name:'秘魯聖木', origin:'秘魯', supplier:'光之薩滿', note:'甜木質，帶淡花果香', stock:''},
+    {id:'m11',cat:'base', name:'上老山檀', origin:'印度', supplier:'浪活', note:'奶味濃厚，低沈帶底蘊', stock:''},
+    {id:'m12',cat:'base', name:'2號西澳檀香根', origin:'西澳', supplier:'浪活', note:'超級甜味，像跳跳糖一般的甜，後味帶奶香', stock:''},
+    {id:'m13',cat:'base', name:'泰緬寮混合沉香', origin:'泰國、緬甸、寮國', supplier:'鄭怡成', note:'花香，有點玉蘭的香氣', stock:''},
+    {id:'m14',cat:'base', name:'降真香', origin:'印尼', supplier:'承樂', note:'', stock:''},
+    {id:'m15',cat:'base', name:'印尼降真香', origin:'印尼', supplier:'福田工藝', note:'甘甜玫瑰香，高油', stock:''},
+    // 花果藥草
+    {id:'m20',cat:'botanical', name:'佛手柑葉', origin:'自產', supplier:'自產', note:'清新柑橘葉香', stock:''},
+    {id:'m21',cat:'botanical', name:'佛手柑皮', origin:'義大利', supplier:'英國草本舖', note:'柑橘果香，提神', stock:''},
+    {id:'m22',cat:'botanical', name:'甜橙皮', origin:'土耳其', supplier:'未知', note:'果甜清新', stock:''},
+    {id:'m23',cat:'botanical', name:'檸檬葉', origin:'自產', supplier:'自產', note:'清爽柑葉調', stock:''},
+    {id:'m24',cat:'botanical', name:'Kaffir Lime', origin:'泰國', supplier:'泰國', note:'清淡檸檬味，後味易焦', stock:''},
+    {id:'m25',cat:'botanical', name:'檸檬草', origin:'泰國', supplier:'泰國', note:'檸檬草香', stock:''},
+    {id:'m26',cat:'botanical', name:'檸檬薄荷', origin:'未知', supplier:'英國草本舖', note:'清涼感', stock:''},
+    {id:'m27',cat:'botanical', name:'香茅', origin:'泰國', supplier:'泰國/承樂', note:'檸檬草香，驅蟲', stock:''},
+    {id:'m28',cat:'botanical', name:'斑蘭葉', origin:'泰國', supplier:'泰國', note:'甜潤，帶芋頭香', stock:''},
+    {id:'m29',cat:'botanical', name:'玫瑰草', origin:'宜蘭', supplier:'宜蘭小農', note:'似玫瑰花草香', stock:''},
+    {id:'m30',cat:'botanical', name:'大馬士革玫瑰', origin:'土耳其', supplier:'英國草本舖', note:'濃郁玫瑰花香', stock:''},
+    {id:'m31',cat:'botanical', name:'薰衣草（花苞）', origin:'法國', supplier:'插花週記', note:'助眠花香', stock:''},
+    {id:'m32',cat:'botanical', name:'薰衣草（花梗）', origin:'法國', supplier:'插花週記', note:'清草花香', stock:''},
+    {id:'m33',cat:'botanical', name:'迷迭香', origin:'美國', supplier:'光之薩滿', note:'清新草本香，如香草園', stock:''},
+    {id:'m34',cat:'botanical', name:'尤加利', origin:'未知', supplier:'英國草本舖', note:'清涼藥草調', stock:''},
+    {id:'m35',cat:'botanical', name:'廣藿香', origin:'未知', supplier:'英國草本舖', note:'土壤感，濕潤草木香氣', stock:''},
+    {id:'m36',cat:'botanical', name:'甘松', origin:'中國', supplier:'德昌', note:'中藥草香，定香', stock:''},
+    {id:'m37',cat:'botanical', name:'杜松葉粉', origin:'美國', supplier:'光之薩滿', note:'清爽綠意的高頻次香調', stock:''},
+    {id:'m38',cat:'botanical', name:'杜松果', origin:'未知', supplier:'英國草本舖', note:'辛香果實', stock:''},
+    {id:'m39',cat:'botanical', name:'龍腦', origin:'中國', supplier:'德昌', note:'強烈涼感結晶', stock:''},
+    {id:'m40',cat:'botanical', name:'東加豆', origin:'巴西', supplier:'英國草本舖', note:'香草香，馥郁濃烈', stock:''},
+    {id:'m41',cat:'botanical', name:'番紅花', origin:'以色列', supplier:'德昌', note:'濃郁藥草辛香', stock:''},
+    {id:'m42',cat:'botanical', name:'餘甘子', origin:'印度', supplier:'Aroma Zone', note:'香甜馥郁的水果香氣', stock:''},
+    {id:'m43',cat:'botanical', name:'松針', origin:'美國', supplier:'光之薩滿', note:'清新松脂，帶有霧氣感', stock:''},
+    {id:'m44',cat:'botanical', name:'雪松葉', origin:'未知', supplier:'承樂', note:'松脂感，乾淨草木', stock:''},
+    {id:'m45',cat:'botanical', name:'神香草/牛膝草', origin:'未知', supplier:'英國草本舖', note:'藥草清香', stock:''},
+    {id:'m46',cat:'botanical', name:'艾草', origin:'西藏', supplier:'蝦皮', note:'草藥香，沉穩', stock:''},
+    {id:'m47',cat:'botanical', name:'靈香', origin:'中國', supplier:'承樂', note:'藥草清香', stock:''},
+    {id:'m48',cat:'botanical', name:'桂花', origin:'中國', supplier:'容阿姨', note:'桂花甜香', stock:''},
+    {id:'m49',cat:'botanical', name:'茉莉', origin:'中國/台灣', supplier:'容阿姨', note:'茉莉花香', stock:''},
+    {id:'m50',cat:'botanical', name:'白玉蘭（泡酊劑殘餘）', origin:'台灣', supplier:'自己', note:'', stock:''},
+    {id:'m51',cat:'botanical', name:'藍蓮花', origin:'斯里蘭卡', supplier:'原裝營業用', note:'', stock:''},
+    // 樹脂
+    {id:'m60',cat:'resin', name:'乳香', origin:'阿曼', supplier:'浪活', note:'定香，清涼樹脂感', stock:''},
+    {id:'m61',cat:'resin', name:'皇家綠乳香', origin:'阿曼', supplier:'光之薩滿', note:'清新樹脂感', stock:''},
+    {id:'m62',cat:'resin', name:'阿拉伯沒藥', origin:'阿拉伯', supplier:'光之薩滿', note:'帶藥草味的香氣，定香', stock:''},
+    {id:'m63',cat:'resin', name:'熏陸', origin:'克里特島', supplier:'英國草本舖', note:'清香輕透感，定香', stock:''},
+    {id:'m64',cat:'resin', name:'廣藿香樹脂', origin:'東南亞', supplier:'光之薩滿', note:'濕潤土感，定香', stock:''},
+    {id:'m65',cat:'resin', name:'黑蘇合香', origin:'土耳其', supplier:'英國草本舖', note:'甜潤溫暖，定香', stock:''},
+    {id:'m66',cat:'resin', name:'紅安息香（甘文煙）', origin:'馬來西亞', supplier:'浪活', note:'超級甜香，味道強勢定香', stock:''},
+    {id:'m67',cat:'resin', name:'安息香', origin:'承樂', supplier:'承樂', note:'香草甜潤定香', stock:''},
+    {id:'m68',cat:'resin', name:'白柯巴脂', origin:'南美', supplier:'光之薩滿', note:'清新樹脂定香', stock:''},
+    {id:'m69',cat:'resin', name:'龍血香', origin:'', supplier:'TRUMIRI', note:'木質與甜辛', stock:''},
+    {id:'m70',cat:'resin', name:'阿勒頗松樹脂', origin:'希臘', supplier:'原裝營業用', note:'', stock:''},
+    {id:'m71',cat:'resin', name:'東方楓香樹脂（蘇合香）', origin:'土耳其', supplier:'原裝營業用', note:'', stock:''},
+    {id:'m72',cat:'resin', name:'混合香脂 Jerusalem Nard', origin:'耶路撒冷', supplier:'Holy land market', note:'濃郁的中東香氣，帶有香水味', stock:''},
+    // 酊劑
+    {id:'m80',cat:'tincture', name:'泰國香葉酊劑', origin:'泰國', supplier:'自製', note:'濃縮後的香蘭氣味，帶芋頭香', stock:''},
+    {id:'m81',cat:'tincture', name:'蜜香紅茶酊劑', origin:'台灣', supplier:'自製', note:'清甜茶香', stock:''},
+    {id:'m82',cat:'tincture', name:'荔枝酊劑', origin:'台灣', supplier:'自製', note:'荔枝甜香', stock:''},
+    {id:'m83',cat:'tincture', name:'泰國酸橙酊劑', origin:'泰國', supplier:'自製', note:'濃郁檸檬柑橘味', stock:''},
+    {id:'m84',cat:'tincture', name:'新鮮佛手柑皮酊劑', origin:'台灣', supplier:'自製', note:'清爽佛手柑味', stock:''},
+    {id:'m85',cat:'tincture', name:'玉蘭花酊劑', origin:'台灣', supplier:'自製', note:'', stock:''},
+    {id:'m86',cat:'tincture', name:'金木犀酊劑', origin:'中國', supplier:'自製', note:'', stock:''},
+    {id:'m87',cat:'tincture', name:'藍蓮花酊劑', origin:'埃及', supplier:'自製', note:'', stock:''},
+    {id:'m88',cat:'tincture', name:'番紅花酊劑', origin:'以色列', supplier:'自製', note:'', stock:''},
+    // 酒酵香泥（發酵中 → 尚未製成線香；日期格式 yyyy/mm/dd 供狀態計算）
+    {id:'m90',cat:'ferment', name:'藍蓮花酒酵香泥', origin:'印度', supplier:'自製',
+      note:'2025/10/08 開始發酵｜200g批次｜綠檀30%+老山檀4%+藍蓮花17.5%+大馬士革玫瑰5%+岩蘭草2.5%+廣藿香2%+神香草1.5%+安息香3.5%+乳香2.5%+沒藥1.5%+蘇合香2.5%+楠木黏25%（+龍腦0.5%）', stock:''},
+    {id:'m91',cat:'ferment', name:'泰國酸橙酒酵香泥', origin:'泰國', supplier:'自製',
+      note:'2025/10/08 開始發酵｜300g批次｜泰國酸橙35%+佛手柑葉5%+檸檬草5%+廣藿香5%+綠檀23%+二號西澳根6.5%+安息香5%+楠木黏20%', stock:''},
+    {id:'m92',cat:'ferment', name:'檸檬草酒酵香泥', origin:'泰國', supplier:'自製',
+      note:'2025/10/08 開始發酵｜300g批次｜檸檬草32.5%+佛手柑葉5%+檸檬薄荷2.5%+綠檀22.5%+杜松7.5%+尤加利5%+乳香5%+楠木黏20%', stock:''},
+    {id:'m93',cat:'ferment', name:'大馬士革玫瑰酒酵香泥', origin:'土耳其', supplier:'自製',
+      note:'2025/10/08 開始發酵｜200g批次｜大馬士革玫瑰28%+佛手柑葉8%+檸檬葉5%+神香草3%+泰水沉10%+巴西紫檀10%+廣藿香4%+乳香2%+蘇合香2%+楠木黏28%', stock:''},
+    {id:'m94',cat:'ferment', name:'白玉蘭酊劑酒酵香泥', origin:'台灣', supplier:'自製',
+      note:'2025/11/02 開始發酵｜400g批次｜新山檀24%+綠檀15%+沉香3%+乳香5%+安息香4%+蘇合香3%+玉蘭花粉(酊製後乾燥)12%+杜松果1%+東加豆1%+佛手柑皮1%+龍腦0.8%+楠木黏30.2%', stock:''},
+    {id:'m95',cat:'ferment', name:'桂花酒酵香泥', origin:'中國', supplier:'自製',
+      note:'2025/11/02 開始發酵｜乾桂花24%+大馬士革玫瑰3%+柏木27%+綠檀13%+安息香7%+蘇合香3%+乳香3%+甘松2%+廣藿香1%+楠木黏16.3%（+龍腦0.7%後加）', stock:''},
+    // 泡酒香粉
+    {id:'m100',cat:'wine', name:'西澳新山泡六琴酒', origin:'日本', supplier:'承樂', note:'味道並沒有什麼變化，稍微溫和有一點綠意的味道', stock:''},
+    {id:'m101',cat:'wine', name:'承樂古崖柏泡六琴酒', origin:'日本', supplier:'承樂', note:'草藥香氣更明顯好聞', stock:''},
+    {id:'m102',cat:'wine', name:'承樂綠檀泡德國大象琴酒', origin:'德國', supplier:'承樂', note:'味道有點微妙，綠檀味道消失，有微微草藥味', stock:''},
+    {id:'m103',cat:'wine', name:'承樂綠檀泡植物學家琴酒', origin:'蘇格蘭', supplier:'承樂', note:'綠檀味道消失，草藥味更明顯一點，出現奶味', stock:''},
+    // 黏粉
+    {id:'m110',cat:'binder', name:'印尼楠木黏粉', origin:'印尼', supplier:'浪活', note:'黏合用', stock:''},
+  ];
+}
+
+
+
+// ══════════════════════════════════════════
+//  LONG PRESS DELETE (materials)
+// ══════════════════════════════════════════
+let _lpTimer = null;
+function matBindLongPress() {
+  document.querySelectorAll('[data-longpress-id]').forEach(el => {
+    const id = el.dataset.longpressId;
+    // touch
+    el.addEventListener('touchstart', () => {
+      _lpTimer = setTimeout(() => matLongPressConfirm(id), 800);
+    }, {passive:true});
+    el.addEventListener('touchend', () => clearTimeout(_lpTimer), {passive:true});
+    el.addEventListener('touchmove', () => clearTimeout(_lpTimer), {passive:true});
+    // mouse (desktop: right-click already handled, add long mousedown)
+    el.addEventListener('mousedown', (e) => {
+      if(e.button !== 0) return;
+      _lpTimer = setTimeout(() => matLongPressConfirm(id), 800);
+    });
+    el.addEventListener('mouseup', () => clearTimeout(_lpTimer));
+    el.addEventListener('mouseleave', () => clearTimeout(_lpTimer));
+  });
+}
+function matLongPressConfirm(id) {
+  clearTimeout(_lpTimer);
+  if (confirm('確定要刪除這筆材料嗎？')) {
+    let mats = getMaterials().filter(m => m.id !== id);
+    saveMaterials(mats);
+    renderApp();
+  }
+}
+
+// ══════════════════════════════════════════
+//  MATERIALS STATE & ACTIONS
+// ══════════════════════════════════════════
+let matCatFilter = 'base';
+let matAddMode = false;
+let matSort = 'name'; // 'name' | 'stock'
+let newMat = {cat:'base',name:'',origin:'',supplier:'',note:'',stock:''};
+
+function loadMaterials() {
+  // 從快取讀取（已在 loadFromFirestore 時載入）
+  return S._materials || makeMaterialsSeed();
+}
+function saveMaterials(mats) {
+  S._materials = mats;
+  const ref = getDocRef('materials');
+  if (!ref) return;
+  ref.set({ items: mats, updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
+    .catch(e => console.error('save materials err:', e));
+}
+function getMaterials() {
+  if (!S._materials) S._materials = loadMaterials();
+  return S._materials;
+}
+
+function renderMaterials() {
+  // 單一顏色來源，與 ING_CATS 完全對應
+  const MAT_CAT_COLORS = {
+    base:'#7f2d00', botanical:'#a19a49', resin:'#c07141',
+    tincture:'#478675', ferment:'#955254', wine:'#d8d8d8', binder:'#d3b385'
+  };
+  const mats = getMaterials();
+  let filtered = mats.filter(m => m.cat === matCatFilter);
+  if (matSort === 'stock') {
+    filtered = [...filtered].sort((a,b) => {
+      const qa = (typeof a.stock==='object'&&a.stock) ? (a.stock.qty||0) : 0;
+      const qb = (typeof b.stock==='object'&&b.stock) ? (b.stock.qty||0) : 0;
+      return qa - qb; // 低→高，缺貨排最前
+    });
+  }
+
+  const tabsHtml = MAT_CATS.map(c => {
+    const cnt = mats.filter(m=>m.cat===c.id).length;
+    const on = matCatFilter===c.id;
+    const col = MAT_CAT_COLORS[c.id]||'#888';
+    return `<button class="mat-cat-btn${on?' on':''}" onclick="matSetCat('${c.id}')"
+      style="${on?'border-bottom:2px solid '+col+';':''}"
+    >${c.label}<span style="margin-left:5px;font-size:11px;color:${on?col:'var(--ink-4)'};">${cnt}</span></button>`;
+  }).join('');
+
+  function fermentBadge(m) {
+    if (m.cat !== 'ferment') return '';
+    const match = m.note ? m.note.match(/(\d{4})\/(\d{2})\/(\d{2})/) : null;
+    if (!match) return '';
+    const start = new Date(match[1]+'-'+match[2]+'-'+match[3]);
+    const days = Math.floor((new Date() - start) / 86400000);
+    const mo = days / 30;
+    let label, bc;
+    if (mo < 3)       { label = '發酵中 · '+days+'天'; bc = '#955254'; }
+    else if (mo < 5)  { label = '熟成中 · '+days+'天'; bc = '#a08848'; }
+    else if (mo < 12) { label = '可製香 · '+days+'天'; bc = '#6e8c6a'; }
+    else              { label = '陳年   · '+days+'天'; bc = '#478675'; }
+    return `<span style="display:inline-block;font-size:10px;padding:2px 8px;border:1px solid ${bc};color:${bc};letter-spacing:0.08em;white-space:nowrap;margin-top:4px;">${label}</span>`;
+  }
+
+  const cardsHtml = filtered.length === 0
+    ? `<div class="empty">此分類尚無材料<div class="empty-sub">點選下方新增</div></div>`
+    : filtered.map(m => {
+        const col = MAT_CAT_COLORS[m.cat] || '#888';
+        const badge = fermentBadge(m);
+        const noteText = m.cat === 'ferment' ? '' : (m.note ? `<div style="font-size:11px;color:var(--ink-2);line-height:1.6;text-align:right;max-width:180px;">${esc(m.note)}</div>` : '<div></div>');
+        const sq = (typeof m.stock==='object'&&m.stock!==null) ? (m.stock.qty||0) : 0;
+        const su = (typeof m.stock==='object'&&m.stock!==null) ? (m.stock.unit||'g') : 'g';
+        const sn = (typeof m.stock==='object'&&m.stock!==null) ? (m.stock.note||'') : (typeof m.stock==='string'?m.stock:'');
+        const stockLabel = sq > 0
+          ? `<span style="font-size:13px;color:var(--ink);font-family:var(--serif);">${sq}</span><span style="font-size:11px;color:var(--ink-3);margin-left:2px;">${su}</span>`
+          : `<span class="mat-stock-empty">—</span>`;
+        const UNITS = ['g','ml','包','瓶','份','克'];
+        const unitOpts = UNITS.map(u=>`<option value="${u}"${su===u?' selected':''}>${u}</option>`).join('');
+        return `<div class="mat-card">
+          <div class="mat-accent" style="background:${col};"></div>
+          <div style="flex:1;padding:14px 18px;min-width:0;">
+            <div style="font-family:var(--serif);font-size:15px;font-weight:400;color:var(--ink);letter-spacing:0.04em;margin-bottom:6px;">${esc(m.name)}</div>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;">
+              ${m.origin?`<span style="font-size:11px;color:var(--ink-3);"><span style="font-size:10px;letter-spacing:0.1em;margin-right:4px;">產地</span>${esc(m.origin)}</span>`:''}
+              ${m.supplier?`<span style="font-size:11px;color:var(--ink-3);"><span style="font-size:10px;letter-spacing:0.1em;margin-right:4px;">廠商</span>${esc(m.supplier)}</span>`:''}
+            </div>
+            ${badge}
+            <hr class="mat-note-divider"><textarea
+              style="width:100%;border:none;background:transparent;font-size:12px;font-family:var(--sans);font-weight:300;color:var(--ink-2);line-height:1.65;resize:none;outline:none;padding:0;min-height:28px;display:block;"
+              rows="2" placeholder="試燒備注…"
+              onchange="matUpdateNote('${m.id}',this.value)">${esc(m.note||'')}</textarea>
+          </div>
+          <div style="flex-shrink:0;width:96px;padding:12px 10px;border-left:1px solid var(--border);display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:6px;">
+            <div style="font-size:10px;color:var(--ink-4);letter-spacing:0.12em;text-align:center;margin-bottom:2px;">庫存</div>
+            <div class="mat-stock-wrap">
+              <input class="mat-si" type="number" min="0" value="${sq}" placeholder="0" style="width:52px;flex:1;text-align:center;-webkit-appearance:none;"
+                onchange="matUpdateStock('${m.id}','qty',+this.value)">
+              <select class="mat-unit" style="width:40px;" onchange="matUpdateStock('${m.id}','unit',this.value)">${unitOpts}</select>
+            </div>
+            <div style="font-size:11px;letter-spacing:0.06em;text-align:center;color:${sq>0?'var(--ink-3)':'var(--fail)'};">${sq>0?su:'缺貨'}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+  const addForm = matAddMode ? `
+  <div class="mat-add-form">
+    <div style="font-size:11px;letter-spacing:0.15em;color:var(--ink-3);text-transform:uppercase;margin-bottom:14px;">新增材料</div>
+    <div class="mat-form-grid">
+      <div style="grid-column:1/-1;">
+        <input class="mat-fi" placeholder="材料名稱（必填）" id="new-name" oninput="newMat.name=this.value">
+      </div>
+      <input class="mat-fi" placeholder="產地" id="new-origin" oninput="newMat.origin=this.value">
+      <input class="mat-fi" placeholder="廠商" id="new-supplier" oninput="newMat.supplier=this.value">
+      <div style="grid-column:1/-1;">
+        <textarea class="mat-fi" placeholder="試燒感受、品質記錄…" id="new-note" rows="3" style="resize:none;line-height:1.65;" oninput="newMat.note=this.value"></textarea>
+      </div>
+      <div style="display:flex;gap:0;grid-column:1/-1;">
+        <input class="mat-fi" type="number" min="0" placeholder="庫存數量" id="new-stock-qty" style="width:90px;flex-shrink:0;" oninput="newMat.stockQty=+this.value">
+        <select class="mat-fi" id="new-stock-unit" style="width:70px;flex-shrink:0;border-left:none;" onchange="newMat.stockUnit=this.value">
+          <option value="g">g</option>
+          <option value="ml">ml</option>
+          <option value="包">包</option>
+          <option value="瓶">瓶</option>
+          <option value="份">份</option>
+          <option value="克">克</option>
+        </select>
+      </div>
+    </div>
+    <div class="mat-form-actions">
+      <button class="mat-cancel-btn" onclick="matAddMode=false;renderApp()">取消</button>
+      <button class="mat-confirm-btn" onclick="matConfirmAdd()">確認新增</button>
+    </div>
+  </div>` : '';
+
+  const sortBtn = `<button onclick="matSort=matSort==='stock'?'name':'stock';renderApp();"
+    style="flex-shrink:0;padding:8px 14px;border:1px solid var(--border);background:${matSort==='stock'?'var(--ink)':'transparent'};
+    color:${matSort==='stock'?'var(--bg)':'var(--ink-3)'};font-size:11px;font-family:var(--sans);font-weight:300;
+    letter-spacing:0.1em;cursor:pointer;white-space:nowrap;transition:all 0.2s;">
+    ${matSort==='stock'?'庫存↑':'庫存排序'}
+  </button>`;
+
+  return `
+  <div class="container">
+    <div style="padding-bottom:20px;border-bottom:1px solid var(--border);margin-bottom:24px;display:flex;align-items:baseline;justify-content:space-between;">
+      <div>
+        <div style="font-family:var(--serif);font-size:22px;font-weight:400;letter-spacing:0.12em;color:var(--ink);">材料庫</div>
+        <div style="font-size:11px;color:var(--ink-4);letter-spacing:0.12em;margin-top:4px;">${mats.length} 種原料</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:16px;">
+      <div style="flex:1;display:flex;gap:0;overflow-x:auto;border:1px solid var(--border);">${tabsHtml}</div>
+      ${sortBtn}
+    </div>
+    ${!matAddMode?`<button class="mat-add-btn" onclick="matStartAdd()" style="margin-bottom:12px;">＋ 新增材料</button>`:''}
+    ${addForm}
+    <div style="display:flex;flex-direction:column;gap:8px;${matAddMode?'margin-top:12px;':''}">${cardsHtml}</div>
+  </div>`;
+}
+
+function matSetCat(cat) { matCatFilter = cat; matAddMode = false; newMat = {cat,name:'',origin:'',supplier:'',note:'',stock:''}; renderApp(); }
+function matStartAdd() { matAddMode = true; newMat = {cat:matCatFilter,name:'',origin:'',supplier:'',note:'',stock:''}; renderApp(); }
+function matConfirmAdd() {
+  if (!newMat.name.trim()) return;
+  const mats = getMaterials();
+  newMat.id = 'mu' + Date.now();
+  const matToAdd = {...newMat, stock:{qty:newMat.stockQty||0, unit:newMat.stockUnit||'g', note:''}};
+  delete matToAdd.stockQty; delete matToAdd.stockUnit;
+  mats.push(matToAdd);
+  saveMaterials(mats);
+  matAddMode = false;
+  newMat = {cat:matCatFilter,name:'',origin:'',supplier:'',note:'',stockQty:0,stockUnit:'g'};
+  renderApp();
+}
+function matDelete(id) {
+  if (!confirm('確定刪除這筆材料？')) return;
+  let mats = getMaterials().filter(m=>m.id!==id);
+  saveMaterials(mats);
+  renderApp();
+}
+function matUpdateStock(id, field, val) {
+  const mats = getMaterials();
+  const m = mats.find(x=>x.id===id);
+  if (!m) return;
+  // migration: 舊字串格式 → 結構
+  if (typeof m.stock !== 'object' || m.stock === null) {
+    m.stock = {qty:0, unit:'g', note: typeof m.stock==='string' ? m.stock : ''};
+  }
+  m.stock[field] = val;
+  saveMaterials(mats);
+}
+function matUpdateNote(id, val) {
+  const mats = getMaterials();
+  const m = mats.find(x=>x.id===id);
+  if (m) { m.note = val; saveMaterials(mats); }
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+
+function goBottomHome() {
+  if (S.screen==='form' && S.editData) { if (!confirm('尚未儲存，確定離開？')) return; }
+  currentTab='home';
+  S.screen='home'; S.catId=null; S.recipeId=null; S.editData=null;
+  matAddMode=false;
+  updateBottomNav('home'); render();
+}
+function goBottomMat() {
+  if (S.screen==='form' && S.editData) { if (!confirm('尚未儲存，確定離開？')) return; }
+  currentTab='mat';
+  matAddMode=false; matCatFilter='base';
+  updateBottomNav('mat'); renderApp();
+}
+function updateBottomNav(tab) {
+  const th = document.getElementById('nav-tab-home');
+  const tm = document.getElementById('nav-tab-mat');
+  if(th) th.className = 'nav-tab' + (tab==='home' ? ' active' : '');
+  if(tm) tm.className = 'nav-tab' + (tab==='mat'  ? ' active' : '');
+}
+function renderApp() {
+  const app = document.getElementById('app');
+  if (currentTab === 'mat') {
+    app.innerHTML = renderMaterials();
+    updateNav();
+    matBindLongPress();
+    return;
+  }
+  render();
+}
+
+
+
+// ══════════════════════════════════════════
+//  EXPORT / BACKUP
+// ══════════════════════════════════════════
+function exportData() {
+  const now = new Date();
+  const ts = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  const data = {
+    exportedAt: now.toISOString(),
+    recipes: S.recipes,
+    nextId: S.nextId,
+    catImages: S.catImages,
+    catOrder: S.catOrder,
+    materials: getMaterials(),
+  };
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'SINUS_NOTE_backup_' + ts + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = e => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!data.recipes || !Array.isArray(data.recipes)) { alert('備份檔格式錯誤'); return; }
+        if (!confirm(`確定匯入備份嗎？\n（${data.recipes.length} 支配方，匯出於 ${data.exportedAt||'未知'}）\n\n⚠ 這會覆蓋目前所有資料`)) return;
+        S.recipes = data.recipes;
+        S.nextId = data.nextId || 200;
+        if (data.catImages && typeof data.catImages === 'object') S.catImages = data.catImages;
+        if (data.catOrder) S.catOrder = data.catOrder;
+        if (data.materials && Array.isArray(data.materials)) { saveMaterials(data.materials); }
+        save();
+        S.screen = 'home'; currentTab = 'home';
+        render(); updateBottomNav('home');
+        alert('匯入完成！');
+      } catch(err) { alert('匯入失敗：' + err.message); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// ══════════════════════════════════════════
+//  DRAG TO REORDER CATEGORIES
+// ══════════════════════════════════════════
+let dragSrcId = null;
+let touchDragId = null;
+let touchLongTimer = null;
+let touchDragging = false;
+let ghostEl = null;
+
+function initDragEvents() {
+  const grid = document.querySelector('.cat-grid');
+  if (!grid) return;
+  grid.addEventListener('dragstart', e => {
+    const card = e.target.closest('[data-catid]');
+    if (!card) return;
+    dragSrcId = card.dataset.catid;
+    card.style.opacity = '0.4';
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  grid.addEventListener('dragend', e => {
+    const card = e.target.closest('[data-catid]');
+    if (card) card.style.opacity = '';
+    dragSrcId = null;
+  });
+  grid.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const card = e.target.closest('[data-catid]');
+    if (card && card.dataset.catid !== dragSrcId) {
+      card.style.borderColor = 'var(--accent)';
+    }
+  });
+  grid.addEventListener('dragleave', e => {
+    const card = e.target.closest('[data-catid]');
+    if (card) card.style.borderColor = '';
+  });
+  grid.addEventListener('drop', e => {
+    e.preventDefault();
+    const card = e.target.closest('[data-catid]');
+    if (!card || !dragSrcId || card.dataset.catid === dragSrcId) return;
+    card.style.borderColor = '';
+    const order = S.catOrder ? [...S.catOrder] : CATS.map(c=>c.id);
+    const from = order.indexOf(dragSrcId);
+    const to   = order.indexOf(card.dataset.catid);
+    if (from < 0 || to < 0) return;
+    order.splice(to, 0, order.splice(from, 1)[0]);
+    S.catOrder = order;
+    save(); render();
+  });
+}
+
+// Touch: 長按 600ms 觸發拖曳
+function dragTouchStart(e, el) {
+  touchLongTimer = setTimeout(() => {
+    touchDragging = true;
+    touchDragId = el.dataset.catid;
+    el.style.opacity = '0.45';
+    el.style.transform = 'scale(1.02)';
+    // 防止點擊觸發 goCat
+    el.dataset.dragged = '1';
+  }, 600);
+}
+function dragTouchMove(e) {
+  if (!touchDragging) { clearTimeout(touchLongTimer); return; }
+  e.preventDefault();
+  const touch = e.touches[0];
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  const card = el ? el.closest('[data-catid]') : null;
+  // highlight
+  document.querySelectorAll('.cat-card').forEach(c => c.style.borderColor = '');
+  if (card && card.dataset.catid !== touchDragId) card.style.borderColor = 'var(--accent)';
+}
+function dragTouchEnd(e) {
+  clearTimeout(touchLongTimer);
+  if (!touchDragging) return;
+  e.preventDefault();
+  const touch = e.changedTouches[0];
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  const card = el ? el.closest('[data-catid]') : null;
+  document.querySelectorAll('.cat-card').forEach(c => { c.style.opacity=''; c.style.borderColor=''; c.style.transform=''; });
+  if (card && card.dataset.catid && card.dataset.catid !== touchDragId) {
+    const order = S.catOrder ? [...S.catOrder] : CATS.map(c=>c.id);
+    const from = order.indexOf(touchDragId);
+    const to   = order.indexOf(card.dataset.catid);
+    if (from >= 0 && to >= 0) {
+      order.splice(to, 0, order.splice(from, 1)[0]);
+      S.catOrder = order;
+      save();
+    }
+  }
+  touchDragging = false;
+  touchDragId = null;
+  render();
+}
+
+// ══════════════════════════════════════════
+//  AUTH + INIT
+// ══════════════════════════════════════════
+// ── NAV MENU TOGGLE ──
+function toggleNavMenu(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('nav-dropdown');
+  dd.classList.toggle('open');
+}
+function closeNavMenu() {
+  const dd = document.getElementById('nav-dropdown');
+  if (dd) dd.classList.remove('open');
+}
+// 點選其他地方關閉
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('nav-menu-wrap');
+  if (wrap && !wrap.contains(e.target)) closeNavMenu();
+});
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pw = document.getElementById('login-pw').value;
+  const errEl = document.getElementById('pw-err');
+  const btn = document.getElementById('login-btn');
+  if (!email || !pw) { errEl.textContent='請輸入 Email 和密碼'; errEl.style.opacity='1'; return; }
+  btn.textContent = '登入中…';
+  btn.disabled = true;
+  auth.signInWithEmailAndPassword(email, pw)
+    .catch(err => {
+      const msgs = {'auth/wrong-password':'密碼錯誤','auth/user-not-found':'帳號不存在','auth/invalid-email':'Email 格式錯誤','auth/invalid-credential':'帳號或密碼錯誤','auth/too-many-requests':'嘗試次數過多，請稍後再試'};
+      errEl.textContent = msgs[err.code] || '登入失敗：' + err.message;
+      errEl.style.opacity = '1';
+      btn.textContent = '登入';
+      btn.disabled = false;
+    });
+}
+
+function doLogout() {
+  if (!confirm('確定要登出嗎？')) return;
+  auth.signOut();
+}
+
+auth.onAuthStateChanged(async user => {
+  const overlay = document.getElementById('pw-overlay');
+  if (user) {
+    // 已登入 → 載入資料
+    await loadFromFirestore();
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.style.display = 'none', 600);
+    render();
+    updateBottomNav('home');
+    setupRealtimeSync();
+  } else {
+    // 未登入 → 顯示登入畫面
+    overlay.style.display = 'flex';
+    overlay.style.opacity = '1';
+    document.getElementById('app').innerHTML = '';
+  }
+});
+</script>
+
+
+<script>
+// PWA Manifest (inline)
+const manifest = {
+  name: 'SINUS NOTE',
+  short_name: 'SINUS NOTE',
+  description: 'Incense Design — Fragrance Journal',
+  start_url: '.',
+  display: 'standalone',
+  background_color: '#F5F1EB',
+  theme_color: '#F5F1EB',
+  orientation: 'portrait',
+  icons: [
+    {src: 'data:image/png;base64,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', sizes: '192x192', type: 'image/png'},
+    {src: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAB5B0lEQVR42u3debhkVXkv/u+e967xzD1CMwrNIIogIoPm5xz0Ipp4FYkSo16HJEpECOaaaPLoNU5EyUVNaFB5rogRROOAA5g8SjSAAiKDTEJD03SfscY97/X7Y9davav6NN3a06k+38/z1NPdZ+qqOlV7vetd73qX1m1MCxAREdGyovMpICIiYgBAREREDACIiIiIAQARERExACAiIiIGAERERMQAgIiIiBgAEBEREQMAIiIiYgBAREREDACIiIiIAQARERExACAiIiIGAERERMQAgIiIiBgAEBEREQMAIiIiYgBARETEAICIiIgYABAREREDACIiImIAQERERAwAiIiIiAEAERERMQAgIiIiBgBERETEAICIiIgYABAREREDACIiImIAQERERAwAiIiIiAEAERERMQAgIiIiBgBERETEAICIiIgBABERETEAICIiIgYARERExACAiIiIGAAQERERAwAiIiJiAEBEREQMAIiIiIgBABERETEAICIiIgYARERExACAiIiIGAAQERERAwAiIiJiAEBEREQMAIiIiIgBABEREQMAIiIiYgBAREREDACIiIiIAQARERExACAiIiIGAERERMQAgIiIiBgAEBEREQMAIiIiYgBAREREDACIiIiIAQARERExACAiIiIGAERERMQAgIiIiBgAEBEREQMAIiIiBgBERETEAICIiIgYABAREREDACIiImIAQERERAwAiIiIiAEAERERMQAgIiIiBgBERETEAICIiIgYABAREREDACIiImIAQERE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StB1Hb7vq8fNXQBEDACIli3LslSnvEajoQZR27aHoko+CIL8QCPbhmmaaDQayLIMURQhjmPMb92aFzf2HqdhGGrrIAMAIgYARMtWHMcolcvodDoYHR2FaZrodrt5mnwIquTl9r7ZLVtQrlZh27Za73ddF+VyGaVKBa1WC77vw/M8FfDIYkAi2j9YA0BERMQMABERETEAICIiIgYARERExACAiIiIGAAQERERAwAiIiJiAEBEREQMAIiIiIgBABERETEAICIiIgYARERExACAiIiIGAAQERERAwAiIiJiAEBEREQMAIiIiIgBABEREQMAIiIiYgBAREREDACIiIiIAQARERExACAiIiIGAERERMQAgIiIiBgAEBEREQMAIiIiYgBAREREDACIiIiIAQARERExACAiIiIGAERERMQAgIiIiBgAEBEREQMAIiIiBgBERETEAICIiIgYABAREREDACIiImIAQERERAwAiIiIiAEAERERMQAgIiIiBgBERETEAICIiIgYABAREREDACIiImIAsJx+QTv6k/gG5QWClvp1itcvXl8OSELrvw3KsgxZlsG1bcRhCM91YWgakiiCqetwbRt+pwNT12HqOrIkgaFpyJIEmhCwDBMiTZElKWzTVP9O4wSmrkPTNAghEEURvFIJWZYhTVMYhoE0TYfiObQsC2EYIssyWJaFNE2RxjEcy0ISRfBcF6Hv956H/HF7jnNAvHiTJIEQAp7jwNA0GJoGkabwHAemrgOZgGUYcCwLOoA0TaFpGsI4WvT19ruSrxHLsmD1nm9D0+A5DmzTRBSE8BwHaRzDcxwkSYIsy2DbNpIk2f9PoJbltx3IsgxxHMMwLAihQQgNrltCGMYQQoNeeA/pug7TNNX36Lq+WxdWHVC/T1PXYRkGoiCAoWlAlsEyjCX/+rRtG1mWQQiBLMsQJTGEBgRRCNu21esiS/LHKNIMhqYhjRNYhgGRZr3nQoMOQBNQf2pCqNe/YRgIwxBepaJeV0IIDjB7++3TbUzzWd7NAKDvCR14NnVdR5ZlQJbBNE0kSYIkSVCt1ZDEMcIwRBzHqNVq0HUdce9jlWoNaRQhCAI4jgMACMMQAOA4DgzDQJTESJIEXrmMLMswPz+Per0OTdPQ7XbhOM5QvInkgJJlGcIwhGEYyJIEV155JVatWoUXvvCFqFQq+eM2TXTabYg0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EiRT0Fmye7NIGYBUKhU0Gg2UXE8dNy33Y/u+37cUY9u2ur/D8L6Ur6Fihk3+O0kS6JaJJIxUqlqmoDVNg+gd+iNfg8bAY84Kg5R8T8v3r8wUyCO65ftbfr3b6/S5lK9fKmtS2IVk23ZewBhF2wXfcllDni8hlyZlgFDcxRTHMWw3f53Jo4Hltct1XbUDiAEAAwAior02CHKAoeWInQCJaHnPgjj4EwMAIiIiYgBAREREDACIiIiIAQARERExACAiIiIGAERERMQAgIiIiBgAEBEREQMAIiIiYgBAREREDACIiIiIAQARERExACAiIiIGAERERMQAgIiIiBgAEBEREQMAIiIiBgBERETEAICIiIgYABAREREDACIiImIAQERERAwAiIiIiAEAERERMQAgIiIiBgBERETEAICIiIgYABAREREDACIiImIAQERERAwAiIiIiAEAERERMQAgIiIiBgBEREQMAIiIiIgBABERETEAICIiIgYARERExACAiIiIGAAQERERAwAiIiJiAEBEREQMAIiIiIgBABERETEAICIiIgYARERExACAiIiIGAAQERERAwAiIiJiAEBEREQMAIiIiBgAEBEREQMAIiIiYgBAREREDACIiIiIAQARERExACAiIiIGAERERMQAgIiIiBgAEBEREQMAIiIiYgBAREREDACIiIiIAQARERExACAiIiIGAERERMQAgIiIiBgAEBEREQMAIiIiBgBERETEAICIiIgYABAREREDACIiImIAQERERAwAiIiIiAEAERERMQAgIiIiBgBERETEAICIiIgYABAREREDACIiImIAQERERAwAiIiIiAEAERERMQAgIiIiBgBEREQMAIiIiIgBABERETEAICIiIgYARERExACAiIiIGAAQERERAwAiIiJiAEBERET72f8PoEB+LYcTgMQAAAAASUVORK5CYII=', sizes: '512x512', type: 'image/png'}
+  ]
+};
+const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+
+// Service Worker (offline support)
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+</script>
+
+</body>
+</html>
