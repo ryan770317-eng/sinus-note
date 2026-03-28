@@ -1,4 +1,4 @@
-const CACHE = 'sinus-v2';
+const CACHE = 'sinus-v3';
 
 self.addEventListener('install', e => {
   e.waitUntil(
