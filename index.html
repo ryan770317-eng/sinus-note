@@ -141,32 +141,37 @@ nav {
 
 /* ── NOTES TAB ── */
 .note-mic-btn {
-  width: 44px; height: 44px; flex-shrink: 0;
-  border: 1px solid var(--border); background: var(--card);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px; cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
+  flex: 1; height: 44px;
+  border: 1px solid var(--border); background: transparent;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  cursor: pointer; font-size: 12px; letter-spacing: 0.12em;
+  color: var(--ink-2); font-family: var(--sans); font-weight: 300;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
+.note-mic-btn:hover { border-color: var(--ink); color: var(--ink); }
 .note-mic-btn.recording {
-  border-color: #a05040; background: #fdf0ee;
+  border-color: #a05040; color: #a05040; background: #fdf5f3;
   animation: note-pulse 1.2s ease-in-out infinite;
 }
 @keyframes note-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(160,80,64,0.25); }
-  50% { box-shadow: 0 0 0 8px rgba(160,80,64,0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(160,80,64,0.2); }
+  50% { box-shadow: 0 0 0 6px rgba(160,80,64,0); }
 }
 .note-textarea {
-  flex: 1; min-height: 90px; border: 1px solid var(--border);
-  background: var(--card); padding: 10px 12px; resize: none; outline: none;
+  width: 100%; min-height: 110px; border: 1px solid var(--border);
+  background: var(--card); padding: 12px 14px; resize: none; outline: none;
   font-family: var(--sans); font-weight: 300; font-size: 14px;
-  color: var(--ink); line-height: 1.7;
+  color: var(--ink); line-height: 1.75; display: block;
+  transition: border-color 0.15s;
 }
+.note-textarea:focus { border-color: var(--ink-3); }
 .note-save-btn {
-  width: 100%; margin-top: 10px; padding: 12px;
+  flex: 2; height: 44px; padding: 0 16px;
   background: var(--ink); color: var(--bg); border: none;
   font-family: var(--sans); font-weight: 300; font-size: 12px;
-  letter-spacing: 0.18em; cursor: pointer;
+  letter-spacing: 0.18em; cursor: pointer; transition: background 0.15s;
 }
+.note-save-btn:hover { background: var(--accent); }
 .note-card { border: 1px solid var(--border); background: var(--card); margin-bottom: 10px; }
 .note-card-header {
   display: flex; justify-content: space-between; align-items: center;
@@ -2124,17 +2129,14 @@ function formatNoteDate(iso) {
   return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())}  ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+// ── SVG Icons ──
+const MIC_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>`;
+const STOP_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16"/></svg>`;
+
 // ── renderNotes ──
 function renderNotes() {
   const notes = (S._notes || []).slice().reverse();
   const hasKey = !!localStorage.getItem('sinus_anthropic_key');
-
-  const apikeyWrap = hasKey ? '' : `
-    <div class="note-apikey-wrap" id="notes-apikey-wrap">
-      <div style="font-size:11px;letter-spacing:0.1em;color:var(--ink-3);margin-bottom:8px;">設定 Anthropic API Key 以啟用 AI 解析（選填）</div>
-      <input class="note-apikey-input" id="notes-apikey-input" type="password" placeholder="sk-ant-api03-…" autocomplete="off">
-      <button class="note-apikey-save" onclick="saveNotesApiKey()">儲存 Key</button>
-    </div>`;
 
   const notesList = notes.length === 0
     ? `<div class="empty">還沒有筆記<div class="empty-sub">在上方輸入或錄音</div></div>`
@@ -2151,20 +2153,41 @@ function renderNotes() {
         <div class="note-parse-result" id="note-result-${n.id}" style="display:none;"></div>
       </div>`).join('');
 
-  return `<div>
-    <div style="margin-bottom:24px;">
-      <h3 style="margin:0 0 4px;font-size:18px;letter-spacing:0.05em;font-weight:600;color:var(--ink);">隨手記</h3>
-      <div style="font-size:11px;color:var(--ink-4);letter-spacing:0.12em;margin-bottom:20px;">${notes.length} 則筆記</div>
-      ${apikeyWrap}
-      <div style="display:flex;gap:10px;align-items:flex-start;">
-        <button class="note-mic-btn" id="notes-mic-btn" onclick="toggleNotesRecording()" title="語音輸入">🎙</button>
-        <textarea class="note-textarea" id="notes-input"
-          placeholder="今天做了什麼？採收、製香、試燒都可以記…&#10;&#10;例：今天採收了廣藿香，進行乾燥中"></textarea>
+  const apiKeyFooter = !hasKey ? `
+    <div style="margin-top:32px;padding-top:20px;border-top:1px solid var(--border);">
+      <div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-4);margin-bottom:10px;">AI 解析設定</div>
+      <div style="display:flex;gap:0;">
+        <input class="note-apikey-input" id="notes-apikey-input" type="password"
+          placeholder="Anthropic API Key（sk-ant-api03-…）" autocomplete="off"
+          style="flex:1;border-right:none;"
+          onkeydown="if(event.key==='Enter')saveNotesApiKey()">
+        <button class="note-apikey-save" onclick="saveNotesApiKey()" style="width:72px;flex-shrink:0;font-size:11px;">儲存</button>
       </div>
-      <div style="font-size:11px;color:var(--ink-4);min-height:16px;margin-top:6px;letter-spacing:0.08em;" id="notes-rec-status"></div>
-      <button class="note-save-btn" onclick="saveNote()">儲存筆記</button>
+      <div style="font-size:11px;color:var(--ink-4);margin-top:6px;letter-spacing:0.06em;">設定後即可使用每則筆記的「AI 解析」功能</div>
+    </div>` : '';
+
+  return `<div class="container">
+    <div style="padding-bottom:20px;border-bottom:1px solid var(--border);margin-bottom:24px;display:flex;align-items:baseline;justify-content:space-between;">
+      <div>
+        <div style="font-family:var(--serif);font-size:22px;font-weight:400;letter-spacing:0.12em;color:var(--ink);">隨手記</div>
+        <div style="font-size:11px;color:var(--ink-4);letter-spacing:0.12em;margin-top:4px;">${notes.length} 則筆記</div>
+      </div>
     </div>
+
+    <div style="margin-bottom:28px;">
+      <textarea class="note-textarea" id="notes-input"
+        placeholder="今天做了什麼？採收、製香、試燒紀錄都可以寫在這裡…"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="note-mic-btn" id="notes-mic-btn" onclick="toggleNotesRecording()">
+          ${MIC_SVG}<span id="notes-mic-label">錄音</span>
+        </button>
+        <button class="note-save-btn" onclick="saveNote()">儲存筆記</button>
+      </div>
+      <div style="font-size:11px;color:var(--ink-4);min-height:16px;margin-top:7px;letter-spacing:0.06em;" id="notes-rec-status"></div>
+    </div>
+
     <div id="notes-list">${notesList}</div>
+    ${apiKeyFooter}
   </div>`;
 }
 
@@ -2189,7 +2212,8 @@ function startNotesRecording() {
 
   notesRecognition.onstart = () => {
     notesRecording = true;
-    document.getElementById('notes-mic-btn')?.classList.add('recording');
+    const btn = document.getElementById('notes-mic-btn');
+    if (btn) { btn.classList.add('recording'); btn.innerHTML = STOP_SVG + '<span>停止</span>'; }
     if (statusEl) statusEl.textContent = '錄音中… 說完請再點一次麥克風';
   };
   notesRecognition.onresult = (e) => {
@@ -2208,7 +2232,8 @@ function startNotesRecording() {
   };
   notesRecognition.onend = () => {
     notesRecording = false;
-    document.getElementById('notes-mic-btn')?.classList.remove('recording');
+    const btn = document.getElementById('notes-mic-btn');
+    if (btn) { btn.classList.remove('recording'); btn.innerHTML = MIC_SVG + '<span>錄音</span>'; }
     const text = document.getElementById('notes-input')?.value?.trim();
     if (statusEl) statusEl.textContent = text ? '錄音完成，確認內容後按儲存筆記' : '沒有偵測到聲音，請再試或手動輸入';
   };
@@ -2218,7 +2243,8 @@ function startNotesRecording() {
 function stopNotesRecording() {
   if (notesRecognition) { notesRecognition.stop(); notesRecognition = null; }
   notesRecording = false;
-  document.getElementById('notes-mic-btn')?.classList.remove('recording');
+  const btn = document.getElementById('notes-mic-btn');
+  if (btn) { btn.classList.remove('recording'); btn.innerHTML = MIC_SVG + '<span>錄音</span>'; }
 }
 
 // ── CRUD ──
