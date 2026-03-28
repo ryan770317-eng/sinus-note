@@ -139,6 +139,73 @@ nav {
 .nav-dropdown-item:last-child { border-bottom: none; }
 .nav-dropdown-item:hover { background: var(--card); color: var(--ink); }
 
+/* ── VOICE OVERLAY ── */
+#voice-overlay {
+  display: none; position: fixed; inset: 0; z-index: 8000;
+  background: #F5F1EB; flex-direction: column; align-items: center; justify-content: flex-start;
+  padding: 0 0 40px;
+}
+.voice-header {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  font-family: var(--sans); font-weight: 300; font-size: 13px;
+  letter-spacing: 0.15em; color: var(--ink-2);
+}
+.voice-close-btn {
+  background: none; border: none; font-size: 20px; color: var(--ink-3);
+  cursor: pointer; padding: 4px 8px; line-height: 1;
+}
+.voice-body { width: 100%; max-width: 420px; padding: 28px 24px 0; }
+.voice-mic-btn {
+  width: 72px; height: 72px; border-radius: 50%; border: 2px solid var(--border);
+  background: var(--card); display: flex; align-items: center; justify-content: center;
+  font-size: 28px; cursor: pointer; margin: 0 auto 16px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.voice-mic-btn.recording {
+  border-color: #a05040; background: #fdf0ee;
+  animation: voice-pulse 1.2s ease-in-out infinite;
+}
+@keyframes voice-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(160,80,64,0.25); }
+  50% { box-shadow: 0 0 0 10px rgba(160,80,64,0); }
+}
+.voice-status {
+  text-align: center; font-size: 12px; color: var(--ink-3);
+  letter-spacing: 0.1em; margin-bottom: 18px; min-height: 18px;
+}
+.voice-textarea {
+  width: 100%; min-height: 90px; border: 1px solid var(--border);
+  background: var(--card); padding: 12px 14px; resize: none; outline: none;
+  font-family: var(--sans); font-weight: 300; font-size: 14px;
+  color: var(--ink); line-height: 1.7; letter-spacing: 0.04em;
+}
+.voice-parse-btn {
+  width: 100%; margin-top: 12px; padding: 12px;
+  background: var(--ink); color: var(--bg); border: none;
+  font-family: var(--sans); font-weight: 300; font-size: 12px;
+  letter-spacing: 0.18em; cursor: pointer; transition: background 0.2s;
+}
+.voice-parse-btn:disabled { background: var(--ink-4); cursor: not-allowed; }
+.voice-apikey-section {
+  border: 1px solid var(--border); background: var(--card); padding: 16px;
+  margin-bottom: 16px;
+}
+.voice-apikey-label {
+  font-size: 11px; letter-spacing: 0.12em; color: var(--ink-3); margin-bottom: 8px;
+}
+.voice-apikey-input {
+  width: 100%; border: 1px solid var(--border); background: var(--bg);
+  padding: 9px 12px; font-family: var(--sans); font-weight: 300;
+  font-size: 13px; color: var(--ink); outline: none; margin-bottom: 10px;
+  letter-spacing: 0.04em;
+}
+.voice-apikey-save {
+  width: 100%; padding: 9px; background: var(--ink); color: var(--bg);
+  border: none; font-family: var(--sans); font-weight: 300;
+  font-size: 11px; letter-spacing: 0.15em; cursor: pointer;
+}
+
 /* home 搜尋列 + NEW 同行 */
 .home-toolbar { display: flex; gap: 8px; align-items: stretch; margin-bottom: 20px; }
 .home-toolbar .home-search { flex: 1; margin-bottom: 0; }
@@ -510,6 +577,35 @@ textarea.fi { resize: vertical; min-height: 68px; line-height: 1.75; }
   </div>
 </div>
 
+<!-- VOICE OVERLAY -->
+<div id="voice-overlay">
+  <div class="voice-header">
+    <span>語音輸入</span>
+    <button class="voice-close-btn" onclick="closeVoice()">×</button>
+  </div>
+  <div class="voice-body">
+    <!-- API Key section (shown if no key stored) -->
+    <div class="voice-apikey-section" id="voice-apikey-section" style="display:none;">
+      <div class="voice-apikey-label">需要 Anthropic API Key 才能使用 AI 解析</div>
+      <input class="voice-apikey-input" id="voice-apikey-input" type="password"
+        placeholder="sk-ant-api03-…" autocomplete="off"
+        onkeydown="if(event.key==='Enter')saveApiKey()">
+      <button class="voice-apikey-save" onclick="saveApiKey()">儲存 Key</button>
+    </div>
+    <!-- Main recording section -->
+    <div id="voice-main-section">
+      <button class="voice-mic-btn" id="voice-mic-btn" onclick="toggleRecording()">🎙</button>
+      <div class="voice-status" id="voice-status">點擊麥克風開始錄音</div>
+      <textarea class="voice-textarea" id="voice-transcript"
+        placeholder="錄音後文字會顯示在這裡，也可以直接手動輸入…"
+        oninput="onTranscriptInput()"></textarea>
+      <button class="voice-parse-btn" id="voice-parse-btn"
+        style="display:none;" onclick="parseVoiceNote()">AI 解析</button>
+      <div id="voice-result" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
 <!-- TOP NAV -->
 <nav>
   <div class="nav-primary">
@@ -521,6 +617,7 @@ textarea.fi { resize: vertical; min-height: 68px; line-height: 1.75; }
     <div class="nav-menu-wrap" id="nav-menu-wrap">
       <button class="nav-menu-btn" onclick="toggleNavMenu(event)" id="nav-menu-btn" title="選單">···</button>
       <div class="nav-dropdown" id="nav-dropdown">
+        <button class="nav-dropdown-item" onclick="openVoice();closeNavMenu()">🎙 語音輸入</button>
         <button class="nav-dropdown-item" onclick="importData();closeNavMenu()">↑ 匯入</button>
         <button class="nav-dropdown-item" onclick="exportData();closeNavMenu()">↓ 備份</button>
         <button class="nav-dropdown-item" onclick="doLogout()">登出</button>
@@ -2013,6 +2110,249 @@ function dragTouchEnd(e) {
   touchDragging = false;
   touchDragId = null;
   render();
+}
+
+// ══════════════════════════════════════════
+//  VOICE INPUT
+// ══════════════════════════════════════════
+let voiceRecognition = null;
+let voiceRecording = false;
+let voiceTranscript = '';
+
+function openVoice() {
+  document.getElementById('voice-overlay').style.display = 'flex';
+  document.getElementById('voice-transcript').value = '';
+  document.getElementById('voice-result').style.display = 'none';
+  document.getElementById('voice-parse-btn').style.display = 'none';
+  document.getElementById('voice-status').textContent = '點擊麥克風開始錄音';
+  document.getElementById('voice-mic-btn').classList.remove('recording');
+  voiceTranscript = '';
+  checkApiKey();
+}
+
+function closeVoice() {
+  document.getElementById('voice-overlay').style.display = 'none';
+  if (voiceRecording) stopRecording();
+}
+
+function checkApiKey() {
+  const key = localStorage.getItem('sinus_anthropic_key');
+  document.getElementById('voice-apikey-section').style.display = key ? 'none' : 'block';
+  document.getElementById('voice-main-section').style.display = key ? 'block' : 'none';
+}
+
+function saveApiKey() {
+  const key = document.getElementById('voice-apikey-input').value.trim();
+  if (!key.startsWith('sk-ant-')) {
+    document.getElementById('voice-apikey-input').style.borderColor = '#a05040';
+    return;
+  }
+  localStorage.setItem('sinus_anthropic_key', key);
+  checkApiKey();
+}
+
+function onTranscriptInput() {
+  const text = document.getElementById('voice-transcript').value.trim();
+  document.getElementById('voice-parse-btn').style.display = text ? 'block' : 'none';
+  document.getElementById('voice-result').style.display = 'none';
+}
+
+function toggleRecording() {
+  if (voiceRecording) stopRecording();
+  else startRecording();
+}
+
+function startRecording() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    document.getElementById('voice-status').textContent = '瀏覽器不支援語音，請用 Chrome 或手動輸入';
+    return;
+  }
+  voiceTranscript = document.getElementById('voice-transcript').value;
+  voiceRecognition = new SR();
+  voiceRecognition.lang = 'zh-TW';
+  voiceRecognition.continuous = true;
+  voiceRecognition.interimResults = true;
+
+  voiceRecognition.onstart = () => {
+    voiceRecording = true;
+    document.getElementById('voice-mic-btn').classList.add('recording');
+    document.getElementById('voice-status').textContent = '錄音中… 說完請再點一次';
+    document.getElementById('voice-parse-btn').style.display = 'none';
+    document.getElementById('voice-result').style.display = 'none';
+  };
+
+  voiceRecognition.onresult = (e) => {
+    let interim = '';
+    let finals = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finals += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    if (finals) voiceTranscript += finals;
+    document.getElementById('voice-transcript').value = voiceTranscript + (interim ? interim : '');
+  };
+
+  voiceRecognition.onerror = (e) => {
+    document.getElementById('voice-status').textContent = '錄音失敗：' + e.error;
+    stopRecording();
+  };
+
+  voiceRecognition.onend = () => {
+    voiceRecording = false;
+    document.getElementById('voice-mic-btn').classList.remove('recording');
+    const text = document.getElementById('voice-transcript').value.trim();
+    if (text) {
+      document.getElementById('voice-status').textContent = '錄音完成，可以直接編輯後按 AI 解析';
+      document.getElementById('voice-parse-btn').style.display = 'block';
+    } else {
+      document.getElementById('voice-status').textContent = '沒有偵測到聲音，請再試或手動輸入';
+    }
+  };
+
+  voiceRecognition.start();
+}
+
+function stopRecording() {
+  if (voiceRecognition) { voiceRecognition.stop(); voiceRecognition = null; }
+  voiceRecording = false;
+}
+
+async function parseVoiceNote() {
+  const text = document.getElementById('voice-transcript').value.trim();
+  if (!text) return;
+  const key = localStorage.getItem('sinus_anthropic_key');
+  if (!key) { checkApiKey(); return; }
+
+  const btn = document.getElementById('voice-parse-btn');
+  btn.textContent = '解析中…'; btn.disabled = true;
+  document.getElementById('voice-result').style.display = 'none';
+
+  const matList = (S._materials||[]).map(m=>`${m.name}(${ING_CATS[m.cat]?.label||m.cat})`).join('、') || '尚無';
+  const recipeList = (S.recipes||[]).map(r=>`${r.name}[id:${r.id}]`).join('、') || '尚無';
+
+  const systemPrompt = `你是「SINUS NOTE 引香筆記」助手，解析用戶的語音備注，決定寫入哪個資料庫。
+
+材料分類：base=基底木, botanical=花果藥草, resin=樹脂, tincture=酊劑, ferment=酒酵香泥, wine=泡酒香粉, binder=黏粉
+庫存單位：g, ml, 包, 瓶, 份, 克
+現有材料：${matList}
+現有配方：${recipeList}
+
+請回傳以下 JSON 之一（純 JSON，不加 markdown）：
+
+新增材料：{"type":"material_add","cat":"botanical","name":"材料名","origin":"","supplier":"","note":"","qty":0,"unit":"g","summary":"新增 XXX 到 花果藥草"}
+更新庫存：{"type":"stock_update","name":"材料名","qty":50,"unit":"g","summary":"更新 XXX 庫存 50g"}
+配方備注：{"type":"recipe_note","recipeId":0,"recipeName":"配方名","note":"備注內容","summary":"在 XXX 新增備注"}
+日記備注：{"type":"free_note","content":"整理後的內容","summary":"儲存日記備注"}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 512,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: text }]
+      })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({}));
+      throw new Error(err.error?.message || 'API 錯誤 ' + res.status);
+    }
+    const data = await res.json();
+    const raw = data.content[0].text.trim().replace(/^```json\s*/,'').replace(/```$/,'');
+    let result;
+    try { result = JSON.parse(raw); }
+    catch { result = { type: 'free_note', content: raw, summary: '儲存備注（解析格式有誤）' }; }
+    showVoiceResult(result);
+  } catch(e) {
+    const el = document.getElementById('voice-result');
+    el.style.display = 'block';
+    el.innerHTML = `<div style="color:var(--fail);font-size:13px;padding:14px;border:1px solid var(--border);margin-top:12px;background:var(--card);">解析失敗：${esc(e.message)}</div>`;
+  } finally {
+    btn.textContent = 'AI 解析'; btn.disabled = false;
+  }
+}
+
+function showVoiceResult(result) {
+  const el = document.getElementById('voice-result');
+  el.dataset.result = JSON.stringify(result);
+  el.style.display = 'block';
+  const typeLabel = {material_add:'新增材料', stock_update:'更新庫存', recipe_note:'配方備注', free_note:'日記備注'}[result.type] || result.type;
+  el.innerHTML = `
+    <div style="border:1px solid var(--border);background:var(--card);padding:16px;margin-top:12px;">
+      <div style="font-size:10px;letter-spacing:0.15em;color:var(--ink-4);margin-bottom:6px;text-transform:uppercase;">${typeLabel}</div>
+      <div style="font-size:15px;color:var(--ink);font-family:var(--serif);margin-bottom:14px;line-height:1.5;">${esc(result.summary||'')}</div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="confirmVoiceAction()"
+          style="flex:1;padding:11px;background:var(--ink);color:var(--bg);border:none;font-family:var(--sans);font-weight:300;font-size:12px;letter-spacing:0.15em;cursor:pointer;">確認儲存</button>
+        <button onclick="document.getElementById('voice-result').style.display='none'"
+          style="padding:11px 16px;background:transparent;border:1px solid var(--border);font-family:var(--sans);font-weight:300;font-size:12px;letter-spacing:0.1em;cursor:pointer;color:var(--ink-2);">取消</button>
+      </div>
+    </div>`;
+}
+
+function confirmVoiceAction() {
+  const el = document.getElementById('voice-result');
+  const r = JSON.parse(el.dataset.result || '{}');
+
+  if (r.type === 'material_add') {
+    const mats = getMaterials();
+    mats.push({
+      id: 'mu' + Date.now(),
+      cat: r.cat || 'botanical',
+      name: r.name || '',
+      origin: r.origin || '',
+      supplier: r.supplier || '',
+      note: r.note || '',
+      stock: { qty: r.qty || 0, unit: r.unit || 'g', note: '' }
+    });
+    saveMaterials(mats);
+    closeVoice();
+    goBottomMat();
+    renderApp();
+
+  } else if (r.type === 'stock_update') {
+    const mats = getMaterials();
+    const mat = mats.find(m => m.name.includes(r.name) || r.name.includes(m.name));
+    if (mat) {
+      mat.stock = { qty: r.qty || 0, unit: r.unit || 'g', note: mat.stock?.note || '' };
+      saveMaterials(mats);
+      closeVoice();
+      renderApp();
+    } else {
+      el.innerHTML += `<div style="color:var(--fail);font-size:12px;margin-top:8px;padding:8px 12px;border:1px solid var(--border);">找不到材料「${esc(r.name)}」，請手動新增或更新</div>`;
+    }
+
+  } else if (r.type === 'recipe_note') {
+    const recipe = S.recipes.find(x => x.id === r.recipeId || (r.recipeName && x.name.includes(r.recipeName)));
+    if (recipe) {
+      const v = recipe.versions[recipe.versions.length - 1];
+      if (v) {
+        v.comments = v.comments || [];
+        v.comments.push({ tester: 'Ryan', text: r.note });
+        recipe.updatedAt = new Date().toISOString();
+        save();
+        closeVoice();
+        renderApp();
+      }
+    } else {
+      el.innerHTML += `<div style="color:var(--fail);font-size:12px;margin-top:8px;padding:8px 12px;border:1px solid var(--border);">找不到配方「${esc(r.recipeName||'')}」，請手動新增</div>`;
+    }
+
+  } else if (r.type === 'free_note') {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(r.content).catch(()=>{});
+    }
+    closeVoice();
+    alert('📋 日記備注已複製到剪貼板');
+  }
 }
 
 // ══════════════════════════════════════════
