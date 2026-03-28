@@ -139,68 +139,71 @@ nav {
 .nav-dropdown-item:last-child { border-bottom: none; }
 .nav-dropdown-item:hover { background: var(--card); color: var(--ink); }
 
-/* ── VOICE OVERLAY ── */
-#voice-overlay {
-  display: none; position: fixed; inset: 0; z-index: 8000;
-  background: #F5F1EB; flex-direction: column; align-items: center; justify-content: flex-start;
-  padding: 0 0 40px;
-}
-.voice-header {
-  width: 100%; display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 20px; border-bottom: 1px solid var(--border);
-  font-family: var(--sans); font-weight: 300; font-size: 13px;
-  letter-spacing: 0.15em; color: var(--ink-2);
-}
-.voice-close-btn {
-  background: none; border: none; font-size: 20px; color: var(--ink-3);
-  cursor: pointer; padding: 4px 8px; line-height: 1;
-}
-.voice-body { width: 100%; max-width: 420px; padding: 28px 24px 0; }
-.voice-mic-btn {
-  width: 72px; height: 72px; border-radius: 50%; border: 2px solid var(--border);
-  background: var(--card); display: flex; align-items: center; justify-content: center;
-  font-size: 28px; cursor: pointer; margin: 0 auto 16px;
+/* ── NOTES TAB ── */
+.note-mic-btn {
+  width: 44px; height: 44px; flex-shrink: 0;
+  border: 1px solid var(--border); background: var(--card);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer;
   transition: border-color 0.2s, background 0.2s;
 }
-.voice-mic-btn.recording {
+.note-mic-btn.recording {
   border-color: #a05040; background: #fdf0ee;
-  animation: voice-pulse 1.2s ease-in-out infinite;
+  animation: note-pulse 1.2s ease-in-out infinite;
 }
-@keyframes voice-pulse {
+@keyframes note-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(160,80,64,0.25); }
-  50% { box-shadow: 0 0 0 10px rgba(160,80,64,0); }
+  50% { box-shadow: 0 0 0 8px rgba(160,80,64,0); }
 }
-.voice-status {
-  text-align: center; font-size: 12px; color: var(--ink-3);
-  letter-spacing: 0.1em; margin-bottom: 18px; min-height: 18px;
-}
-.voice-textarea {
-  width: 100%; min-height: 90px; border: 1px solid var(--border);
-  background: var(--card); padding: 12px 14px; resize: none; outline: none;
+.note-textarea {
+  flex: 1; min-height: 90px; border: 1px solid var(--border);
+  background: var(--card); padding: 10px 12px; resize: none; outline: none;
   font-family: var(--sans); font-weight: 300; font-size: 14px;
-  color: var(--ink); line-height: 1.7; letter-spacing: 0.04em;
+  color: var(--ink); line-height: 1.7;
 }
-.voice-parse-btn {
-  width: 100%; margin-top: 12px; padding: 12px;
+.note-save-btn {
+  width: 100%; margin-top: 10px; padding: 12px;
   background: var(--ink); color: var(--bg); border: none;
   font-family: var(--sans); font-weight: 300; font-size: 12px;
-  letter-spacing: 0.18em; cursor: pointer; transition: background 0.2s;
+  letter-spacing: 0.18em; cursor: pointer;
 }
-.voice-parse-btn:disabled { background: var(--ink-4); cursor: not-allowed; }
-.voice-apikey-section {
-  border: 1px solid var(--border); background: var(--card); padding: 16px;
-  margin-bottom: 16px;
+.note-card { border: 1px solid var(--border); background: var(--card); margin-bottom: 10px; }
+.note-card-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 14px; border-bottom: 1px solid var(--border);
 }
-.voice-apikey-label {
-  font-size: 11px; letter-spacing: 0.12em; color: var(--ink-3); margin-bottom: 8px;
+.note-card-time { font-size: 11px; color: var(--ink-4); letter-spacing: 0.1em; }
+.note-card-del {
+  background: none; border: none; font-size: 16px; color: var(--ink-4);
+  cursor: pointer; padding: 0 4px; line-height: 1;
 }
-.voice-apikey-input {
+.note-card-body {
+  padding: 12px 14px; font-size: 14px; color: var(--ink);
+  font-family: var(--sans); font-weight: 300; line-height: 1.75;
+  white-space: pre-wrap; word-break: break-all;
+}
+.note-card-footer { padding: 8px 14px; border-top: 1px solid var(--border); }
+.note-parse-btn {
+  width: 100%; padding: 9px; background: transparent;
+  border: 1px solid var(--accent); color: var(--accent);
+  font-family: var(--sans); font-weight: 300; font-size: 11px;
+  letter-spacing: 0.15em; cursor: pointer; transition: all 0.15s;
+}
+.note-parse-btn:hover { background: var(--accent); color: var(--bg); }
+.note-parse-btn:disabled { border-color: var(--ink-4); color: var(--ink-4); cursor: not-allowed; background: transparent; }
+.note-parse-result {
+  margin: 0 14px 12px; border: 1px solid var(--border);
+  background: var(--surface); padding: 12px 14px;
+}
+.note-apikey-wrap {
+  border: 1px solid var(--border); background: var(--surface); padding: 14px; margin-bottom: 16px;
+}
+.note-apikey-input {
   width: 100%; border: 1px solid var(--border); background: var(--bg);
   padding: 9px 12px; font-family: var(--sans); font-weight: 300;
-  font-size: 13px; color: var(--ink); outline: none; margin-bottom: 10px;
-  letter-spacing: 0.04em;
+  font-size: 13px; color: var(--ink); outline: none; margin-bottom: 8px;
 }
-.voice-apikey-save {
+.note-apikey-save {
   width: 100%; padding: 9px; background: var(--ink); color: var(--bg);
   border: none; font-family: var(--sans); font-weight: 300;
   font-size: 11px; letter-spacing: 0.15em; cursor: pointer;
@@ -577,35 +580,6 @@ textarea.fi { resize: vertical; min-height: 68px; line-height: 1.75; }
   </div>
 </div>
 
-<!-- VOICE OVERLAY -->
-<div id="voice-overlay">
-  <div class="voice-header">
-    <span>語音輸入</span>
-    <button class="voice-close-btn" onclick="closeVoice()">×</button>
-  </div>
-  <div class="voice-body">
-    <!-- API Key section (shown if no key stored) -->
-    <div class="voice-apikey-section" id="voice-apikey-section" style="display:none;">
-      <div class="voice-apikey-label">需要 Anthropic API Key 才能使用 AI 解析</div>
-      <input class="voice-apikey-input" id="voice-apikey-input" type="password"
-        placeholder="sk-ant-api03-…" autocomplete="off"
-        onkeydown="if(event.key==='Enter')saveApiKey()">
-      <button class="voice-apikey-save" onclick="saveApiKey()">儲存 Key</button>
-    </div>
-    <!-- Main recording section -->
-    <div id="voice-main-section">
-      <button class="voice-mic-btn" id="voice-mic-btn" onclick="toggleRecording()">🎙</button>
-      <div class="voice-status" id="voice-status">點擊麥克風開始錄音</div>
-      <textarea class="voice-textarea" id="voice-transcript"
-        placeholder="錄音後文字會顯示在這裡，也可以直接手動輸入…"
-        oninput="onTranscriptInput()"></textarea>
-      <button class="voice-parse-btn" id="voice-parse-btn"
-        style="display:none;" onclick="parseVoiceNote()">AI 解析</button>
-      <div id="voice-result" style="display:none;"></div>
-    </div>
-  </div>
-</div>
-
 <!-- TOP NAV -->
 <nav>
   <div class="nav-primary">
@@ -613,11 +587,11 @@ textarea.fi { resize: vertical; min-height: 68px; line-height: 1.75; }
     <div class="nav-tabs">
       <button class="nav-tab active" id="nav-tab-home" onclick="goBottomHome()">配方</button>
       <button class="nav-tab" id="nav-tab-mat" onclick="goBottomMat()">材料庫</button>
+      <button class="nav-tab" id="nav-tab-notes" onclick="goBottomNotes()">隨手記</button>
     </div>
     <div class="nav-menu-wrap" id="nav-menu-wrap">
       <button class="nav-menu-btn" onclick="toggleNavMenu(event)" id="nav-menu-btn" title="選單">···</button>
       <div class="nav-dropdown" id="nav-dropdown">
-        <button class="nav-dropdown-item" onclick="openVoice();closeNavMenu()">🎙 語音輸入</button>
         <button class="nav-dropdown-item" onclick="importData();closeNavMenu()">↑ 匯入</button>
         <button class="nav-dropdown-item" onclick="exportData();closeNavMenu()">↓ 備份</button>
         <button class="nav-dropdown-item" onclick="doLogout()">登出</button>
@@ -845,7 +819,7 @@ function makeSeed() {
 // ══════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════
-let currentTab = 'home'; // 'home' | 'mat'
+let currentTab = 'home'; // 'home' | 'mat' | 'notes'
 let S = {
   screen: 'home',  // home | category | detail | form
   catId: null,
@@ -857,6 +831,7 @@ let S = {
   vi: {},           // recipeId -> version index
   pendingCatImg: null,
   search: '',
+  _notes: [],
 };
 
 // ══════════════════════════════════════════
@@ -930,10 +905,13 @@ async function loadFromFirestore() {
       S._materials = makeMaterialsSeed();
       saveMaterials(S._materials);
     }
+    const notesSnap = await getDocRef('notes').get();
+    S._notes = notesSnap.exists ? (notesSnap.data().items || []) : [];
   } catch(e) {
     console.error('loadFromFirestore err:', e);
     S.recipes = makeSeed();
     S._materials = makeMaterialsSeed();
+    S._notes = [];
   }
 }
 
@@ -1029,8 +1007,8 @@ function updateNav() {
   const subAction = document.getElementById('nav-sub-action');
   const mainEl = document.querySelector('main');
 
-  // sub-bar 顯示條件：非 home 頁
-  const isHome = (S.screen === 'home');
+  // sub-bar 顯示條件：非 home/mat/notes 頁
+  const isHome = (S.screen === 'home') || currentTab === 'mat' || currentTab === 'notes';
   if (subBar) subBar.style.display = isHome ? 'none' : 'flex';
   if (back) back.style.display = isHome ? 'none' : 'flex';
   if (mainEl) mainEl.style.paddingTop = isHome ? 'var(--nav-h)' : 'calc(var(--nav-h) + 44px)';
@@ -1752,6 +1730,13 @@ function saveMaterials(mats) {
   ref.set({ items: mats, updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
     .catch(e => console.error('save materials err:', e));
 }
+function saveNotes(notes) {
+  S._notes = notes;
+  const ref = getDocRef('notes');
+  if (!ref) return;
+  ref.set({ items: notes, updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
+    .catch(e => console.error('save notes err:', e));
+}
 function getMaterials() {
   if (!S._materials) S._materials = loadMaterials();
   return S._materials;
@@ -1946,11 +1931,19 @@ function goBottomMat() {
   matAddMode=false; matCatFilter='base';
   updateBottomNav('mat'); renderApp();
 }
+function goBottomNotes() {
+  if (S.screen==='form' && S.editData) { if (!confirm('尚未儲存，確定離開？')) return; }
+  currentTab='notes';
+  if (notesRecording) stopNotesRecording();
+  updateBottomNav('notes'); renderApp();
+}
 function updateBottomNav(tab) {
   const th = document.getElementById('nav-tab-home');
   const tm = document.getElementById('nav-tab-mat');
-  if(th) th.className = 'nav-tab' + (tab==='home' ? ' active' : '');
-  if(tm) tm.className = 'nav-tab' + (tab==='mat'  ? ' active' : '');
+  const tn = document.getElementById('nav-tab-notes');
+  if(th) th.className = 'nav-tab' + (tab==='home'  ? ' active' : '');
+  if(tm) tm.className = 'nav-tab' + (tab==='mat'   ? ' active' : '');
+  if(tn) tn.className = 'nav-tab' + (tab==='notes' ? ' active' : '');
 }
 function renderApp() {
   const app = document.getElementById('app');
@@ -1958,6 +1951,11 @@ function renderApp() {
     app.innerHTML = renderMaterials();
     updateNav();
     matBindLongPress();
+    return;
+  }
+  if (currentTab === 'notes') {
+    app.innerHTML = renderNotes();
+    updateNav();
     return;
   }
   render();
@@ -2113,137 +2111,189 @@ function dragTouchEnd(e) {
 }
 
 // ══════════════════════════════════════════
-//  VOICE INPUT
+//  NOTES TAB
 // ══════════════════════════════════════════
-let voiceRecognition = null;
-let voiceRecording = false;
-let voiceTranscript = '';
+let notesRecognition = null;
+let notesRecording = false;
+let notesTranscript = '';
 
-function openVoice() {
-  document.getElementById('voice-overlay').style.display = 'flex';
-  document.getElementById('voice-transcript').value = '';
-  document.getElementById('voice-result').style.display = 'none';
-  document.getElementById('voice-parse-btn').style.display = 'none';
-  document.getElementById('voice-status').textContent = '點擊麥克風開始錄音';
-  document.getElementById('voice-mic-btn').classList.remove('recording');
-  voiceTranscript = '';
-  checkApiKey();
+// ── 日期格式化 ──
+function formatNoteDate(iso) {
+  const d = new Date(iso);
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())}  ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function closeVoice() {
-  document.getElementById('voice-overlay').style.display = 'none';
-  if (voiceRecording) stopRecording();
+// ── renderNotes ──
+function renderNotes() {
+  const notes = (S._notes || []).slice().reverse();
+  const hasKey = !!localStorage.getItem('sinus_anthropic_key');
+
+  const apikeyWrap = hasKey ? '' : `
+    <div class="note-apikey-wrap" id="notes-apikey-wrap">
+      <div style="font-size:11px;letter-spacing:0.1em;color:var(--ink-3);margin-bottom:8px;">設定 Anthropic API Key 以啟用 AI 解析（選填）</div>
+      <input class="note-apikey-input" id="notes-apikey-input" type="password" placeholder="sk-ant-api03-…" autocomplete="off">
+      <button class="note-apikey-save" onclick="saveNotesApiKey()">儲存 Key</button>
+    </div>`;
+
+  const notesList = notes.length === 0
+    ? `<div class="empty">還沒有筆記<div class="empty-sub">在上方輸入或錄音</div></div>`
+    : notes.map(n => `
+      <div class="note-card" id="note-${n.id}">
+        <div class="note-card-header">
+          <span class="note-card-time">${formatNoteDate(n.createdAt)}</span>
+          <button class="note-card-del" onclick="deleteNote('${n.id}')" title="刪除">×</button>
+        </div>
+        <div class="note-card-body">${esc(n.text)}</div>
+        <div class="note-card-footer">
+          <button class="note-parse-btn" id="parse-btn-${n.id}" onclick="parseNoteWithAI('${n.id}')">AI 解析</button>
+        </div>
+        <div class="note-parse-result" id="note-result-${n.id}" style="display:none;"></div>
+      </div>`).join('');
+
+  return `<div>
+    <div style="margin-bottom:24px;">
+      <h3 style="margin:0 0 4px;font-size:18px;letter-spacing:0.05em;font-weight:600;color:var(--ink);">隨手記</h3>
+      <div style="font-size:11px;color:var(--ink-4);letter-spacing:0.12em;margin-bottom:20px;">${notes.length} 則筆記</div>
+      ${apikeyWrap}
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <button class="note-mic-btn" id="notes-mic-btn" onclick="toggleNotesRecording()" title="語音輸入">🎙</button>
+        <textarea class="note-textarea" id="notes-input"
+          placeholder="今天做了什麼？採收、製香、試燒都可以記…&#10;&#10;例：今天採收了廣藿香，進行乾燥中"></textarea>
+      </div>
+      <div style="font-size:11px;color:var(--ink-4);min-height:16px;margin-top:6px;letter-spacing:0.08em;" id="notes-rec-status"></div>
+      <button class="note-save-btn" onclick="saveNote()">儲存筆記</button>
+    </div>
+    <div id="notes-list">${notesList}</div>
+  </div>`;
 }
 
-function checkApiKey() {
-  const key = localStorage.getItem('sinus_anthropic_key');
-  document.getElementById('voice-apikey-section').style.display = key ? 'none' : 'block';
-  document.getElementById('voice-main-section').style.display = key ? 'block' : 'none';
+// ── 語音錄音（整合在 notes textarea）──
+function toggleNotesRecording() {
+  if (notesRecording) stopNotesRecording();
+  else startNotesRecording();
 }
 
-function saveApiKey() {
-  const key = document.getElementById('voice-apikey-input').value.trim();
-  if (!key.startsWith('sk-ant-')) {
-    document.getElementById('voice-apikey-input').style.borderColor = '#a05040';
-    return;
-  }
-  localStorage.setItem('sinus_anthropic_key', key);
-  checkApiKey();
-}
-
-function onTranscriptInput() {
-  const text = document.getElementById('voice-transcript').value.trim();
-  document.getElementById('voice-parse-btn').style.display = text ? 'block' : 'none';
-  document.getElementById('voice-result').style.display = 'none';
-}
-
-function toggleRecording() {
-  if (voiceRecording) stopRecording();
-  else startRecording();
-}
-
-function startRecording() {
+function startNotesRecording() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const statusEl = document.getElementById('notes-rec-status');
   if (!SR) {
-    document.getElementById('voice-status').textContent = '瀏覽器不支援語音，請用 Chrome 或手動輸入';
+    if (statusEl) statusEl.textContent = '此瀏覽器不支援語音，請用 Chrome 或直接輸入文字';
     return;
   }
-  voiceTranscript = document.getElementById('voice-transcript').value;
-  voiceRecognition = new SR();
-  voiceRecognition.lang = 'zh-TW';
-  voiceRecognition.continuous = true;
-  voiceRecognition.interimResults = true;
+  notesTranscript = (document.getElementById('notes-input')?.value || '');
+  notesRecognition = new SR();
+  notesRecognition.lang = 'zh-TW';
+  notesRecognition.continuous = true;
+  notesRecognition.interimResults = true;
 
-  voiceRecognition.onstart = () => {
-    voiceRecording = true;
-    document.getElementById('voice-mic-btn').classList.add('recording');
-    document.getElementById('voice-status').textContent = '錄音中… 說完請再點一次';
-    document.getElementById('voice-parse-btn').style.display = 'none';
-    document.getElementById('voice-result').style.display = 'none';
+  notesRecognition.onstart = () => {
+    notesRecording = true;
+    document.getElementById('notes-mic-btn')?.classList.add('recording');
+    if (statusEl) statusEl.textContent = '錄音中… 說完請再點一次麥克風';
   };
-
-  voiceRecognition.onresult = (e) => {
-    let interim = '';
-    let finals = '';
+  notesRecognition.onresult = (e) => {
+    let interim = '', finals = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
       if (e.results[i].isFinal) finals += e.results[i][0].transcript;
       else interim += e.results[i][0].transcript;
     }
-    if (finals) voiceTranscript += finals;
-    document.getElementById('voice-transcript').value = voiceTranscript + (interim ? interim : '');
+    if (finals) notesTranscript += finals;
+    const ta = document.getElementById('notes-input');
+    if (ta) ta.value = notesTranscript + interim;
   };
-
-  voiceRecognition.onerror = (e) => {
-    document.getElementById('voice-status').textContent = '錄音失敗：' + e.error;
-    stopRecording();
+  notesRecognition.onerror = (e) => {
+    if (statusEl) statusEl.textContent = '錄音失敗：' + e.error;
+    stopNotesRecording();
   };
-
-  voiceRecognition.onend = () => {
-    voiceRecording = false;
-    document.getElementById('voice-mic-btn').classList.remove('recording');
-    const text = document.getElementById('voice-transcript').value.trim();
-    if (text) {
-      document.getElementById('voice-status').textContent = '錄音完成，可以直接編輯後按 AI 解析';
-      document.getElementById('voice-parse-btn').style.display = 'block';
-    } else {
-      document.getElementById('voice-status').textContent = '沒有偵測到聲音，請再試或手動輸入';
-    }
+  notesRecognition.onend = () => {
+    notesRecording = false;
+    document.getElementById('notes-mic-btn')?.classList.remove('recording');
+    const text = document.getElementById('notes-input')?.value?.trim();
+    if (statusEl) statusEl.textContent = text ? '錄音完成，確認內容後按儲存筆記' : '沒有偵測到聲音，請再試或手動輸入';
   };
-
-  voiceRecognition.start();
+  notesRecognition.start();
 }
 
-function stopRecording() {
-  if (voiceRecognition) { voiceRecognition.stop(); voiceRecognition = null; }
-  voiceRecording = false;
+function stopNotesRecording() {
+  if (notesRecognition) { notesRecognition.stop(); notesRecognition = null; }
+  notesRecording = false;
+  document.getElementById('notes-mic-btn')?.classList.remove('recording');
 }
 
-async function parseVoiceNote() {
-  const text = document.getElementById('voice-transcript').value.trim();
+// ── CRUD ──
+function saveNote() {
+  const ta = document.getElementById('notes-input');
+  const text = ta ? ta.value.trim() : '';
   if (!text) return;
-  const key = localStorage.getItem('sinus_anthropic_key');
-  if (!key) { checkApiKey(); return; }
+  const notes = S._notes || [];
+  notes.push({ id: 'n' + Date.now(), text, createdAt: new Date().toISOString() });
+  saveNotes(notes);
+  renderApp();
+}
 
-  const btn = document.getElementById('voice-parse-btn');
-  btn.textContent = '解析中…'; btn.disabled = true;
-  document.getElementById('voice-result').style.display = 'none';
+function deleteNote(id) {
+  if (!confirm('刪除這則筆記？')) return;
+  S._notes = (S._notes || []).filter(n => n.id !== id);
+  saveNotes(S._notes);
+  renderApp();
+}
+
+// ── API Key ──
+function saveNotesApiKey() {
+  const key = (document.getElementById('notes-apikey-input')?.value || '').trim();
+  if (!key.startsWith('sk-ant-')) {
+    const el = document.getElementById('notes-apikey-input');
+    if (el) el.style.borderColor = '#a05040';
+    return;
+  }
+  localStorage.setItem('sinus_anthropic_key', key);
+  renderApp();
+}
+
+// ── AI 解析（per-note）──
+async function parseNoteWithAI(noteId) {
+  const note = (S._notes || []).find(n => n.id === noteId);
+  if (!note) return;
+
+  const key = localStorage.getItem('sinus_anthropic_key');
+  if (!key) {
+    const w = document.getElementById('notes-apikey-wrap');
+    if (w) { w.style.display = 'block'; w.scrollIntoView({behavior:'smooth'}); }
+    return;
+  }
+
+  const btn = document.getElementById('parse-btn-' + noteId);
+  const resultEl = document.getElementById('note-result-' + noteId);
+  if (btn) { btn.textContent = '解析中…'; btn.disabled = true; }
+  if (resultEl) resultEl.style.display = 'none';
 
   const matList = (S._materials||[]).map(m=>`${m.name}(${ING_CATS[m.cat]?.label||m.cat})`).join('、') || '尚無';
   const recipeList = (S.recipes||[]).map(r=>`${r.name}[id:${r.id}]`).join('、') || '尚無';
 
-  const systemPrompt = `你是「SINUS NOTE 引香筆記」助手，解析用戶的語音備注，決定寫入哪個資料庫。
+  const systemPrompt = `你是「SINUS NOTE 引香筆記」助手，分析用戶的筆記，判斷是否要寫入材料庫或配方庫。
 
 材料分類：base=基底木, botanical=花果藥草, resin=樹脂, tincture=酊劑, ferment=酒酵香泥, wine=泡酒香粉, binder=黏粉
 庫存單位：g, ml, 包, 瓶, 份, 克
 現有材料：${matList}
 現有配方：${recipeList}
 
-請回傳以下 JSON 之一（純 JSON，不加 markdown）：
+請分析筆記，回傳以下 JSON 之一（純 JSON，不加 markdown）。若筆記涉及多個操作，選最主要的一個：
 
-新增材料：{"type":"material_add","cat":"botanical","name":"材料名","origin":"","supplier":"","note":"","qty":0,"unit":"g","summary":"新增 XXX 到 花果藥草"}
-更新庫存：{"type":"stock_update","name":"材料名","qty":50,"unit":"g","summary":"更新 XXX 庫存 50g"}
-配方備注：{"type":"recipe_note","recipeId":0,"recipeName":"配方名","note":"備注內容","summary":"在 XXX 新增備注"}
-日記備注：{"type":"free_note","content":"整理後的內容","summary":"儲存日記備注"}`;
+新增材料到材料庫：
+{"type":"material_add","cat":"botanical","name":"材料名","origin":"","supplier":"","note":"","qty":0,"unit":"g","summary":"新增「XXX」到花果藥草"}
+
+更新材料庫存：
+{"type":"stock_update","name":"材料名","qty":50,"unit":"g","summary":"更新「XXX」庫存 50g"}
+
+新增配方（用試燒數據）：
+{"type":"recipe_add","name":"配方名稱","fragCat":"floral","ingredients":[{"cat":"base","name":"材料名","amount":9.6,"unit":"g"}],"totalWeight":20,"notes":"筆記原文","summary":"新增配方「XXX」"}
+
+在現有配方新增備注：
+{"type":"recipe_note","recipeId":0,"recipeName":"配方名","note":"備注內容","summary":"在「XXX」新增試燒備注"}
+
+僅供參考、不需寫入資料庫：
+{"type":"journal","summary":"這是日記備注，不需要寫入資料庫"}`;
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -2256,9 +2306,9 @@ async function parseVoiceNote() {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 512,
+        max_tokens: 800,
         system: systemPrompt,
-        messages: [{ role: 'user', content: text }]
+        messages: [{ role: 'user', content: note.text }]
       })
     });
     if (!res.ok) {
@@ -2266,57 +2316,63 @@ async function parseVoiceNote() {
       throw new Error(err.error?.message || 'API 錯誤 ' + res.status);
     }
     const data = await res.json();
-    const raw = data.content[0].text.trim().replace(/^```json\s*/,'').replace(/```$/,'');
+    const raw = data.content[0].text.trim().replace(/^```json\s*/,'').replace(/\s*```$/,'');
     let result;
     try { result = JSON.parse(raw); }
-    catch { result = { type: 'free_note', content: raw, summary: '儲存備注（解析格式有誤）' }; }
-    showVoiceResult(result);
+    catch { result = { type: 'journal', summary: '格式解析失敗，原始回應：' + raw.slice(0,80) }; }
+    showNoteParseResult(noteId, result);
   } catch(e) {
-    const el = document.getElementById('voice-result');
-    el.style.display = 'block';
-    el.innerHTML = `<div style="color:var(--fail);font-size:13px;padding:14px;border:1px solid var(--border);margin-top:12px;background:var(--card);">解析失敗：${esc(e.message)}</div>`;
+    if (resultEl) {
+      resultEl.style.display = 'block';
+      resultEl.innerHTML = `<div style="color:var(--fail);font-size:12px;">解析失敗：${esc(e.message)}</div>`;
+    }
   } finally {
-    btn.textContent = 'AI 解析'; btn.disabled = false;
+    if (btn) { btn.textContent = 'AI 解析'; btn.disabled = false; }
   }
 }
 
-function showVoiceResult(result) {
-  const el = document.getElementById('voice-result');
-  el.dataset.result = JSON.stringify(result);
-  el.style.display = 'block';
-  const typeLabel = {material_add:'新增材料', stock_update:'更新庫存', recipe_note:'配方備注', free_note:'日記備注'}[result.type] || result.type;
-  el.innerHTML = `
-    <div style="border:1px solid var(--border);background:var(--card);padding:16px;margin-top:12px;">
-      <div style="font-size:10px;letter-spacing:0.15em;color:var(--ink-4);margin-bottom:6px;text-transform:uppercase;">${typeLabel}</div>
-      <div style="font-size:15px;color:var(--ink);font-family:var(--serif);margin-bottom:14px;line-height:1.5;">${esc(result.summary||'')}</div>
-      <div style="display:flex;gap:8px;">
-        <button onclick="confirmVoiceAction()"
-          style="flex:1;padding:11px;background:var(--ink);color:var(--bg);border:none;font-family:var(--sans);font-weight:300;font-size:12px;letter-spacing:0.15em;cursor:pointer;">確認儲存</button>
-        <button onclick="document.getElementById('voice-result').style.display='none'"
-          style="padding:11px 16px;background:transparent;border:1px solid var(--border);font-family:var(--sans);font-weight:300;font-size:12px;letter-spacing:0.1em;cursor:pointer;color:var(--ink-2);">取消</button>
-      </div>
-    </div>`;
+function showNoteParseResult(noteId, result) {
+  const resultEl = document.getElementById('note-result-' + noteId);
+  if (!resultEl) return;
+  resultEl.dataset.result = JSON.stringify(result);
+  resultEl.style.display = 'block';
+
+  const typeLabel = {
+    material_add: '新增材料',
+    stock_update: '更新庫存',
+    recipe_add: '新增配方',
+    recipe_note: '配方備注',
+    journal: '日記備注'
+  }[result.type] || result.type;
+
+  const isAction = result.type !== 'journal';
+  resultEl.innerHTML = `
+    <div style="font-size:10px;letter-spacing:0.14em;color:var(--ink-4);margin-bottom:6px;text-transform:uppercase;">${typeLabel}</div>
+    <div style="font-size:14px;color:var(--ink);font-family:var(--serif);line-height:1.5;margin-bottom:${isAction?'12px':'0'};">${esc(result.summary||'')}</div>
+    ${isAction ? `<div style="display:flex;gap:8px;margin-top:10px;">
+      <button onclick="confirmNoteAction('${noteId}')"
+        style="flex:1;padding:9px;background:var(--ink);color:var(--bg);border:none;font-family:var(--sans);font-weight:300;font-size:11px;letter-spacing:0.15em;cursor:pointer;">確認儲存</button>
+      <button onclick="document.getElementById('note-result-${noteId}').style.display='none'"
+        style="padding:9px 14px;background:transparent;border:1px solid var(--border);font-family:var(--sans);font-weight:300;font-size:11px;cursor:pointer;color:var(--ink-2);">取消</button>
+    </div>` : ''}`;
 }
 
-function confirmVoiceAction() {
-  const el = document.getElementById('voice-result');
-  const r = JSON.parse(el.dataset.result || '{}');
+function confirmNoteAction(noteId) {
+  const resultEl = document.getElementById('note-result-' + noteId);
+  if (!resultEl) return;
+  const r = JSON.parse(resultEl.dataset.result || '{}');
 
   if (r.type === 'material_add') {
     const mats = getMaterials();
     mats.push({
-      id: 'mu' + Date.now(),
-      cat: r.cat || 'botanical',
-      name: r.name || '',
-      origin: r.origin || '',
-      supplier: r.supplier || '',
-      note: r.note || '',
+      id: 'mu' + Date.now(), cat: r.cat || 'botanical',
+      name: r.name || '', origin: r.origin || '',
+      supplier: r.supplier || '', note: r.note || '',
       stock: { qty: r.qty || 0, unit: r.unit || 'g', note: '' }
     });
     saveMaterials(mats);
-    closeVoice();
+    resultEl.style.display = 'none';
     goBottomMat();
-    renderApp();
 
   } else if (r.type === 'stock_update') {
     const mats = getMaterials();
@@ -2324,11 +2380,32 @@ function confirmVoiceAction() {
     if (mat) {
       mat.stock = { qty: r.qty || 0, unit: r.unit || 'g', note: mat.stock?.note || '' };
       saveMaterials(mats);
-      closeVoice();
+      resultEl.style.display = 'none';
       renderApp();
     } else {
-      el.innerHTML += `<div style="color:var(--fail);font-size:12px;margin-top:8px;padding:8px 12px;border:1px solid var(--border);">找不到材料「${esc(r.name)}」，請手動新增或更新</div>`;
+      resultEl.innerHTML += `<div style="color:var(--fail);font-size:12px;margin-top:8px;">找不到材料「${esc(r.name)}」，請手動在材料庫新增</div>`;
     }
+
+  } else if (r.type === 'recipe_add') {
+    const ings = (r.ingredients || []).map(i => ({ cat: i.cat||'base', name: i.name||'', amount: i.amount||0, unit: i.unit||'g' }));
+    const newR = {
+      id: S.nextId++,
+      num: String(S.nextId).padStart(2,'0'),
+      name: r.name || '未命名配方',
+      fragCat: r.fragCat || 'test',
+      status: 'progress',
+      rating: 0, tags: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      process: { tincture:false, ferment:false, wine:false, notes:'' },
+      timeline: { makeDate:'', dryDays:0, agingStart:'', agingNotes:'' },
+      versions: [{ label:'v1', totalWeight: r.totalWeight||0, ingredients: ings, notes: r.notes||'', comments:[] }]
+    };
+    S.recipes.push(newR);
+    save();
+    resultEl.style.display = 'none';
+    goBottomHome();
+    S.screen = 'detail'; S.recipeId = newR.id; render();
 
   } else if (r.type === 'recipe_note') {
     const recipe = S.recipes.find(x => x.id === r.recipeId || (r.recipeName && x.name.includes(r.recipeName)));
@@ -2339,19 +2416,12 @@ function confirmVoiceAction() {
         v.comments.push({ tester: 'Ryan', text: r.note });
         recipe.updatedAt = new Date().toISOString();
         save();
-        closeVoice();
+        resultEl.style.display = 'none';
         renderApp();
       }
     } else {
-      el.innerHTML += `<div style="color:var(--fail);font-size:12px;margin-top:8px;padding:8px 12px;border:1px solid var(--border);">找不到配方「${esc(r.recipeName||'')}」，請手動新增</div>`;
+      resultEl.innerHTML += `<div style="color:var(--fail);font-size:12px;margin-top:8px;">找不到配方「${esc(r.recipeName||'')}」</div>`;
     }
-
-  } else if (r.type === 'free_note') {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(r.content).catch(()=>{});
-    }
-    closeVoice();
-    alert('📋 日記備注已複製到剪貼板');
   }
 }
 
