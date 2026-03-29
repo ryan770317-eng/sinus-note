@@ -185,7 +185,8 @@ nav {
   display: flex; justify-content: space-between; align-items: center;
   padding: 7px 14px; border-bottom: 1px solid var(--border);
 }
-.note-card-time { font-size: 11px; color: var(--ink-4); letter-spacing: 0.1em; }
+.note-card-time { font-size: 12px; color: var(--ink-2); letter-spacing: 0.06em; font-family: var(--sans); font-weight: 300; }
+.note-card-date { font-weight: 400; color: var(--ink); margin-right: 6px; }
 .note-card-del {
   background: none; border: none; font-size: 16px; color: var(--ink-4);
   cursor: pointer; padding: 0 4px; line-height: 1;
@@ -195,6 +196,18 @@ nav {
   font-family: var(--sans); font-weight: 300; line-height: 1.75;
   white-space: pre-wrap; word-break: break-all;
 }
+.note-card-body.collapsed { max-height: 4.2em; overflow: hidden; position: relative; }
+.note-card-body.collapsed::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2em;
+  background: linear-gradient(transparent, var(--card));
+}
+.note-expand-btn {
+  display: block; width: 100%; padding: 6px; background: none; border: none;
+  border-top: 1px solid var(--border); font-family: var(--sans); font-weight: 300;
+  font-size: 11px; letter-spacing: 0.12em; color: var(--ink-3); cursor: pointer;
+  transition: color 0.15s;
+}
+.note-expand-btn:hover { color: var(--ink); }
 .note-card-footer { padding: 8px 14px; border-top: 1px solid var(--border); }
 .note-parse-btn {
   width: 100%; padding: 9px; background: transparent;
@@ -2249,8 +2262,18 @@ let notesTranscript = '';
 // ── 日期格式化 ──
 function formatNoteDate(iso) {
   const d = new Date(iso);
+  const now = new Date();
   const pad = n => String(n).padStart(2,'0');
-  return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())}  ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const time = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const isToday = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+  const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+  const isYesterday = d.getFullYear() === yesterday.getFullYear() && d.getMonth() === yesterday.getMonth() && d.getDate() === yesterday.getDate();
+  if (isToday) return `<span class="note-card-date">今天</span>${time}`;
+  if (isYesterday) return `<span class="note-card-date">昨天</span>${time}`;
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+  if (d.getFullYear() === now.getFullYear()) return `<span class="note-card-date">${month}/${day}</span>${time}`;
+  return `<span class="note-card-date">${d.getFullYear()}/${month}/${day}</span>${time}`;
 }
 
 // ── SVG Icons ──
@@ -2264,18 +2287,21 @@ function renderNotes() {
 
   const notesList = notes.length === 0
     ? `<div class="empty">還沒有筆記<div class="empty-sub">在上方輸入或錄音</div></div>`
-    : notes.map(n => `
+    : notes.map(n => {
+      const isLong = n.text.length > 120 || (n.text.match(/\n/g)||[]).length > 2;
+      return `
       <div class="note-card" id="note-${n.id}">
         <div class="note-card-header">
           <span class="note-card-time">${formatNoteDate(n.createdAt)}</span>
           <button class="note-card-del" onclick="deleteNote('${n.id}')" title="刪除">×</button>
         </div>
-        <div class="note-card-body">${esc(n.text)}</div>
+        <div class="note-card-body${isLong?' collapsed':''}" id="note-body-${n.id}">${esc(n.text)}</div>
+        ${isLong?`<button class="note-expand-btn" id="note-toggle-${n.id}" onclick="toggleNoteExpand('${n.id}')">展開全文</button>`:''}
         <div class="note-card-footer">
           <button class="note-parse-btn" id="parse-btn-${n.id}" onclick="parseNoteWithAI('${n.id}')">AI 解析</button>
         </div>
         <div class="note-parse-result" id="note-result-${n.id}" style="display:none;"></div>
-      </div>`).join('');
+      </div>`;}).join('');
 
   const apiKeyFooter = !hasKey ? `
     <div style="margin-top:32px;padding-top:20px;border-top:1px solid var(--border);">
@@ -2589,6 +2615,15 @@ function confirmNoteAction(noteId) {
       resultEl.innerHTML += `<div style="color:var(--fail);font-size:12px;margin-top:8px;">找不到配方「${esc(r.recipeName||'')}」</div>`;
     }
   }
+}
+
+// ── NOTE EXPAND/COLLAPSE ──
+function toggleNoteExpand(id) {
+  const body = document.getElementById('note-body-' + id);
+  const btn = document.getElementById('note-toggle-' + id);
+  if (!body || !btn) return;
+  const collapsed = body.classList.toggle('collapsed');
+  btn.textContent = collapsed ? '展開全文' : '收合';
 }
 
 // ── BATCH CONVERSATION IMPORT ──
