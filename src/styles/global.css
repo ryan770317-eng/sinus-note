@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    border-radius: 0 !important;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 300;
+    background-color: #F5F1EB;
+    color: #1A1A18;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  input, textarea, select, button {
+    font-family: inherit;
+    font-weight: 300;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 border border-border font-light text-sm tracking-label bg-transparent text-ink-2 hover:bg-card transition-colors cursor-pointer;
+  }
+
+  .btn-primary {
+    @apply px-4 py-2 border border-ink bg-ink text-bg font-light text-sm tracking-label hover:bg-ink-2 transition-colors cursor-pointer;
+  }
+
+  .input-field {
+    @apply w-full bg-card border border-border px-3 py-2 text-sm font-light text-ink placeholder:text-ink-4 focus:outline-none focus:border-ink-2;
+  }
+
+  .card {
+    @apply bg-card border border-border p-4;
+  }
+
+  .section-label {
+    @apply text-xs text-ink-2 tracking-wider uppercase font-light;
+  }
+}
