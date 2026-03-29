@@ -979,6 +979,8 @@ async function loadFromFirestore() {
   }
 }
 
+let _suppressSync = false;
+
 function setupRealtimeSync() {
   const u = auth.currentUser;
   if (!u) return;
@@ -986,33 +988,33 @@ function setupRealtimeSync() {
 
   // 監聽 config（recipes, nextId, catOrder）
   store.doc('config').onSnapshot(snap => {
-    if (!snap.exists || snap.metadata.hasPendingWrites) return;
+    if (!snap.exists || snap.metadata.hasPendingWrites || _suppressSync) return;
     const d = snap.data();
     S.recipes = d.recipes || [];
     S.nextId = d.nextId || 200;
     S.catOrder = d.catOrder || null;
-    render();
+    renderApp();
   }, err => console.error('sync config err:', err));
 
   // 監聽 catImages
   store.doc('catImages').onSnapshot(snap => {
-    if (!snap.exists || snap.metadata.hasPendingWrites) return;
+    if (!snap.exists || snap.metadata.hasPendingWrites || _suppressSync) return;
     S.catImages = snap.data().items || {};
-    render();
+    renderApp();
   }, err => console.error('sync catImages err:', err));
 
   // 監聽 materials
   store.doc('materials').onSnapshot(snap => {
-    if (!snap.exists || snap.metadata.hasPendingWrites) return;
+    if (!snap.exists || snap.metadata.hasPendingWrites || _suppressSync) return;
     S._materials = snap.data().items || [];
-    render();
+    renderApp();
   }, err => console.error('sync materials err:', err));
 
   // 監聽 notes
   store.doc('notes').onSnapshot(snap => {
-    if (!snap.exists || snap.metadata.hasPendingWrites) return;
+    if (!snap.exists || snap.metadata.hasPendingWrites || _suppressSync) return;
     S._notes = snap.data().items || [];
-    render();
+    renderApp();
   }, err => console.error('sync notes err:', err));
 }
 
@@ -2723,6 +2725,7 @@ function confirmBatchAction(idx) {
   if (!actions || !actions[idx]) return;
   const r = actions[idx];
   const card = document.getElementById('batch-card-' + idx);
+  _suppressSync = true;
 
   if (r.type === 'material_add') {
     const mats = getMaterials();
@@ -2773,6 +2776,7 @@ function confirmBatchAction(idx) {
 
   if (card) card.innerHTML = '<div style="font-size:12px;color:var(--accent);padding:8px 0;">✓ 已寫入</div>';
   actions[idx] = null;
+  setTimeout(() => { _suppressSync = false; }, 2000);
 }
 
 function skipBatchAction(idx) {
