@@ -1,6 +1,21 @@
 import type { Recipe, FragCat, RecipeStatus } from '../../types';
 import { FRAG_CATS, RECIPE_STATUS } from '../../utils/constants';
-import { StatusBadge } from '../shared/StatusBadge';
+
+const STATUS_BORDER: Record<RecipeStatus, string> = {
+  success:  '#8B6F52',
+  fail:     '#a06050',
+  pending:  '#D6CFC4',
+  progress: '#8B6F52',
+  order:    '#6B6459',
+};
+
+const STATUS_BG: Record<RecipeStatus, string> = {
+  success:  'rgba(139,111,82,0.10)',
+  fail:     'rgba(160,96,80,0.10)',
+  pending:  'transparent',
+  progress: 'rgba(139,111,82,0.05)',
+  order:    'rgba(107,100,89,0.05)',
+};
 
 interface Props {
   cat: FragCat;
@@ -25,6 +40,7 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
       <div className="flex items-center gap-3 mb-6">
         <button onClick={onBack} className="text-ink-2 text-sm font-light">← 返回</button>
         <h1 className="font-serif text-xl text-ink tracking-wide">{FRAG_CATS[cat].label}</h1>
+        <span className="text-xs text-ink-4 font-light">{catRecipes.length} 個</span>
       </div>
 
       {catRecipes.length === 0 && (
@@ -34,25 +50,44 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
       {STATUS_ORDER.map((status) => {
         const group = grouped[status];
         if (group.length === 0) return null;
+        const st = RECIPE_STATUS[status];
         return (
           <div key={status} className="mb-6">
-            <p className="section-label mb-3">{RECIPE_STATUS[status].label}</p>
+            {/* Status group header with colored accent */}
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-1.5 h-1.5" style={{ background: st.color }} />
+              <p className="text-xs tracking-label font-light" style={{ color: st.color }}>{st.label}</p>
+              <span className="text-[10px] text-ink-4 font-light">{group.length}</span>
+            </div>
+
             <div className="space-y-2">
               {group.map((r) => (
                 <button
                   key={r.id}
                   onClick={() => onRecipeClick(r.id)}
-                  className="w-full text-left bg-card border border-border px-4 py-3 hover:border-ink-2 transition-colors"
+                  className="w-full text-left border border-border px-4 py-3 hover:border-ink-2 transition-colors"
+                  style={{
+                    borderLeftWidth: 3,
+                    borderLeftColor: STATUS_BORDER[r.status],
+                    background: STATUS_BG[r.status],
+                  }}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
+                      <p className="text-xs text-ink-3 font-light mb-0.5">{r.num}</p>
                       <p className="font-serif text-sm text-ink">{r.name}</p>
-                      <p className="text-xs text-ink-2 font-light mt-0.5">{r.num}</p>
                       {r.tags.length > 0 && (
-                        <p className="text-xs text-ink-3 font-light mt-1">{r.tags.join(' · ')}</p>
+                        <p className="text-[10px] text-ink-3 font-light mt-1">{r.tags.join(' · ')}</p>
                       )}
                     </div>
-                    <StatusBadge status={r.status} />
+                    <div className="text-right shrink-0">
+                      {r.rating > 0 && (
+                        <p className="text-[10px] text-accent">{'★'.repeat(r.rating)}</p>
+                      )}
+                      {r.burnLog?.length > 0 && (
+                        <p className="text-[10px] text-ink-4 font-light">試燒 {r.burnLog.length}</p>
+                      )}
+                    </div>
                   </div>
                 </button>
               ))}

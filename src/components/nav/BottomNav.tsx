@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 
-export type TabId = 'recipe' | 'task' | 'material' | 'notes';
+export type TabId = 'overview' | 'recipe' | 'task' | 'material' | 'notes';
 
 const TABS: { id: TabId; label: string }[] = [
-  { id: 'recipe',   label: '配方' },
-  { id: 'task',     label: '工序' },
-  { id: 'material', label: '材料庫' },
-  { id: 'notes',    label: '隨手記' },
+  { id: 'overview',  label: '總覽' },
+  { id: 'recipe',    label: '配方' },
+  { id: 'task',      label: '工序' },
+  { id: 'material',  label: '材料庫' },
+  { id: 'notes',     label: '隨手記' },
 ];
 
 interface Props {
@@ -21,7 +22,6 @@ export function BottomNav({ current, onChange, onMenuOpen }: Props) {
 
   const currentLabel = TABS.find((t) => t.id === current)?.label ?? '';
 
-  // Close on outside click
   useEffect(() => {
     if (!open) return;
     function handler(e: MouseEvent) {

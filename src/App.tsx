@@ -9,6 +9,7 @@ import { LoginScreen } from './components/auth/LoginScreen';
 import { BottomNav, type TabId } from './components/nav/BottomNav';
 import { MenuOverlay } from './components/nav/MenuOverlay';
 
+import { Dashboard } from './components/dashboard/Dashboard';
 import { RecipeHome } from './components/recipe/RecipeHome';
 import { RecipeCategory } from './components/recipe/RecipeCategory';
 import { RecipeDetail } from './components/recipe/RecipeDetail';
@@ -19,6 +20,8 @@ import { MaterialList } from './components/material/MaterialList';
 import { NotesList } from './components/notes/NotesList';
 
 import { exportBackup, readJsonFile, mergePatch, type BackupData } from './utils/export';
+import { MOCK_RECIPES, MOCK_TASKS, MOCK_MATERIALS, MOCK_NOTES } from './utils/mockData';
+import { TASK_TYPES } from './utils/constants';
 import type { Recipe, FragCat, BurnEntry, Material } from './types';
 
 type RecipeScreen = 'home' | 'category' | 'detail' | 'form';
@@ -32,7 +35,7 @@ export default function App() {
   const taskStore = useTasks(uid);
   const noteStore = useNotes(uid);
 
-  const [tab, setTab] = useState<TabId>('recipe');
+  const [tab, setTab] = useState<TabId>('overview');
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Recipe navigation
@@ -54,15 +57,39 @@ export default function App() {
     return <LoginScreen onLogin={login} error={error} />;
   }
 
-  // ── Recipe navigation helpers ─────────────────────────────────────
+  // ── Mock data fallback when store is empty ─────────────────────
+  const dataLoaded = !recipeStore.loading && !matStore.loading && !taskStore.loading && !noteStore.loading;
+  const isMock = dataLoaded &&
+    recipeStore.recipes.length === 0 &&
+    matStore.materials.length === 0 &&
+    taskStore.tasks.length === 0;
+
+  const recipes  = isMock ? MOCK_RECIPES  : recipeStore.recipes;
+  const tasks    = isMock ? MOCK_TASKS    : taskStore.tasks;
+  const materials = isMock ? MOCK_MATERIALS : matStore.materials;
+  const notes    = isMock ? MOCK_NOTES    : noteStore.notes;
+
+  // alertTasks computed from effective tasks
+  const alertTasks = tasks.filter((t) => {
+    if (t.status === 'done') return false;
+    const tt = TASK_TYPES[t.taskType];
+    if (tt.defaultDays === 0) return true;
+    if (!t.dueDate) return false;
+    const days = Math.round((new Date(t.dueDate).getTime() - new Date(new Date().toDateString()).getTime()) / 86400000);
+    return days <= 3;
+  });
+
+  // ── Recipe navigation helpers ─────────────────────────────────
   function goRecipeCat(cat: FragCat) {
     setActiveCat(cat);
     setRecipeScreen('category');
+    setTab('recipe');
   }
 
   function goRecipeDetail(id: number) {
     setActiveRecipeId(id);
     setRecipeScreen('detail');
+    setTab('recipe');
   }
 
   function goRecipeForm(recipe?: Recipe, forCat?: FragCat) {
@@ -79,7 +106,7 @@ export default function App() {
     }
   }
 
-  // ── Recipe CRUD ────────────────────────────────────────────────────
+  // ── Recipe CRUD ───────────────────────────────────────────────
   async function handleAddRecipe(data: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>) {
     const r = await recipeStore.addRecipe(data);
     setActiveRecipeId(r.id);
@@ -97,7 +124,6 @@ export default function App() {
     setRecipeScreen('category');
   }
 
-  // ── Task burn save ─────────────────────────────────────────────────
   async function handleBurnSave(_taskId: string, recipeId: number | null, entry: BurnEntry) {
     if (recipeId) {
       const recipe = recipeStore.recipes.find((r) => r.id === recipeId);
@@ -107,15 +133,11 @@ export default function App() {
     }
   }
 
-  // ── Material stock update ──────────────────────────────────────────
   async function handleUpdateStock(name: string, qty: number, unit: string) {
     const mat = matStore.materials.find((m) => m.name === name);
-    if (mat) {
-      await matStore.updateMaterial(mat.id, { stock: { ...mat.stock, qty, unit } });
-    }
+    if (mat) await matStore.updateMaterial(mat.id, { stock: { ...mat.stock, qty, unit } });
   }
 
-  // ── Add recipe note ────────────────────────────────────────────────
   async function handleAddRecipeNote(recipeId: number, note: string) {
     const recipe = recipeStore.recipes.find((r) => r.id === recipeId);
     if (!recipe) return;
@@ -126,12 +148,11 @@ export default function App() {
     });
   }
 
-  // ── Add material (void return) ─────────────────────────────────────
   async function handleAddMaterial(mat: Omit<Material, 'id'>): Promise<void> {
     await matStore.addMaterial(mat);
   }
 
-  // ── Export / Import ────────────────────────────────────────────────
+  // ── Export / Import ───────────────────────────────────────────
   function handleExport() {
     exportBackup({
       exportedAt: new Date().toISOString(),
@@ -147,22 +168,18 @@ export default function App() {
 
   async function handleImport() {
     const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
+    input.type = 'file'; input.accept = '.json';
     input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file) return;
+      const file = input.files?.[0]; if (!file) return;
       try {
         const data = await readJsonFile(file) as BackupData;
-        if (!confirm('確定要覆蓋全部資料？此操作無法復原。')) return;
+        if (!confirm('確定要覆蓋全部資料？')) return;
         await recipeStore.saveRecipes(data.recipes ?? [], data.nextId, data.catOrder ?? null);
         if (data.catImages) await recipeStore.saveCatImages(data.catImages);
         if (data.materials) await matStore.saveMaterials(data.materials);
         if (data.tasks) await taskStore.saveTasks(data.tasks);
         alert('匯入完成');
-      } catch (err) {
-        alert(`匯入失敗：${err instanceof Error ? err.message : String(err)}`);
-      }
+      } catch (err) { alert(`匯入失敗：${err instanceof Error ? err.message : String(err)}`); }
       setMenuOpen(false);
     };
     input.click();
@@ -170,11 +187,9 @@ export default function App() {
 
   async function handleMergeImport() {
     const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
+    input.type = 'file'; input.accept = '.json';
     input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file) return;
+      const file = input.files?.[0]; if (!file) return;
       try {
         const patch = await readJsonFile(file) as Partial<BackupData>;
         const merged = mergePatch(
@@ -185,94 +200,81 @@ export default function App() {
         await matStore.saveMaterials(merged.materials);
         await taskStore.saveTasks(merged.tasks);
         alert(`合併完成：配方 +${merged.added.recipes}、材料 +${merged.added.materials}、工序 +${merged.added.tasks}`);
-      } catch (err) {
-        alert(`合併失敗：${err instanceof Error ? err.message : String(err)}`);
-      }
+      } catch (err) { alert(`合併失敗：${err instanceof Error ? err.message : String(err)}`); }
       setMenuOpen(false);
     };
     input.click();
   }
 
-  // ── Render current tab ─────────────────────────────────────────────
-  function renderRecipeTab() {
-    if (recipeScreen === 'form') {
-      return (
-        <RecipeForm
-          initial={editRecipe ?? undefined}
-          nextId={recipeStore.nextId}
-          materialNames={matStore.materialNames}
-          fragCat={newRecipeForCat}
-          onSave={editRecipe ? handleUpdateRecipe : handleAddRecipe}
-          onCancel={goRecipeBack}
-        />
-      );
-    }
-
-    if (recipeScreen === 'detail' && activeRecipeId != null) {
-      const recipe = recipeStore.recipes.find((r) => r.id === activeRecipeId);
-      if (!recipe) return renderRecipeHome();
-      return (
-        <RecipeDetail
-          recipe={recipe}
-          tasks={taskStore.tasks}
-          onBack={goRecipeBack}
-          onEdit={(r) => goRecipeForm(r)}
-          onDelete={handleDeleteRecipe}
-          onTaskTab={() => setTab('task')}
-        />
-      );
-    }
-
-    if (recipeScreen === 'category') {
-      return (
-        <RecipeCategory
-          cat={activeCat}
-          recipes={recipeStore.recipes}
-          onBack={() => setRecipeScreen('home')}
-          onRecipeClick={goRecipeDetail}
-          onNew={() => goRecipeForm(undefined, activeCat)}
-        />
-      );
-    }
-
-    return renderRecipeHome();
-  }
-
-  function renderRecipeHome() {
-    return (
-      <RecipeHome
-        recipes={recipeStore.recipes}
-        catImagesMap={recipeStore.catImagesMap}
-        catOrder={recipeStore.catOrder}
-        onCatClick={goRecipeCat}
-        onSaveCatImage={async (catId, base64) => {
-          await recipeStore.saveCatImages({ ...recipeStore.catImagesMap, [catId]: base64 });
-        }}
-        onSaveCatOrder={async (order: FragCat[]) => {
-          await recipeStore.saveRecipes(recipeStore.recipes, undefined, order);
-        }}
-      />
-    );
-  }
-
+  // ── Render ────────────────────────────────────────────────────
   function renderTab() {
-    if (tab === 'recipe') return renderRecipeTab();
+    if (tab === 'overview') {
+      return (
+        <Dashboard
+          recipes={recipes}
+          tasks={tasks}
+          materials={materials}
+          notes={notes}
+          isMock={isMock}
+          onTabChange={(t) => { setTab(t); if (t === 'recipe') setRecipeScreen('home'); }}
+          onRecipeClick={goRecipeDetail}
+          onTaskClick={() => setTab('task')}
+        />
+      );
+    }
+
+    if (tab === 'recipe') {
+      if (recipeScreen === 'form') {
+        return (
+          <RecipeForm
+            initial={editRecipe ?? undefined}
+            nextId={recipeStore.nextId}
+            materialNames={matStore.materialNames}
+            fragCat={newRecipeForCat}
+            onSave={editRecipe ? handleUpdateRecipe : handleAddRecipe}
+            onCancel={goRecipeBack}
+          />
+        );
+      }
+      if (recipeScreen === 'detail' && activeRecipeId != null) {
+        const recipe = recipes.find((r) => r.id === activeRecipeId);
+        if (!recipe) return renderRecipeHome();
+        return (
+          <RecipeDetail
+            recipe={recipe}
+            tasks={tasks}
+            onBack={goRecipeBack}
+            onEdit={(r) => goRecipeForm(r)}
+            onDelete={handleDeleteRecipe}
+            onTaskTab={() => setTab('task')}
+          />
+        );
+      }
+      if (recipeScreen === 'category') {
+        return (
+          <RecipeCategory
+            cat={activeCat}
+            recipes={recipes}
+            onBack={() => setRecipeScreen('home')}
+            onRecipeClick={goRecipeDetail}
+            onNew={() => goRecipeForm(undefined, activeCat)}
+          />
+        );
+      }
+      return renderRecipeHome();
+    }
 
     if (tab === 'task') {
       return (
         <TaskDashboard
-          tasks={taskStore.tasks}
-          alertTasks={taskStore.alertTasks}
-          recipes={recipeStore.recipes}
+          tasks={isMock ? MOCK_TASKS : taskStore.tasks}
+          alertTasks={alertTasks}
+          recipes={recipes}
           materialNames={matStore.materialNames}
           onAdd={async (data) => { await taskStore.addTask(data); }}
           onUpdate={taskStore.updateTask}
           onDelete={taskStore.deleteTask}
-          onRecipeClick={(id) => {
-            setActiveRecipeId(id);
-            setRecipeScreen('detail');
-            setTab('recipe');
-          }}
+          onRecipeClick={(id) => { goRecipeDetail(id); }}
           onBurnSave={handleBurnSave}
         />
       );
@@ -281,7 +283,7 @@ export default function App() {
     if (tab === 'material') {
       return (
         <MaterialList
-          materials={matStore.materials}
+          materials={isMock ? MOCK_MATERIALS : matStore.materials}
           onAdd={handleAddMaterial}
           onUpdate={matStore.updateMaterial}
           onDelete={matStore.deleteMaterial}
@@ -292,10 +294,10 @@ export default function App() {
     if (tab === 'notes') {
       return (
         <NotesList
-          notes={noteStore.notes}
-          recipes={recipeStore.recipes}
-          materials={matStore.materials}
-          tasks={taskStore.tasks}
+          notes={isMock ? MOCK_NOTES : noteStore.notes}
+          recipes={recipes}
+          materials={materials}
+          tasks={tasks}
           nextId={recipeStore.nextId}
           onAdd={async (text) => { await noteStore.addNote(text); }}
           onUpdate={noteStore.updateNote}
@@ -311,6 +313,23 @@ export default function App() {
     }
 
     return null;
+  }
+
+  function renderRecipeHome() {
+    return (
+      <RecipeHome
+        recipes={recipes}
+        catImagesMap={recipeStore.catImagesMap}
+        catOrder={recipeStore.catOrder}
+        onCatClick={goRecipeCat}
+        onSaveCatImage={async (catId, base64) => {
+          await recipeStore.saveCatImages({ ...recipeStore.catImagesMap, [catId]: base64 });
+        }}
+        onSaveCatOrder={async (order: FragCat[]) => {
+          await recipeStore.saveRecipes(recipeStore.recipes, undefined, order);
+        }}
+      />
+    );
   }
 
   return (

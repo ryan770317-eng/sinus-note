@@ -1,0 +1,130 @@
+{
+  "recipes": [
+    {
+      "num": "V-A",
+      "name": "側柏果實系列 V-A｜百年香柏",
+      "fragCat": "test",
+      "status": "progress",
+      "rating": 0,
+      "tags": ["側柏果實", "百年香柏"],
+      "process": { "tincture": false, "ferment": false, "wine": false, "notes": "" },
+      "timeline": { "makeDate": "2026-03-29", "dryDays": 5, "agingStart": "", "agingNotes": "" },
+      "versions": [
+        {
+          "label": "主版",
+          "totalWeight": 20,
+          "ingredients": [
+            { "cat": "base",      "name": "百年香柏",              "amount": 8.7, "unit": "g" },
+            { "cat": "botanical", "name": "側柏果實含殼（已炮製）", "amount": 3.0, "unit": "g" },
+            { "cat": "botanical", "name": "西藏雪柏葉",             "amount": 1.0, "unit": "g" },
+            { "cat": "botanical", "name": "茅香/甜茅草",            "amount": 0.6, "unit": "g" },
+            { "cat": "botanical", "name": "龍腦",                   "amount": 0.1, "unit": "g" },
+            { "cat": "resin",     "name": "乳香",                   "amount": 0.6, "unit": "g" },
+            { "cat": "binder",    "name": "楠木黏粉",               "amount": 6.0, "unit": "g" }
+          ],
+          "notes": "含水率：13.4ml 清水｜線徑：1.5mm\ncedrol 同頻接力，純柏調骨架。α-pinene 前調＋cedrol 後調",
+          "comments": []
+        }
+      ],
+      "createdAt": "2026-03-29T00:00:00.000Z",
+      "updatedAt": "2026-03-29T00:00:00.000Z"
+    },
+    {
+      "num": "V-B",
+      "name": "側柏果實系列 V-B｜古崖柏",
+      "fragCat": "test",
+      "status": "progress",
+      "rating": 0,
+      "tags": ["側柏果實", "古崖柏"],
+      "process": { "tincture": false, "ferment": false, "wine": false, "notes": "" },
+      "timeline": { "makeDate": "2026-03-29", "dryDays": 5, "agingStart": "", "agingNotes": "" },
+      "versions": [
+        {
+          "label": "主版",
+          "totalWeight": 20,
+          "ingredients": [
+            { "cat": "base",      "name": "古崖柏",                "amount": 8.7, "unit": "g" },
+            { "cat": "botanical", "name": "側柏果實含殼（已炮製）", "amount": 3.0, "unit": "g" },
+            { "cat": "botanical", "name": "西藏雪柏葉",             "amount": 1.0, "unit": "g" },
+            { "cat": "botanical", "name": "茅香/甜茅草",            "amount": 0.6, "unit": "g" },
+            { "cat": "botanical", "name": "龍腦",                   "amount": 0.1, "unit": "g" },
+            { "cat": "resin",     "name": "乳香",                   "amount": 0.6, "unit": "g" },
+            { "cat": "binder",    "name": "楠木黏粉",               "amount": 6.0, "unit": "g" }
+          ],
+          "notes": "含水率：13.4ml 清水｜線徑：1.5mm\n冷冽藥草框架，放大 α-pinene 銳感",
+          "comments": []
+        }
+      ],
+      "createdAt": "2026-03-29T00:00:00.000Z",
+      "updatedAt": "2026-03-29T00:00:00.000Z"
+    },
+    {
+      "num": "V-C",
+      "name": "側柏果實系列 V-C｜正非洲玫瑰木",
+      "fragCat": "test",
+      "status": "progress",
+      "rating": 0,
+      "tags": ["側柏果實", "非洲玫瑰木"],
+      "process": { "tincture": false, "ferment": false, "wine": false, "notes": "" },
+      "timeline": { "makeDate": "2026-03-29", "dryDays": 5, "agingStart": "", "agingNotes": "" },
+      "versions": [
+        {
+          "label": "主版",
+          "totalWeight": 20,
+          "ingredients": [
+            { "cat": "base",      "name": "正非洲玫瑰木",          "amount": 8.7, "unit": "g" },
+            { "cat": "botanical", "name": "側柏果實含殼（已炮製）", "amount": 3.0, "unit": "g" },
+            { "cat": "botanical", "name": "西藏雪柏葉",             "amount": 1.0, "unit": "g" },
+            { "cat": "botanical", "name": "茅香/甜茅草",            "amount": 0.6, "unit": "g" },
+            { "cat": "botanical", "name": "龍腦",                   "amount": 0.1, "unit": "g" },
+            { "cat": "resin",     "name": "乳香",                   "amount": 0.6, "unit": "g" },
+            { "cat": "binder",    "name": "楠木黏粉",               "amount": 6.0, "unit": "g" }
+          ],
+          "notes": "含水率：16.0ml 清水｜線徑：1.5mm\nlinalool 花木柔感，與松脂冷感形成對比",
+          "comments": []
+        }
+      ],
+      "createdAt": "2026-03-29T00:00:00.000Z",
+      "updatedAt": "2026-03-29T00:00:00.000Z"
+    },
+    {
+      "num": "V-D",
+      "name": "側柏果實系列 V-D｜台灣肖楠",
+      "fragCat": "test",
+      "status": "progress",
+      "rating": 0,
+      "tags": ["側柏果實", "台灣肖楠"],
+      "process": { "tincture": false, "ferment": false, "wine": false, "notes": "" },
+      "timeline": { "makeDate": "2026-03-29", "dryDays": 5, "agingStart": "", "agingNotes": "" },
+      "versions": [
+        {
+          "label": "主版",
+          "totalWeight": 20,
+          "ingredients": [
+            { "cat": "base",      "name": "台灣肖楠",              "amount": 8.7, "unit": "g" },
+            { "cat": "botanical", "name": "側柏果實含殼（已炮製）", "amount": 3.0, "unit": "g" },
+            { "cat": "botanical", "name": "西藏雪柏葉",             "amount": 1.0, "unit": "g" },
+            { "cat": "botanical", "name": "茅香/甜茅草",            "amount": 0.6, "unit": "g" },
+            { "cat": "botanical", "name": "龍腦",                   "amount": 0.1, "unit": "g" },
+            { "cat": "resin",     "name": "乳香",                   "amount": 0.6, "unit": "g" },
+            { "cat": "binder",    "name": "楠木黏粉",               "amount": 6.0, "unit": "g" }
+          ],
+          "notes": "含水率：16.0ml 清水｜線徑：1.5mm\n本土松脂乾草藥氣，介於香柏與古崖柏之間",
+          "comments": []
+        }
+      ],
+      "createdAt": "2026-03-29T00:00:00.000Z",
+      "updatedAt": "2026-03-29T00:00:00.000Z"
+    }
+  ],
+  "materials": [
+    {
+      "cat": "base",
+      "name": "台灣肖楠",
+      "origin": "台灣",
+      "supplier": "",
+      "note": "松脂清冷，帶本土乾草藥氣，介於香柏與古崖柏之間",
+      "stock": { "qty": 600, "unit": "g", "note": "" }
+    }
+  ]
+}
