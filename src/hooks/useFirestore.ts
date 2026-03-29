@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { db } from '../firebase';
 import {
   doc,
-  getDoc,
   setDoc,
   onSnapshot,
   serverTimestamp,
@@ -27,6 +26,8 @@ export function useFirestoreDoc<T extends DocData>(
     }
 
     const ref = doc(db, 'appData', userId, 'store', docName);
+    // onSnapshot already delivers initial data (from cache then server).
+    // No separate getDoc needed — that race condition caused data to flicker.
     const unsub = onSnapshot(ref, (snap) => {
       if (suppressRef.current) return;
       if (!snap.metadata.hasPendingWrites) {
@@ -53,18 +54,6 @@ export function useFirestoreDoc<T extends DocData>(
       suppressRef.current = false;
     }, ms);
   }, []);
-
-  // Initial fetch for faster load
-  useEffect(() => {
-    if (!userId) return;
-    const ref = doc(db, 'appData', userId, 'store', docName);
-    getDoc(ref).then((snap) => {
-      if (snap.exists()) {
-        setData(snap.data() as T);
-        setLoading(false);
-      }
-    });
-  }, [userId, docName]);
 
   return { data, loading, save, suppressSync };
 }

@@ -1,52 +1,23 @@
 import { useState, useRef } from 'react';
-import type { Note, Recipe, Material, Task } from '../../types';
+import type { Note } from '../../types';
 import { formatNoteDate } from '../../utils/date';
 import { callClaude, NOTE_ANALYSIS_PROMPT } from '../../services/claude';
 import { VoiceInput } from './VoiceInput';
-import { BatchImport } from './BatchImport';
 
 const COLLAPSE_THRESHOLD = 120; // chars
 
 interface Props {
   notes: Note[];
-  recipes: Recipe[];
-  materials: Material[];
-  tasks: Task[];
-  nextId: number;
   onAdd: (text: string) => Promise<void>;
   onUpdate: (id: string, updates: Partial<Note>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
-  onAddMaterial: (mat: Omit<Material, 'id'>) => Promise<void>;
-  onUpdateStock: (name: string, qty: number, unit: string) => Promise<void>;
-  onAddRecipe: (recipe: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  onAddRecipeNote: (recipeId: number, note: string) => Promise<void>;
-  onAddTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  suppressSync: (ms?: number) => void;
 }
 
-export function NotesList({
-  notes,
-  recipes,
-  materials,
-  tasks,
-  nextId,
-  onAdd,
-  onUpdate,
-  onDelete,
-  onAddMaterial,
-  onUpdateStock,
-  onAddRecipe,
-  onAddRecipeNote,
-  onAddTask,
-  suppressSync,
-}: Props) {
+export function NotesList({ notes, onAdd, onUpdate, onDelete }: Props) {
   const [input, setInput] = useState('');
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [analyzing, setAnalyzing] = useState<Set<string>>(new Set());
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // Suppress unused
-  void tasks;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -77,10 +48,6 @@ export function NotesList({
 
   function shouldCollapse(note: Note): boolean {
     return note.text.length > COLLAPSE_THRESHOLD || note.text.split('\n').length > 3;
-  }
-
-  async function handleUpdateStock(name: string, qty: number, unit: string) {
-    await onUpdateStock(name, qty, unit);
   }
 
   return (
@@ -183,19 +150,6 @@ export function NotesList({
           );
         })}
       </div>
-
-      {/* Batch import */}
-      <BatchImport
-        recipes={recipes}
-        materials={materials}
-        nextId={nextId}
-        onAddMaterial={onAddMaterial}
-        onUpdateStock={handleUpdateStock}
-        onAddRecipe={onAddRecipe}
-        onAddRecipeNote={onAddRecipeNote}
-        onAddTask={onAddTask}
-        suppressSync={suppressSync}
-      />
     </div>
   );
 }

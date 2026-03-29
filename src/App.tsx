@@ -216,9 +216,16 @@ export default function App() {
           materials={materials}
           notes={notes}
           isMock={isMock}
+          nextId={recipeStore.nextId}
           onTabChange={(t) => { setTab(t); if (t === 'recipe') setRecipeScreen('home'); }}
           onRecipeClick={goRecipeDetail}
           onTaskClick={() => setTab('task')}
+          onAddMaterial={handleAddMaterial}
+          onUpdateStock={handleUpdateStock}
+          onAddRecipe={handleAddRecipe}
+          onAddRecipeNote={handleAddRecipeNote}
+          onAddTask={async (data) => { await taskStore.addTask(data); }}
+          suppressSync={noteStore.suppressSync}
         />
       );
     }
@@ -295,19 +302,9 @@ export default function App() {
       return (
         <NotesList
           notes={isMock ? MOCK_NOTES : noteStore.notes}
-          recipes={recipes}
-          materials={materials}
-          tasks={tasks}
-          nextId={recipeStore.nextId}
           onAdd={async (text) => { await noteStore.addNote(text); }}
           onUpdate={noteStore.updateNote}
           onDelete={noteStore.deleteNote}
-          onAddMaterial={handleAddMaterial}
-          onUpdateStock={handleUpdateStock}
-          onAddRecipe={handleAddRecipe}
-          onAddRecipeNote={handleAddRecipeNote}
-          onAddTask={async (data) => { await taskStore.addTask(data); }}
-          suppressSync={noteStore.suppressSync}
         />
       );
     }

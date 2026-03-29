@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import type { Recipe, FragCat } from '../../types';
-import { FRAG_CATS } from '../../utils/constants';
+import { FRAG_CATS, FRAG_CAT_COLORS } from '../../utils/constants';
 
 interface Props {
   recipes: Recipe[];
@@ -110,17 +110,21 @@ export function RecipeHome({ recipes, catImagesMap, catOrder, onCatClick, onSave
               onDragOver={(e) => handleDragOver(e, cat)}
               onDrop={handleDrop}
               onClick={() => onCatClick(cat)}
-              className="relative bg-card border border-border cursor-pointer hover:border-ink-2 transition-colors overflow-hidden"
-              style={{ aspectRatio: '4/3' }}
+              className="relative bg-card border cursor-pointer hover:border-ink-2 transition-colors overflow-hidden"
+              style={{
+                aspectRatio: '4/3',
+                borderColor: FRAG_CAT_COLORS[cat].border,
+                borderLeftWidth: 3,
+              }}
             >
               {catImagesMap[cat] ? (
                 <img src={catImagesMap[cat]} alt={cat} className="absolute inset-0 w-full h-full object-cover opacity-60" />
               ) : (
-                <div className="absolute inset-0 bg-card" />
+                <div className="absolute inset-0" style={{ background: FRAG_CAT_COLORS[cat].bg }} />
               )}
               <div className="absolute inset-0 flex flex-col justify-end p-3">
-                <p className="font-serif text-sm text-ink relative z-10">{FRAG_CATS[cat].label}</p>
-                <p className="text-xs text-ink-2 font-light relative z-10">{countByCat(cat)} 個配方</p>
+                <p className="font-serif text-sm relative z-10" style={{ color: FRAG_CAT_COLORS[cat].text }}>{FRAG_CATS[cat].label}</p>
+                <p className="text-xs font-light relative z-10" style={{ color: FRAG_CAT_COLORS[cat].text, opacity: 0.7 }}>{countByCat(cat)} 個配方</p>
               </div>
               <button
                 onClick={(e) => handleImgClick(cat, e)}

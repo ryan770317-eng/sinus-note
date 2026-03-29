@@ -1,30 +1,31 @@
 import type { Recipe, Material, Task, Note } from '../../types';
-import { FRAG_CATS, ING_CATS, RECIPE_STATUS, TASK_TYPES, TASK_STATUS } from '../../utils/constants';
+import { FRAG_CATS, ING_CATS, ING_CAT_COLORS, RECIPE_STATUS, TASK_TYPES, TASK_STATUS } from '../../utils/constants';
 import { calcProgress, daysUntil, fmtDate, formatNoteDate } from '../../utils/date';
 import { ProgressBar } from '../shared/ProgressBar';
+import { BatchImport } from '../notes/BatchImport';
 
 // ── colour helpers ──────────────────────────────────────────────────
 const PHASE_COLOR: Record<string, string> = {
-  pre:   '#6B6459',  // ink-2 (warm grey)
-  make:  '#8B6F52',  // accent (warm brown)
-  post:  '#7a8c6e',  // muted green
+  pre:   '#9a8040',
+  make:  '#8B6F52',
+  post:  '#5f7a5f',
   other: '#6B6459',
 };
 
 const STATUS_BG: Record<string, string> = {
-  success:  'rgba(139,111,82,0.12)',
-  fail:     'rgba(160,96,80,0.12)',
-  pending:  'rgba(107,100,89,0.08)',
-  progress: 'rgba(139,111,82,0.08)',
-  order:    'rgba(107,100,89,0.08)',
+  success:  'rgba(139,111,82,0.10)',
+  fail:     'rgba(160,96,80,0.10)',
+  pending:  'rgba(107,100,89,0.06)',
+  progress: 'rgba(95,122,95,0.10)',
+  order:    'rgba(90,122,140,0.10)',
 };
 
 const STATUS_BORDER: Record<string, string> = {
   success:  '#8B6F52',
   fail:     '#a06050',
   pending:  '#D6CFC4',
-  progress: '#8B6F52',
-  order:    '#D6CFC4',
+  progress: '#5f7a5f',
+  order:    '#5a7a8c',
 };
 
 interface Props {
@@ -33,9 +34,16 @@ interface Props {
   materials: Material[];
   notes: Note[];
   isMock: boolean;
+  nextId: number;
   onTabChange: (tab: 'recipe' | 'task' | 'material' | 'notes') => void;
   onRecipeClick: (id: number) => void;
   onTaskClick: () => void;
+  onAddMaterial: (mat: Omit<Material, 'id'>) => Promise<void>;
+  onUpdateStock: (name: string, qty: number, unit: string) => Promise<void>;
+  onAddRecipe: (recipe: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  onAddRecipeNote: (recipeId: number, note: string) => Promise<void>;
+  onAddTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  suppressSync: (ms?: number) => void;
 }
 
 export function Dashboard({
@@ -44,8 +52,15 @@ export function Dashboard({
   materials,
   notes,
   isMock,
+  nextId,
   onTabChange,
   onRecipeClick,
+  onAddMaterial,
+  onUpdateStock,
+  onAddRecipe,
+  onAddRecipeNote,
+  onAddTask,
+  suppressSync,
 }: Props) {
   const today = new Date().toLocaleDateString('zh-TW', { month: 'long', day: 'numeric', weekday: 'long' });
 
@@ -101,13 +116,17 @@ export function Dashboard({
       {/* ── Stats row ─────────────────────────────────────────── */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         {[
-          { label: '配方總數', value: recipes.length, sub: `${successCount} 成功` },
-          { label: '進行中', value: progressCount + activeTasks.filter(t => !['done','ready'].includes(t.status)).length, sub: '配方＋工序' },
-          { label: '已完工序', value: doneTaskCount, sub: `共 ${tasks.length} 筆` },
+          { label: '配方總數', value: recipes.length, sub: `${successCount} 成功`, color: '#8B6F52' },
+          { label: '進行中', value: progressCount + activeTasks.filter(t => !['done','ready'].includes(t.status)).length, sub: '配方＋工序', color: '#5f7a5f' },
+          { label: '已完工序', value: doneTaskCount, sub: `共 ${tasks.length} 筆`, color: '#5a7a8c' },
         ].map((s) => (
-          <div key={s.label} className="bg-card border border-border px-3 py-3 text-center">
+          <div
+            key={s.label}
+            className="bg-card border border-border px-3 py-3 text-center"
+            style={{ borderTopWidth: 2, borderTopColor: s.color }}
+          >
             <p className="font-serif text-2xl text-ink">{s.value}</p>
-            <p className="text-[10px] text-ink-2 tracking-label mt-0.5">{s.label}</p>
+            <p className="text-[10px] tracking-label mt-0.5" style={{ color: s.color }}>{s.label}</p>
             <p className="text-[10px] text-ink-4 font-light">{s.sub}</p>
           </div>
         ))}
@@ -184,7 +203,7 @@ export function Dashboard({
                     <div className="text-right shrink-0">
                       <span
                         className="text-[10px] font-light px-1.5 py-0.5"
-                        style={{ background: 'rgba(139,111,82,0.1)', color: '#8B6F52' }}
+                        style={{ background: `${phaseColor}18`, color: phaseColor }}
                       >
                         {TASK_STATUS[t.status].label}
                       </span>
@@ -261,14 +280,16 @@ export function Dashboard({
             {(Object.keys(ING_CATS) as (keyof typeof ING_CATS)[]).map((cat) => {
               const count = matByCat[cat] ?? 0;
               if (count === 0) return null;
+              const catColor = ING_CAT_COLORS[cat];
               return (
                 <button
                   key={cat}
                   onClick={() => onTabChange('material')}
-                  className="flex items-center justify-between bg-card border border-border px-3 py-2 hover:border-ink-2 transition-colors"
+                  className="flex items-center justify-between bg-card border border-border px-3 py-2.5 hover:border-ink-2 transition-colors"
+                  style={{ borderLeftWidth: 3, borderLeftColor: catColor }}
                 >
-                  <p className="text-xs text-ink-2 font-light">{ING_CATS[cat].label}</p>
-                  <p className="font-serif text-sm text-accent">{count}</p>
+                  <p className="text-xs font-light" style={{ color: catColor }}>{ING_CATS[cat].label}</p>
+                  <p className="font-serif text-sm" style={{ color: catColor }}>{count}</p>
                 </button>
               );
             })}
@@ -299,6 +320,21 @@ export function Dashboard({
           </div>
         </div>
       )}
+
+      {/* ── Batch import ──────────────────────────────────────── */}
+      <div className="mb-6">
+        <BatchImport
+          recipes={recipes}
+          materials={materials}
+          nextId={nextId}
+          onAddMaterial={onAddMaterial}
+          onUpdateStock={onUpdateStock}
+          onAddRecipe={onAddRecipe}
+          onAddRecipeNote={onAddRecipeNote}
+          onAddTask={onAddTask}
+          suppressSync={suppressSync}
+        />
+      </div>
 
       {/* ── Empty state ───────────────────────────────────────── */}
       {recipes.length === 0 && tasks.length === 0 && materials.length === 0 && (
@@ -337,7 +373,12 @@ function SectionHeader({
           {count}
         </span>
       </div>
-      <button onClick={onMore} className="text-[11px] text-ink-2 font-light hover:text-ink">全部 →</button>
+      <button
+        onClick={onMore}
+        className="text-xs text-ink-2 font-light hover:text-ink px-2 py-2 min-w-[44px] text-right"
+      >
+        全部 →
+      </button>
     </div>
   );
 }

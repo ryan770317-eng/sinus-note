@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Material, IngredientCat } from '../../types';
-import { ING_CATS } from '../../utils/constants';
+import { ING_CATS, ING_CAT_COLORS } from '../../utils/constants';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 
 interface Props {
@@ -69,19 +69,27 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete }: Props) {
 
       {/* Category tabs */}
       <div className="flex gap-0 mb-4 border-b border-border overflow-x-auto">
-        {CATS.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setActiveCat(cat)}
-            className={`px-3 py-2 text-xs font-light tracking-label whitespace-nowrap transition-colors ${
-              activeCat === cat
-                ? 'border-b-2 border-ink text-ink -mb-px'
-                : 'text-ink-2 hover:text-ink'
-            }`}
-          >
-            {ING_CATS[cat].label}
-          </button>
-        ))}
+        {CATS.map((cat) => {
+          const catColor = ING_CAT_COLORS[cat];
+          const isActive = activeCat === cat;
+          return (
+            <button
+              key={cat}
+              onClick={() => setActiveCat(cat)}
+              className="px-3 py-2 text-xs font-light tracking-label whitespace-nowrap transition-colors flex items-center gap-1 -mb-px"
+              style={{
+                borderBottom: isActive ? `2px solid ${catColor}` : '2px solid transparent',
+                color: isActive ? catColor : undefined,
+              }}
+            >
+              <span
+                className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
+                style={{ background: catColor, opacity: isActive ? 1 : 0.4 }}
+              />
+              {ING_CATS[cat].label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Search */}
