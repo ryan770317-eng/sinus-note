@@ -89,6 +89,11 @@ nav {
   letter-spacing: 0.2em; color: var(--ink); flex-shrink: 0;
   margin-right: auto;
 }
+@media (max-width: 420px) {
+  .nav-brand { display: none; }
+  .nav-primary { padding: 0 12px; }
+  .nav-tabs { margin-right: auto; }
+}
 .nav-tabs {
   display: flex; align-items: stretch; height: var(--nav-h);
 }
@@ -99,6 +104,9 @@ nav {
   border-bottom: 2px solid transparent;
   transition: color 0.2s, border-color 0.2s;
   white-space: nowrap;
+}
+@media (max-width: 360px) {
+  .nav-tab { padding: 0 12px; font-size: 11px; letter-spacing: 0.08em; }
 }
 .nav-tab:hover { color: var(--ink); }
 .nav-tab.active { color: var(--ink); border-bottom-color: var(--ink); }
@@ -199,6 +207,23 @@ nav {
 .note-parse-result {
   margin: 0 14px 12px; border: 1px solid var(--border);
   background: var(--surface); padding: 12px 14px;
+}
+.batch-toggle-btn {
+  padding: 8px 16px; background: transparent; border: 1px solid var(--border);
+  font-family: var(--sans); font-weight: 300; font-size: 11px;
+  letter-spacing: 0.12em; color: var(--ink-2); cursor: pointer; transition: all 0.15s;
+}
+.batch-toggle-btn:hover { border-color: var(--ink); color: var(--ink); }
+.batch-area { display: none; margin-bottom: 28px; border: 1px solid var(--border); padding: 16px; background: var(--surface); }
+.batch-area.open { display: block; }
+.batch-textarea {
+  width: 100%; min-height: 140px; border: 1px solid var(--border); padding: 12px;
+  font-family: var(--sans); font-weight: 300; font-size: 13px; line-height: 1.65;
+  background: var(--bg); color: var(--ink); resize: vertical; box-sizing: border-box;
+}
+.batch-results { margin-top: 16px; }
+.batch-result-card {
+  border: 1px solid var(--border); background: var(--bg); padding: 12px 14px; margin-bottom: 10px;
 }
 .note-apikey-wrap {
   border: 1px solid var(--border); background: var(--surface); padding: 14px; margin-bottom: 16px;
@@ -944,11 +969,38 @@ async function loadFromFirestore() {
 function setupRealtimeSync() {
   const u = auth.currentUser;
   if (!u) return;
-  // 監聽 config 變更（其他裝置修改時同步）
-  db.collection('appData').doc(u.uid).collection('store').doc('config')
-    .onSnapshot(snap => {
-      if (!snap.exists || !snap.metadata.hasPendingWrites) return;
-    }, err => console.error('sync err:', err));
+  const store = db.collection('appData').doc(u.uid).collection('store');
+
+  // 監聽 config（recipes, nextId, catOrder）
+  store.doc('config').onSnapshot(snap => {
+    if (!snap.exists || snap.metadata.hasPendingWrites) return;
+    const d = snap.data();
+    S.recipes = d.recipes || [];
+    S.nextId = d.nextId || 200;
+    S.catOrder = d.catOrder || null;
+    render();
+  }, err => console.error('sync config err:', err));
+
+  // 監聽 catImages
+  store.doc('catImages').onSnapshot(snap => {
+    if (!snap.exists || snap.metadata.hasPendingWrites) return;
+    S.catImages = snap.data().items || {};
+    render();
+  }, err => console.error('sync catImages err:', err));
+
+  // 監聽 materials
+  store.doc('materials').onSnapshot(snap => {
+    if (!snap.exists || snap.metadata.hasPendingWrites) return;
+    S._materials = snap.data().items || [];
+    render();
+  }, err => console.error('sync materials err:', err));
+
+  // 監聽 notes
+  store.doc('notes').onSnapshot(snap => {
+    if (!snap.exists || snap.metadata.hasPendingWrites) return;
+    S._notes = snap.data().items || [];
+    render();
+  }, err => console.error('sync notes err:', err));
 }
 
 // ══════════════════════════════════════════
@@ -2258,6 +2310,22 @@ function renderNotes() {
       <div style="font-size:11px;color:var(--ink-4);min-height:16px;margin-top:7px;letter-spacing:0.06em;" id="notes-rec-status"></div>
     </div>
 
+    <div style="margin-bottom:20px;text-align:right;">
+      <button class="batch-toggle-btn" onclick="toggleBatchArea()">貼上對話 → 批次解析</button>
+    </div>
+    <div class="batch-area" id="batch-area">
+      <div style="font-size:10px;letter-spacing:0.14em;color:var(--ink-4);margin-bottom:10px;text-transform:uppercase;">批次對話匯入</div>
+      <div style="font-size:12px;color:var(--ink-3);margin-bottom:12px;line-height:1.6;">
+        把你跟 Claude 的對話內容整段貼在下面，AI 會自動找出所有材料、配方、庫存更新，逐筆讓你確認。
+      </div>
+      <textarea class="batch-textarea" id="batch-input" placeholder="貼上對話內容…"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="note-save-btn" id="batch-parse-btn" onclick="batchParseConversation()">開始解析</button>
+        <button class="batch-toggle-btn" onclick="toggleBatchArea()">收起</button>
+      </div>
+      <div class="batch-results" id="batch-results"></div>
+    </div>
+
     <div id="notes-list">${notesList}</div>
     ${apiKeyFooter}
   </div>`;
@@ -2521,6 +2589,161 @@ function confirmNoteAction(noteId) {
       resultEl.innerHTML += `<div style="color:var(--fail);font-size:12px;margin-top:8px;">找不到配方「${esc(r.recipeName||'')}」</div>`;
     }
   }
+}
+
+// ── BATCH CONVERSATION IMPORT ──
+function toggleBatchArea() {
+  const el = document.getElementById('batch-area');
+  if (el) el.classList.toggle('open');
+}
+
+async function batchParseConversation() {
+  const ta = document.getElementById('batch-input');
+  const text = ta ? ta.value.trim() : '';
+  if (!text) return;
+
+  const key = localStorage.getItem('sinus_anthropic_key');
+  if (!key) { alert('請先在下方設定 Anthropic API Key'); return; }
+
+  const btn = document.getElementById('batch-parse-btn');
+  const resultsEl = document.getElementById('batch-results');
+  if (btn) { btn.textContent = '解析中…'; btn.disabled = true; }
+  if (resultsEl) resultsEl.innerHTML = '<div style="color:var(--ink-3);font-size:12px;">正在分析對話內容，可能需要幾秒鐘…</div>';
+
+  const matList = (S._materials||[]).map(m=>`${m.name}(${ING_CATS[m.cat]?.label||m.cat})`).join('、') || '尚無';
+  const recipeList = (S.recipes||[]).map(r=>`${r.name}[id:${r.id}]`).join('、') || '尚無';
+
+  const systemPrompt = `你是「SINUS NOTE 引香筆記」助手。用戶會貼入一段與 AI 的對話記錄，請從中提取所有可寫入的操作。
+
+材料分類：base=基底木, botanical=花果藥草, resin=樹脂, tincture=酊劑, ferment=酒酵香泥, wine=泡酒香粉, binder=黏粉
+香氣分類：shrine=祭祀, improve=改良, green=青草, wood=木質, floral=花香, resin=樹脂, western=西香, special=特殊, tincture=酊劑, test=實驗
+庫存單位：g, ml, 包, 瓶, 份, 克
+現有材料：${matList}
+現有配方：${recipeList}
+
+請回傳 JSON 陣列（純 JSON，不加 markdown），每個元素為以下之一：
+
+{"type":"material_add","cat":"botanical","name":"材料名","origin":"","supplier":"","note":"特性描述","qty":0,"unit":"g","summary":"新增「XXX」到花果藥草"}
+{"type":"stock_update","name":"材料名","qty":50,"unit":"g","summary":"更新「XXX」庫存 50g"}
+{"type":"recipe_add","name":"配方名","fragCat":"test","ingredients":[{"cat":"base","name":"材料","amount":9.6,"unit":"g"}],"totalWeight":20,"notes":"備注","summary":"新增配方「XXX」"}
+{"type":"recipe_note","recipeId":0,"recipeName":"配方名","note":"備注","summary":"在「XXX」新增備注"}
+
+如果對話中沒有任何可寫入的操作，回傳空陣列 []。
+務必提取所有操作，不要遺漏。每個操作獨立一個物件。`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 4000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: text }]
+      })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({}));
+      throw new Error(err.error?.message || 'API 錯誤 ' + res.status);
+    }
+    const data = await res.json();
+    const raw = data.content[0].text.trim().replace(/^```json\s*/,'').replace(/\s*```$/,'');
+    let actions;
+    try { actions = JSON.parse(raw); } catch { throw new Error('JSON 解析失敗：' + raw.slice(0, 100)); }
+    if (!Array.isArray(actions)) actions = [actions];
+
+    if (actions.length === 0) {
+      resultsEl.innerHTML = '<div style="color:var(--ink-3);font-size:13px;padding:12px 0;">對話中沒有找到可寫入的操作。</div>';
+    } else {
+      const typeLabel = { material_add:'新增材料', stock_update:'更新庫存', recipe_add:'新增配方', recipe_note:'配方備注' };
+      resultsEl.innerHTML = `<div style="font-size:11px;color:var(--ink-3);margin-bottom:12px;">找到 ${actions.length} 筆操作：</div>` +
+        actions.map((a, i) => `
+          <div class="batch-result-card" id="batch-card-${i}">
+            <div style="font-size:10px;letter-spacing:0.14em;color:var(--ink-4);margin-bottom:4px;text-transform:uppercase;">${typeLabel[a.type]||a.type}</div>
+            <div style="font-size:14px;color:var(--ink);font-family:var(--serif);line-height:1.5;margin-bottom:10px;">${esc(a.summary||'')}</div>
+            <div style="display:flex;gap:8px;">
+              <button onclick="confirmBatchAction(${i})"
+                style="flex:1;padding:9px;background:var(--ink);color:var(--bg);border:none;font-family:var(--sans);font-weight:300;font-size:11px;letter-spacing:0.15em;cursor:pointer;">確認寫入</button>
+              <button onclick="skipBatchAction(${i})"
+                style="padding:9px 14px;background:transparent;border:1px solid var(--border);font-family:var(--sans);font-weight:300;font-size:11px;cursor:pointer;color:var(--ink-2);">跳過</button>
+            </div>
+          </div>`).join('');
+      // store actions for confirm
+      window._batchActions = actions;
+    }
+  } catch(e) {
+    if (resultsEl) resultsEl.innerHTML = `<div style="color:var(--fail,#a05040);font-size:12px;">解析失敗：${esc(e.message)}</div>`;
+  } finally {
+    if (btn) { btn.textContent = '開始解析'; btn.disabled = false; }
+  }
+}
+
+function confirmBatchAction(idx) {
+  const actions = window._batchActions;
+  if (!actions || !actions[idx]) return;
+  const r = actions[idx];
+  const card = document.getElementById('batch-card-' + idx);
+
+  if (r.type === 'material_add') {
+    const mats = getMaterials();
+    if (mats.some(m => m.name === r.name && m.cat === r.cat)) {
+      if (card) card.innerHTML = '<div style="font-size:12px;color:var(--ink-3);padding:8px 0;">已存在，已跳過</div>';
+      return;
+    }
+    mats.push({
+      id: 'mu' + Date.now() + idx, cat: r.cat || 'botanical',
+      name: r.name || '', origin: r.origin || '',
+      supplier: r.supplier || '', note: r.note || '',
+      stock: { qty: r.qty || 0, unit: r.unit || 'g', note: '' }
+    });
+    saveMaterials(mats);
+  } else if (r.type === 'stock_update') {
+    const mats = getMaterials();
+    const mat = mats.find(m => m.name.includes(r.name) || r.name.includes(m.name));
+    if (mat) {
+      mat.stock = { qty: r.qty || 0, unit: r.unit || 'g', note: mat.stock?.note || '' };
+      saveMaterials(mats);
+    } else {
+      if (card) card.innerHTML += '<div style="color:var(--fail,#a05040);font-size:12px;margin-top:8px;">找不到材料「' + esc(r.name) + '」</div>';
+      return;
+    }
+  } else if (r.type === 'recipe_add') {
+    const ings = (r.ingredients || []).map(i => ({ cat: i.cat||'base', name: i.name||'', amount: i.amount||0, unit: i.unit||'g' }));
+    const newR = {
+      id: S.nextId++, num: String(S.nextId).padStart(2,'0'),
+      name: r.name || '未命名配方', fragCat: r.fragCat || 'test',
+      status: 'progress', rating: 0, tags: [],
+      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+      process: { tincture:false, ferment:false, wine:false, notes:'' },
+      timeline: { makeDate:'', dryDays:0, agingStart:'', agingNotes:'' },
+      versions: [{ label:'v1', totalWeight: r.totalWeight||0, ingredients: ings, notes: r.notes||'', comments:[] }]
+    };
+    S.recipes.push(newR);
+    save();
+  } else if (r.type === 'recipe_note') {
+    const recipe = S.recipes.find(x => x.id === r.recipeId || (r.recipeName && x.name.includes(r.recipeName)));
+    if (recipe) {
+      const v = recipe.versions[recipe.versions.length - 1];
+      if (v) { v.comments = v.comments || []; v.comments.push({ tester: 'Ryan', text: r.note }); recipe.updatedAt = new Date().toISOString(); save(); }
+    } else {
+      if (card) card.innerHTML += '<div style="color:var(--fail,#a05040);font-size:12px;margin-top:8px;">找不到配方「' + esc(r.recipeName||'') + '」</div>';
+      return;
+    }
+  }
+
+  if (card) card.innerHTML = '<div style="font-size:12px;color:var(--accent);padding:8px 0;">✓ 已寫入</div>';
+  actions[idx] = null;
+}
+
+function skipBatchAction(idx) {
+  const card = document.getElementById('batch-card-' + idx);
+  if (card) card.innerHTML = '<div style="font-size:12px;color:var(--ink-4);padding:8px 0;">已跳過</div>';
+  if (window._batchActions) window._batchActions[idx] = null;
 }
 
 // ══════════════════════════════════════════
