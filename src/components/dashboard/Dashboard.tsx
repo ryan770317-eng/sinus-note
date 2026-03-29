@@ -96,6 +96,7 @@ export function Dashboard({
   // ── Stats ────────────────────────────────────────────────────────
   const successCount = recipes.filter((r) => r.status === 'success').length;
   const progressCount = recipes.filter((r) => r.status === 'progress').length;
+  const activeTaskCount = tasks.filter((t) => ['waiting', 'processing', 'prep'].includes(t.status)).length;
   const doneTaskCount = tasks.filter((t) => t.status === 'done').length;
 
   return (
@@ -117,7 +118,7 @@ export function Dashboard({
       <div className="grid grid-cols-3 gap-3 mb-6">
         {[
           { label: '配方總數', value: recipes.length, sub: `${successCount} 成功`, color: '#8B6F52' },
-          { label: '進行中', value: progressCount + activeTasks.filter(t => !['done','ready'].includes(t.status)).length, sub: '配方＋工序', color: '#5f7a5f' },
+          { label: '進行中', value: progressCount + activeTaskCount, sub: '配方＋工序', color: '#5f7a5f' },
           { label: '已完工序', value: doneTaskCount, sub: `共 ${tasks.length} 筆`, color: '#5a7a8c' },
         ].map((s) => (
           <div

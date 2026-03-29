@@ -166,44 +166,32 @@ export default function App() {
     setMenuOpen(false);
   }
 
-  async function handleImport() {
-    const input = document.createElement('input');
-    input.type = 'file'; input.accept = '.json';
-    input.onchange = async () => {
-      const file = input.files?.[0]; if (!file) return;
-      try {
-        const data = await readJsonFile(file) as BackupData;
-        if (!confirm('確定要覆蓋全部資料？')) return;
-        await recipeStore.saveRecipes(data.recipes ?? [], data.nextId, data.catOrder ?? null);
-        if (data.catImages) await recipeStore.saveCatImages(data.catImages);
-        if (data.materials) await matStore.saveMaterials(data.materials);
-        if (data.tasks) await taskStore.saveTasks(data.tasks);
-        alert('匯入完成');
-      } catch (err) { alert(`匯入失敗：${err instanceof Error ? err.message : String(err)}`); }
-      setMenuOpen(false);
-    };
-    input.click();
+  async function handleImport(file: File) {
+    try {
+      const data = await readJsonFile(file) as BackupData;
+      if (!confirm('確定要覆蓋全部資料？')) return;
+      await recipeStore.saveRecipes(data.recipes ?? [], data.nextId, data.catOrder ?? null);
+      if (data.catImages) await recipeStore.saveCatImages(data.catImages);
+      if (data.materials) await matStore.saveMaterials(data.materials);
+      if (data.tasks) await taskStore.saveTasks(data.tasks);
+      alert('匯入完成');
+    } catch (err) { alert(`匯入失敗：${err instanceof Error ? err.message : String(err)}`); }
+    setMenuOpen(false);
   }
 
-  async function handleMergeImport() {
-    const input = document.createElement('input');
-    input.type = 'file'; input.accept = '.json';
-    input.onchange = async () => {
-      const file = input.files?.[0]; if (!file) return;
-      try {
-        const patch = await readJsonFile(file) as Partial<BackupData>;
-        const merged = mergePatch(
-          { recipes: recipeStore.recipes, materials: matStore.materials, tasks: taskStore.tasks },
-          { recipes: patch.recipes, materials: patch.materials, tasks: patch.tasks },
-        );
-        await recipeStore.saveRecipes(merged.recipes);
-        await matStore.saveMaterials(merged.materials);
-        await taskStore.saveTasks(merged.tasks);
-        alert(`合併完成：配方 +${merged.added.recipes}、材料 +${merged.added.materials}、工序 +${merged.added.tasks}`);
-      } catch (err) { alert(`合併失敗：${err instanceof Error ? err.message : String(err)}`); }
-      setMenuOpen(false);
-    };
-    input.click();
+  async function handleMergeImport(file: File) {
+    try {
+      const patch = await readJsonFile(file) as Partial<BackupData>;
+      const merged = mergePatch(
+        { recipes: recipeStore.recipes, materials: matStore.materials, tasks: taskStore.tasks },
+        { recipes: patch.recipes, materials: patch.materials, tasks: patch.tasks },
+      );
+      await recipeStore.saveRecipes(merged.recipes);
+      await matStore.saveMaterials(merged.materials);
+      await taskStore.saveTasks(merged.tasks);
+      alert(`合併完成：配方 +${merged.added.recipes}、材料 +${merged.added.materials}、工序 +${merged.added.tasks}`);
+    } catch (err) { alert(`合併失敗：${err instanceof Error ? err.message : String(err)}`); }
+    setMenuOpen(false);
   }
 
   // ── Render ────────────────────────────────────────────────────

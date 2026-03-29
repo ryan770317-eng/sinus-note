@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 interface Props {
   onClose: () => void;
   onExport: () => void;
-  onImport: () => void;
-  onMergeImport: () => void;
+  onImport: (file: File) => Promise<void>;
+  onMergeImport: (file: File) => Promise<void>;
   onLogout: () => void;
 }
 
@@ -90,10 +90,8 @@ export function MenuOverlay({ onClose, onExport, onImport, onMergeImport, onLogo
           accept=".json"
           className="hidden"
           onChange={(e) => {
-            if (e.target.files?.[0]) {
-              onImport();
-              e.target.value = '';
-            }
+            const file = e.target.files?.[0];
+            if (file) { onImport(file); e.target.value = ''; }
           }}
         />
         <input
@@ -102,10 +100,8 @@ export function MenuOverlay({ onClose, onExport, onImport, onMergeImport, onLogo
           accept=".json"
           className="hidden"
           onChange={(e) => {
-            if (e.target.files?.[0]) {
-              onMergeImport();
-              e.target.value = '';
-            }
+            const file = e.target.files?.[0];
+            if (file) { onMergeImport(file); e.target.value = ''; }
           }}
         />
       </div>
