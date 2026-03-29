@@ -30,10 +30,8 @@ export function useFirestoreDoc<T extends DocData>(
     // No separate getDoc needed — that race condition caused data to flicker.
     const unsub = onSnapshot(ref, (snap) => {
       if (suppressRef.current) return;
-      if (!snap.metadata.hasPendingWrites) {
-        setData(snap.exists() ? (snap.data() as T) : null);
-        setLoading(false);
-      }
+      setData(snap.exists() ? (snap.data() as T) : null);
+      setLoading(false);
     });
 
     return unsub;

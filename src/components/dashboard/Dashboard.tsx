@@ -127,7 +127,7 @@ export function Dashboard({
           >
             <p className="font-serif text-2xl text-ink">{s.value}</p>
             <p className="text-[10px] tracking-label mt-0.5" style={{ color: s.color }}>{s.label}</p>
-            <p className="text-[10px] text-ink-4 font-light">{s.sub}</p>
+            <p className="text-[10px] text-ink-2 font-light opacity-70">{s.sub}</p>
           </div>
         ))}
       </div>
@@ -254,8 +254,8 @@ export function Dashboard({
                       )}
                     </div>
                     <span
-                      className="text-[10px] font-light px-1.5 py-0.5 border shrink-0"
-                      style={{ borderColor: st.color, color: st.color }}
+                      className="text-[10px] font-light px-1.5 py-0.5 shrink-0"
+                      style={{ background: st.color, color: '#F5F1EB' }}
                     >
                       {st.label}
                     </span>

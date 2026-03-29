@@ -32,7 +32,7 @@
   }
 
   .input-field {
-    @apply w-full bg-card border border-border px-3 py-2 text-sm font-light text-ink placeholder:text-ink-4 focus:outline-none focus:border-ink-2;
+    @apply w-full bg-card border border-border px-3 py-2 text-sm font-light text-ink placeholder:text-ink-2 focus:outline-none focus:border-ink-2;
   }
 
   .card {

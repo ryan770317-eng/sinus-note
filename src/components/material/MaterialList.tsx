@@ -155,7 +155,11 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete }: Props) {
           <p className="text-sm text-ink-3 font-light py-8 text-center">無材料</p>
         )}
         {filtered.map((mat) => (
-          <div key={mat.id} className="bg-card border border-border p-4">
+          <div
+            key={mat.id}
+            className="bg-card border border-border p-4"
+            style={{ borderLeftWidth: 3, borderLeftColor: ING_CAT_COLORS[mat.cat] }}
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
                 <p className="font-serif text-sm text-ink">{mat.name}</p>

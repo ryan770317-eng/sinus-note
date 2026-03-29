@@ -139,13 +139,17 @@ export function BatchImport({
   void materials;
 
   return (
-    <div className="border-t border-border mt-4 pt-4">
+    <div className="mt-4">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 text-sm font-light text-ink-2 w-full text-left mb-3"
+        className="flex items-center justify-between w-full px-4 py-3 border border-border bg-card hover:border-ink-2 transition-colors"
+        style={{ borderLeftWidth: 3, borderLeftColor: '#8B6F52' }}
       >
-        <span className="section-label">貼上對話 → 批次解析</span>
-        <span className="ml-auto text-ink-4">{open ? '▲' : '▼'}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-light text-ink">貼上對話 → 批次解析</span>
+          <span className="text-[10px] tracking-label text-ink-2 px-1.5 py-0.5" style={{ background: 'rgba(139,111,82,0.12)' }}>AI</span>
+        </div>
+        <span className="text-ink-2 text-xs">{open ? '▲' : '▼'}</span>
       </button>
 
       {open && (
