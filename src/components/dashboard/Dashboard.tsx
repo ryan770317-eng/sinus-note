@@ -125,7 +125,7 @@ export function Dashboard({
             className="bg-card border border-border px-3 py-3 text-center"
             style={{ borderTopWidth: 2, borderTopColor: s.color }}
           >
-            <p className="font-serif text-2xl text-ink">{s.value}</p>
+            <p className="font-serif text-2xl" style={{ color: s.color }}>{s.value}</p>
             <p className="text-[10px] tracking-label mt-0.5" style={{ color: s.color }}>{s.label}</p>
             <p className="text-[10px] text-ink-2 font-light opacity-70">{s.sub}</p>
           </div>

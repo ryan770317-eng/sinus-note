@@ -31,7 +31,7 @@ export const FRAG_CAT_COLORS: Record<FragCat, { border: string; bg: string; text
 // ── Recipe: ingredient categories ─────────────────────────────────
 export const ING_CATS: Record<IngredientCat, { label: string }> = {
   base:      { label: '基底木' },
-  botanical: { label: '花果藥草' },
+  herb: { label: '花果藥草' },
   resin:     { label: '樹脂' },
   tincture:  { label: '酊劑' },
   ferment:   { label: '發酵' },
@@ -42,7 +42,7 @@ export const ING_CATS: Record<IngredientCat, { label: string }> = {
 // 材料分類識別色
 export const ING_CAT_COLORS: Record<IngredientCat, string> = {
   base:      '#8B6F52', // 暖棕 — 基底木
-  botanical: '#5f7a5f', // 草綠 — 花果藥草
+  herb: '#5f7a5f', // 草綠 — 花果藥草
   resin:     '#9a8040', // 琥珀 — 樹脂
   tincture:  '#8a6b7a', // 薰衣草 — 酊劑
   ferment:   '#8a6b52', // 橙褐 — 發酵

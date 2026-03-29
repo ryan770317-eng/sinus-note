@@ -5,7 +5,7 @@ export type FragCat =
 export type RecipeStatus = 'success' | 'fail' | 'pending' | 'progress' | 'order';
 
 export type IngredientCat =
-  | 'base' | 'botanical' | 'resin' | 'tincture' | 'ferment' | 'wine' | 'binder';
+  | 'base' | 'herb' | 'resin' | 'tincture' | 'ferment' | 'wine' | 'binder';
 
 export interface Ingredient {
   cat: IngredientCat;
