@@ -208,6 +208,8 @@ nav {
   transition: color 0.15s;
 }
 .note-expand-btn:hover { color: var(--ink); }
+@keyframes batchDots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
+.batch-dots::after { content: ''; animation: batchDots 1.2s infinite steps(1); }
 .note-card-footer { padding: 8px 14px; border-top: 1px solid var(--border); }
 .note-parse-btn {
   width: 100%; padding: 9px; background: transparent;
@@ -2725,6 +2727,7 @@ function confirmBatchAction(idx) {
   if (!actions || !actions[idx]) return;
   const r = actions[idx];
   const card = document.getElementById('batch-card-' + idx);
+  if (card) card.innerHTML = '<div style="font-size:12px;color:var(--ink-3);padding:8px 0;letter-spacing:0.08em;">寫入中<span class="batch-dots"></span></div>';
   _suppressSync = true;
 
   if (r.type === 'material_add') {
@@ -2747,8 +2750,8 @@ function confirmBatchAction(idx) {
       mat.stock = { qty: r.qty || 0, unit: r.unit || 'g', note: mat.stock?.note || '' };
       saveMaterials(mats);
     } else {
-      if (card) card.innerHTML += '<div style="color:var(--fail,#a05040);font-size:12px;margin-top:8px;">找不到材料「' + esc(r.name) + '」</div>';
-      return;
+      if (card) card.innerHTML = '<div style="color:var(--fail,#a05040);font-size:12px;padding:8px 0;">找不到材料「' + esc(r.name) + '」，請手動新增</div>';
+      _suppressSync = false; return;
     }
   } else if (r.type === 'recipe_add') {
     const ings = (r.ingredients || []).map(i => ({ cat: i.cat||'base', name: i.name||'', amount: i.amount||0, unit: i.unit||'g' }));
@@ -2769,13 +2772,15 @@ function confirmBatchAction(idx) {
       const v = recipe.versions[recipe.versions.length - 1];
       if (v) { v.comments = v.comments || []; v.comments.push({ tester: 'Ryan', text: r.note }); recipe.updatedAt = new Date().toISOString(); save(); }
     } else {
-      if (card) card.innerHTML += '<div style="color:var(--fail,#a05040);font-size:12px;margin-top:8px;">找不到配方「' + esc(r.recipeName||'') + '」</div>';
-      return;
+      if (card) card.innerHTML = '<div style="color:var(--fail,#a05040);font-size:12px;padding:8px 0;">找不到配方「' + esc(r.recipeName||'') + '」</div>';
+      _suppressSync = false; return;
     }
   }
 
-  if (card) card.innerHTML = '<div style="font-size:12px;color:var(--accent);padding:8px 0;">✓ 已寫入</div>';
   actions[idx] = null;
+  setTimeout(() => {
+    if (card) card.innerHTML = '<div style="font-size:12px;color:var(--accent);padding:8px 0;">✓ 已寫入</div>';
+  }, 400);
   setTimeout(() => { _suppressSync = false; }, 2000);
 }
 
