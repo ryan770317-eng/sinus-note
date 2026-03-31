@@ -14,6 +14,10 @@
     background-color: #F5F1EB;
     color: #1A1A18;
     -webkit-font-smoothing: antialiased;
+    /* PWA safe area — 配合 viewport-fit=cover */
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 
   input, textarea, select, button {

@@ -321,6 +321,8 @@ export default function App() {
     <div className="min-h-screen bg-bg">
       <div className="md:pt-12">
         {renderTab()}
+        {/* Mobile: extra spacer for bottom nav + iOS safe area */}
+        <div className="md:hidden" style={{ height: 'calc(3rem + env(safe-area-inset-bottom))' }} />
       </div>
       <BottomNav
         current={tab}
