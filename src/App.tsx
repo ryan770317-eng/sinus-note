@@ -319,7 +319,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-bg">
-      {renderTab()}
+      <div className="md:pt-12">
+        {renderTab()}
+      </div>
       <BottomNav
         current={tab}
         onChange={(t) => {
