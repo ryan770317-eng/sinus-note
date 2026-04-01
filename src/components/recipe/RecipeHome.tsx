@@ -118,13 +118,16 @@ export function RecipeHome({ recipes, catImagesMap, catOrder, onCatClick, onSave
               }}
             >
               {catImagesMap[cat] ? (
-                <img src={catImagesMap[cat]} alt={cat} className="absolute inset-0 w-full h-full object-cover opacity-60" />
+                <>
+                  <img src={catImagesMap[cat]} alt={cat} className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)' }} />
+                </>
               ) : (
                 <div className="absolute inset-0" style={{ background: FRAG_CAT_COLORS[cat].bg }} />
               )}
               <div className="absolute inset-0 flex flex-col justify-end p-3">
-                <p className="font-serif text-sm relative z-10" style={{ color: FRAG_CAT_COLORS[cat].text }}>{FRAG_CATS[cat].label}</p>
-                <p className="text-xs font-light relative z-10" style={{ color: FRAG_CAT_COLORS[cat].text, opacity: 0.7 }}>{countByCat(cat)} 個配方</p>
+                <p className="font-serif text-sm relative z-10" style={{ color: catImagesMap[cat] ? '#fff' : FRAG_CAT_COLORS[cat].text }}>{FRAG_CATS[cat].label}</p>
+                <p className="text-xs font-light relative z-10" style={{ color: catImagesMap[cat] ? 'rgba(255,255,255,0.8)' : FRAG_CAT_COLORS[cat].text, opacity: catImagesMap[cat] ? 1 : 0.7 }}>{countByCat(cat)} 個配方</p>
               </div>
               <button
                 onClick={(e) => handleImgClick(cat, e)}
