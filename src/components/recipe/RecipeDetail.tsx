@@ -86,14 +86,21 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
                   <p className="text-xs text-ink-3 font-light mb-2">{ING_CATS[cat].label}</p>
                   <div className="space-y-1">
                     {ings.map((ing, i) => {
-                      const pct = version.totalWeight ? ((ing.amount / version.totalWeight) * 100).toFixed(1) : '';
+                      const pct = version.totalWeight ? (ing.amount / version.totalWeight) * 100 : 0;
                       return (
-                        <div key={i} className="flex items-center justify-between py-1 border-b border-border/50">
-                          <p className="text-sm font-light text-ink">{ing.name}</p>
-                          <p className="text-sm font-light text-ink-2">
-                            {ing.amount}{ing.unit}
-                            {pct && <span className="text-xs text-ink-4 ml-1">{pct}%</span>}
-                          </p>
+                        <div key={i} className="py-1 border-b border-border/50">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-light text-ink">{ing.name}</p>
+                            <p className="text-sm font-light text-ink-2">
+                              {ing.amount}{ing.unit}
+                              {pct > 0 && <span className="text-xs text-ink-4 ml-1">{pct.toFixed(1)}%</span>}
+                            </p>
+                          </div>
+                          {pct > 0 && (
+                            <div className="w-full h-[2px] bg-border mt-1">
+                              <div className="h-full bg-accent/50" style={{ width: `${pct}%` }} />
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -105,7 +112,7 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
           {version.notes && (
             <p className="text-sm text-ink-2 font-light mt-4 whitespace-pre-wrap">{version.notes}</p>
           )}
-          {version.comments.length > 0 && (
+          {(version.comments?.length ?? 0) > 0 && (
             <div className="mt-3 space-y-1">
               {version.comments.map((c, i) => (
                 <p key={i} className="text-xs text-ink-3 font-light">· {c}</p>
@@ -116,38 +123,40 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
       )}
 
       {/* Timeline */}
-      <div className="mb-5 border-t border-border pt-4">
-        <p className="section-label mb-3">時間軸</p>
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          {recipe.timeline.makeDate && (
-            <div>
-              <p className="text-xs text-ink-3">製作日期</p>
-              <p className="font-light text-ink">{recipe.timeline.makeDate}</p>
-            </div>
-          )}
-          {recipe.timeline.dryDays > 0 && (
-            <div>
-              <p className="text-xs text-ink-3">乾燥天數</p>
-              <p className="font-light text-ink">{recipe.timeline.dryDays} 天</p>
-            </div>
-          )}
-          {recipe.timeline.agingStart && (
-            <div>
-              <p className="text-xs text-ink-3">陳化開始</p>
-              <p className="font-light text-ink">{recipe.timeline.agingStart}</p>
-            </div>
-          )}
-          {recipe.timeline.agingNotes && (
-            <div className="col-span-2">
-              <p className="text-xs text-ink-3">陳化備注</p>
-              <p className="font-light text-ink">{recipe.timeline.agingNotes}</p>
-            </div>
-          )}
+      {recipe.timeline && (
+        <div className="mb-5 border-t border-border pt-4">
+          <p className="section-label mb-3">時間軸</p>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            {recipe.timeline.makeDate && (
+              <div>
+                <p className="text-xs text-ink-3">製作日期</p>
+                <p className="font-light text-ink">{recipe.timeline.makeDate}</p>
+              </div>
+            )}
+            {(recipe.timeline.dryDays ?? 0) > 0 && (
+              <div>
+                <p className="text-xs text-ink-3">乾燥天數</p>
+                <p className="font-light text-ink">{recipe.timeline.dryDays} 天</p>
+              </div>
+            )}
+            {recipe.timeline.agingStart && (
+              <div>
+                <p className="text-xs text-ink-3">陳化開始</p>
+                <p className="font-light text-ink">{recipe.timeline.agingStart}</p>
+              </div>
+            )}
+            {recipe.timeline.agingNotes && (
+              <div className="col-span-2">
+                <p className="text-xs text-ink-3">陳化備注</p>
+                <p className="font-light text-ink">{recipe.timeline.agingNotes}</p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Process flags */}
-      {(recipe.process.tincture || recipe.process.ferment || recipe.process.wine || recipe.process.notes) && (
+      {recipe.process && (recipe.process.tincture || recipe.process.ferment || recipe.process.wine || recipe.process.notes) && (
         <div className="mb-5 border-t border-border pt-4">
           <p className="section-label mb-3">工序標記</p>
           <div className="flex flex-wrap gap-2 mb-2">
