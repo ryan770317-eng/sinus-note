@@ -76,7 +76,7 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-ink-3 font-light mb-0.5">{r.num}</p>
                       <p className="font-serif text-sm text-ink">{r.name}</p>
-                      {r.tags.length > 0 && (
+                      {(r.tags?.length ?? 0) > 0 && (
                         <p className="text-[10px] text-ink-3 font-light mt-1">{r.tags.join(' · ')}</p>
                       )}
                     </div>

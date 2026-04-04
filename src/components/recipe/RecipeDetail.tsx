@@ -16,7 +16,8 @@ interface Props {
 
 export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTab }: Props) {
   const [vIdx, setVIdx] = useState(0);
-  const version = recipe.versions[vIdx];
+  const versions = recipe.versions ?? [];
+  const version = versions[vIdx];
   const allTasksDone = tasks.filter((t) => t.recipeId === recipe.id).every((t) => t.status === 'done');
   const hasTasks = tasks.some((t) => t.recipeId === recipe.id);
 
@@ -43,7 +44,7 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
           </div>
           <StatusBadge status={recipe.status} />
         </div>
-        {recipe.tags.length > 0 && (
+        {(recipe.tags?.length ?? 0) > 0 && (
           <p className="text-xs text-ink-2 font-light">{recipe.tags.join(' · ')}</p>
         )}
 
@@ -54,9 +55,9 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
       </div>
 
       {/* Version tabs */}
-      {recipe.versions.length > 1 && (
+      {versions.length > 1 && (
         <div className="flex gap-0 mb-4 border-b border-border">
-          {recipe.versions.map((v, i) => (
+          {versions.map((v, i) => (
             <button
               key={i}
               onClick={() => setVIdx(i)}

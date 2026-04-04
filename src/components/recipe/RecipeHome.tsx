@@ -27,7 +27,7 @@ export function RecipeHome({ recipes, catImagesMap, catOrder, onCatClick, onSave
         (r) =>
           r.name.includes(search) ||
           r.num.includes(search) ||
-          r.tags.some((t) => t.includes(search)),
+          (r.tags ?? []).some((t) => t.includes(search)),
       )
     : null;
 
