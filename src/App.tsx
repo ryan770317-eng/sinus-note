@@ -232,7 +232,7 @@ export default function App() {
         );
       }
       if (recipeScreen === 'detail' && activeRecipeId != null) {
-        const recipe = recipes.find((r) => r.id === activeRecipeId);
+        const recipe = recipes.find((r) => Number(r.id) === Number(activeRecipeId));
         if (!recipe) return renderRecipeHome();
         return (
           <RecipeDetail

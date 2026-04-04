@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Recipe, Task, Ingredient, IngredientCat } from '../../types';
-import { FRAG_CATS, ING_CATS, RECIPE_STATUS } from '../../utils/constants';
+import { FRAG_CATS, ING_CATS, ING_CAT_COLORS, RECIPE_STATUS } from '../../utils/constants';
 import { StatusBadge } from '../shared/StatusBadge';
 import { BurnLog } from './BurnLog';
 import { RelatedTasks } from './RelatedTasks';
@@ -23,7 +23,7 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
 
   const catByIngCat: Partial<Record<IngredientCat, Ingredient[]>> = {};
   if (version) {
-    for (const ing of version.ingredients) {
+    for (const ing of (version.ingredients ?? [])) {
       if (!catByIngCat[ing.cat]) catByIngCat[ing.cat] = [];
       catByIngCat[ing.cat]!.push(ing);
     }
@@ -78,30 +78,45 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
             <p className="section-label">配方組成</p>
             <p className="text-xs text-ink-2 font-light">總重 {version.totalWeight}g</p>
           </div>
+          {/* Stacked proportion bar — one bar, one color per category */}
+          {(version.totalWeight ?? 0) > 0 && (() => {
+            const segs = (Object.keys(ING_CATS) as IngredientCat[])
+              .map(cat => ({
+                cat,
+                weight: (catByIngCat[cat] ?? []).reduce((s, i) => s + (i.amount || 0), 0),
+              }))
+              .filter(s => s.weight > 0);
+            if (!segs.length) return null;
+            return (
+              <div className="flex h-2 w-full mb-4 gap-px overflow-hidden">
+                {segs.map(({ cat, weight }) => (
+                  <div
+                    key={cat}
+                    style={{ width: `${(weight / version.totalWeight) * 100}%`, background: ING_CAT_COLORS[cat] }}
+                    title={`${ING_CATS[cat].label} ${((weight / version.totalWeight) * 100).toFixed(0)}%`}
+                  />
+                ))}
+              </div>
+            );
+          })()}
+
           <div className="space-y-4">
             {(Object.keys(ING_CATS) as (keyof typeof ING_CATS)[]).map((cat) => {
               const ings = catByIngCat[cat];
               if (!ings?.length) return null;
               return (
                 <div key={cat}>
-                  <p className="text-xs text-ink-3 font-light mb-2">{ING_CATS[cat].label}</p>
+                  <p className="text-xs text-ink-2 font-light mb-2" style={{ color: ING_CAT_COLORS[cat] }}>{ING_CATS[cat].label}</p>
                   <div className="space-y-1">
                     {ings.map((ing, i) => {
                       const pct = version.totalWeight ? (ing.amount / version.totalWeight) * 100 : 0;
                       return (
-                        <div key={i} className="py-1 border-b border-border/50">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-light text-ink">{ing.name}</p>
-                            <p className="text-sm font-light text-ink-2">
-                              {ing.amount}{ing.unit}
-                              {pct > 0 && <span className="text-xs text-ink-4 ml-1">{pct.toFixed(1)}%</span>}
-                            </p>
-                          </div>
-                          {pct > 0 && (
-                            <div className="w-full h-[2px] bg-border mt-1">
-                              <div className="h-full bg-accent/50" style={{ width: `${pct}%` }} />
-                            </div>
-                          )}
+                        <div key={i} className="flex items-center justify-between py-1 border-b border-border/50">
+                          <p className="text-sm font-light text-ink">{ing.name}</p>
+                          <p className="text-sm font-light text-ink-2">
+                            {ing.amount}{ing.unit}
+                            {pct > 0 && <span className="text-xs text-ink-2 opacity-60 ml-1">{pct.toFixed(1)}%</span>}
+                          </p>
                         </div>
                       );
                     })}
@@ -192,7 +207,7 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
           刪除
         </button>
         <div className="flex-1" />
-        <p className="text-xs text-ink-4 font-light self-end">
+        <p className="text-xs text-ink-2 opacity-60 font-light self-end">
           {RECIPE_STATUS[recipe.status].label}
         </p>
       </div>

@@ -40,7 +40,7 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
       <div className="flex items-center gap-3 mb-6">
         <button onClick={onBack} className="text-ink-2 text-sm font-light">← 返回</button>
         <h1 className="font-serif text-xl text-ink tracking-wide">{FRAG_CATS[cat].label}</h1>
-        <span className="text-xs text-ink-4 font-light">{catRecipes.length} 個</span>
+        <span className="text-xs text-ink-2 opacity-60 font-light">{catRecipes.length} 個</span>
       </div>
 
       {catRecipes.length === 0 && (
@@ -57,7 +57,7 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
             <div className="flex items-center gap-2 mb-3">
               <div className="w-1.5 h-1.5" style={{ background: st.color }} />
               <p className="text-xs tracking-label font-light" style={{ color: st.color }}>{st.label}</p>
-              <span className="text-[10px] text-ink-4 font-light">{group.length}</span>
+              <span className="text-[10px] text-ink-2 opacity-60 font-light">{group.length}</span>
             </div>
 
             <div className="space-y-2">
@@ -85,7 +85,7 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
                         <p className="text-[10px] text-accent">{'★'.repeat(r.rating)}</p>
                       )}
                       {r.burnLog?.length > 0 && (
-                        <p className="text-[10px] text-ink-4 font-light">試燒 {r.burnLog.length}</p>
+                        <p className="text-[10px] text-ink-2 opacity-60 font-light">試燒 {r.burnLog.length}</p>
                       )}
                     </div>
                   </div>
