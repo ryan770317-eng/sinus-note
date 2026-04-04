@@ -21,11 +21,12 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
   const allTasksDone = tasks.filter((t) => t.recipeId === recipe.id).every((t) => t.status === 'done');
   const hasTasks = tasks.some((t) => t.recipeId === recipe.id);
 
-  const catByIngCat: Partial<Record<IngredientCat, Ingredient[]>> = {};
+  const catByIngCat: Record<string, Ingredient[]> = {};
   if (version) {
     for (const ing of (version.ingredients ?? [])) {
-      if (!catByIngCat[ing.cat]) catByIngCat[ing.cat] = [];
-      catByIngCat[ing.cat]!.push(ing);
+      const key = ing.cat in ING_CATS ? ing.cat : 'herb';
+      if (!catByIngCat[key]) catByIngCat[key] = [];
+      catByIngCat[key].push(ing);
     }
   }
 

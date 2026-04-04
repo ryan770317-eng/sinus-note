@@ -84,8 +84,8 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
                       {r.rating > 0 && (
                         <p className="text-[10px] text-accent">{'★'.repeat(r.rating)}</p>
                       )}
-                      {r.burnLog?.length > 0 && (
-                        <p className="text-[10px] text-ink-2 opacity-60 font-light">試燒 {r.burnLog.length}</p>
+                      {(r.burnLog?.length ?? 0) > 0 && (
+                        <p className="text-[10px] text-ink-2 opacity-60 font-light">試燒 {r.burnLog!.length}</p>
                       )}
                     </div>
                   </div>

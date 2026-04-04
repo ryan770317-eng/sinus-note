@@ -32,10 +32,18 @@ function emptyRecipe(nextId: number, fragCat: FragCat = 'test'): Omit<Recipe, 'i
 }
 
 export function RecipeForm({ initial, nextId, materialNames, fragCat, onSave, onCancel }: Props) {
-  const init = initial ?? emptyRecipe(nextId, fragCat);
+  const raw = initial ?? emptyRecipe(nextId, fragCat);
+  const init = {
+    ...raw,
+    tags: raw.tags ?? [],
+    timeline: raw.timeline ?? { makeDate: '', dryDays: 0, agingStart: '', agingNotes: '' },
+    process: raw.process ?? { tincture: false, ferment: false, wine: false, notes: '' },
+    versions: raw.versions?.length ? raw.versions : [emptyVersion()],
+    burnLog: raw.burnLog ?? [],
+  };
   const [form, setForm] = useState<Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>>(init);
   const [vIdx, setVIdx] = useState(0);
-  const [tagInput, setTagInput] = useState(init.tags.join(', '));
+  const [tagInput, setTagInput] = useState((init.tags ?? []).join(', '));
   const [matSuggestions, setMatSuggestions] = useState<string[]>([]);
   const [activeIngIdx, setActiveIngIdx] = useState<number | null>(null);
 

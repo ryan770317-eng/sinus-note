@@ -250,7 +250,7 @@ export function Dashboard({
                         {r.num} · {FRAG_CATS[r.fragCat].label}
                       </p>
                       <p className="text-sm font-serif text-ink truncate">{r.name}</p>
-                      {r.tags.length > 0 && (
+                      {(r.tags?.length ?? 0) > 0 && (
                         <p className="text-[10px] text-ink-3 font-light mt-0.5">{r.tags.join(' · ')}</p>
                       )}
                     </div>
