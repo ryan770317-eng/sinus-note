@@ -23,6 +23,7 @@ const ACTION_LABELS: Record<string, string> = {
 
 interface ActionState {
   action: BatchAction;
+  id: string; // stable key for React reconciliation
   status: 'pending' | 'writing' | 'done' | 'skipped';
 }
 
@@ -42,28 +43,39 @@ interface Props {
 
 const MISSING_BG = 'rgba(200,170,80,0.15)';
 
-/** Input that keeps local state and syncs on blur — avoids losing focus on parent re-render */
+/** Editable input that uses local state — only syncs to parent on blur.
+ *  Rendered unconditionally (not swapped with Field) to avoid unmounting. */
 function EditableField({ initial, onCommit, placeholder, label }: {
   initial: string; onCommit: (v: string) => void; placeholder: string; label: string;
 }) {
   const [val, setVal] = useState(initial);
-  const ref = useRef<HTMLInputElement>(null);
+  const committed = useRef(initial);
 
-  // Sync if parent value changes externally
-  useEffect(() => { setVal(initial); }, [initial]);
+  // Only sync from parent if the parent value genuinely changed (e.g. reset)
+  useEffect(() => {
+    if (initial !== committed.current) {
+      setVal(initial);
+      committed.current = initial;
+    }
+  }, [initial]);
 
+  function handleBlur() {
+    committed.current = val;
+    onCommit(val);
+  }
+
+  const isEmpty = !val;
   return (
     <span className="text-xs font-light">
       <span className="text-ink-2">{label}</span>{' '}
       <input
-        ref={ref}
         type="text"
         value={val}
         onChange={(e) => setVal(e.target.value)}
-        onBlur={() => onCommit(val)}
+        onBlur={handleBlur}
         placeholder={placeholder}
-        className="text-xs px-1.5 py-0.5 border border-dashed border-amber-400 rounded font-light"
-        style={{ background: MISSING_BG, minWidth: 80 }}
+        className={`text-xs px-1.5 py-0.5 border rounded font-light outline-none ${isEmpty ? 'border-dashed border-amber-400' : 'border-border'}`}
+        style={{ background: isEmpty ? MISSING_BG : 'transparent', minWidth: 80 }}
       />
     </span>
   );
@@ -80,19 +92,16 @@ function Field({ label, value, missing }: { label: string; value: string; missin
   );
 }
 
-/** Sanitize Claude's JSON output: strip fences, trailing commas, unknown quirks */
+/** Sanitize Claude's JSON output */
 function sanitizeJson(raw: string): string {
   let s = raw;
-  // Strip markdown code fences
   s = s.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/g, '');
-  // Remove single-line // comments
   s = s.replace(/^\s*\/\/.*$/gm, '');
-  // Remove trailing commas before } or ]
   s = s.replace(/,\s*([}\]])/g, '$1');
   return s.trim();
 }
 
-/** Strip unknown keys from parsed actions — keep only known fields per type */
+/** Whitelist known fields per action type */
 function cleanAction(a: Record<string, unknown>): BatchAction | null {
   const type = a.type as string;
   switch (type) {
@@ -109,7 +118,7 @@ function cleanAction(a: Record<string, unknown>): BatchAction | null {
     case 'journal':
       return { type };
     default:
-      return null; // Unknown type — skip
+      return null;
   }
 }
 
@@ -131,7 +140,9 @@ export function BatchImport({
   const [parsing, setParsing] = useState(false);
   const [actions, setActions] = useState<ActionState[]>([]);
 
-  // ── Update a single action's fields (used by EditableField onBlur) ──
+  // Stable set of existing material names for dedup
+  const existingMatNames = new Set(materials.map((m) => m.name));
+
   function updateAction(idx: number, patch: Partial<BatchAction>) {
     setActions((prev) => prev.map((a, i) =>
       i === idx ? { ...a, action: { ...a.action, ...patch } as BatchAction } : a,
@@ -152,7 +163,24 @@ export function BatchImport({
         alert('解析結果為空，請確認貼入的內容格式');
         return;
       }
-      setActions(parsed.map((a) => ({ action: a, status: 'pending' })));
+
+      // Dedup materials: auto-skip material_add if name already in library
+      const results: ActionState[] = [];
+      let skippedCount = 0;
+      for (const a of parsed) {
+        const stableId = `${a.type}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+        if (a.type === 'material_add' && existingMatNames.has(a.name)) {
+          results.push({ action: a, id: stableId, status: 'skipped' });
+          skippedCount++;
+        } else {
+          results.push({ action: a, id: stableId, status: 'pending' });
+        }
+      }
+
+      setActions(results);
+      if (skippedCount > 0) {
+        alert(`已自動跳過 ${skippedCount} 筆已存在的材料`);
+      }
     } catch (err) {
       alert(`解析失敗：${err instanceof Error ? err.message : String(err)}`);
     } finally {
@@ -220,9 +248,6 @@ export function BatchImport({
     setActions((prev) => prev.map((a, i) => i === idx ? { ...a, status: 'skipped' } : a));
   }
 
-  // Suppress unused var warning
-  void materials;
-
   // ── Render detail card per action type ───────────────────────────
   function renderDetail(item: ActionState, idx: number) {
     const a = item.action;
@@ -236,12 +261,12 @@ export function BatchImport({
             <Field label="品名:" value={a.name} />
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
-            {editable && !a.origin ? (
+            {editable ? (
               <EditableField label="產地:" initial={a.origin ?? ''} onCommit={(v) => updateAction(idx, { origin: v })} placeholder="產地" />
             ) : (
               <Field label="產地:" value={a.origin || ''} missing={!a.origin} />
             )}
-            {editable && !a.supplier ? (
+            {editable ? (
               <EditableField label="供應商:" initial={a.supplier ?? ''} onCommit={(v) => updateAction(idx, { supplier: v })} placeholder="供應商" />
             ) : (
               <Field label="供應商:" value={a.supplier || ''} missing={!a.supplier} />
@@ -249,6 +274,9 @@ export function BatchImport({
           </div>
           {a.note && <Field label="備注:" value={a.note} />}
           {(a.qty > 0) && <Field label="庫存:" value={`${a.qty}${a.unit ?? 'g'}`} />}
+          {item.status === 'skipped' && existingMatNames.has(a.name) && (
+            <p className="text-[10px] text-ink-2">材料庫已有此品項</p>
+          )}
         </div>
       );
     }
@@ -355,12 +383,10 @@ export function BatchImport({
           {actions.length > 0 && (
             <div className="space-y-3">
               {actions.map((item, idx) => (
-                <div key={idx} className="bg-card border border-border p-3">
-                  {/* Header: type label + action buttons */}
+                <div key={item.id} className="bg-card border border-border p-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
                       <span className="text-xs text-ink-2 tracking-label">{ACTION_LABELS[item.action.type] ?? item.action.type}</span>
-                      {/* Detail card */}
                       {renderDetail(item, idx)}
                     </div>
                     <div className="shrink-0 pt-1">
