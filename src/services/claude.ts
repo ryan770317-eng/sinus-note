@@ -15,7 +15,7 @@ export async function callClaude(systemPrompt: string, userMessage: string): Pro
     },
     body: JSON.stringify({
       model: CLAUDE_MODEL,
-      max_tokens: 2000,
+      max_tokens: 8000,
       system: systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
     }),
