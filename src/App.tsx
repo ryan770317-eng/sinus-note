@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useAuth } from './hooks/useAuth';
-import { useRecipes } from './hooks/useRecipes';
-import { useMaterials } from './hooks/useMaterials';
-import { useTasks } from './hooks/useTasks';
-import { useNotes } from './hooks/useNotes';
+import { useAuth } from './hooks/supabase/useAuth';
+import { useRecipes } from './hooks/supabase/useRecipes';
+import { useMaterials } from './hooks/supabase/useMaterials';
+import { useTasks } from './hooks/supabase/useTasks';
+import { useNotes } from './hooks/supabase/useNotes';
 
 import { LoginScreen } from './components/auth/LoginScreen';
 import { BottomNav, type TabId } from './components/nav/BottomNav';
