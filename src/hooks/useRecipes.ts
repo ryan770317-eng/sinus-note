@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useFirestoreDoc } from './useFirestore';
 import type { Recipe, FragCat } from '../types';
+import { parseRecipes } from '../schemas';
 
 interface ConfigDoc {
   recipes: Recipe[];
@@ -18,7 +19,7 @@ export function useRecipes(userId: string | null) {
   const config = useFirestoreDoc<ConfigDoc>(userId, 'config');
   const catImages = useFirestoreDoc<CatImagesDoc>(userId, 'catImages');
 
-  const recipes: Recipe[] = config.data?.recipes ?? [];
+  const recipes: Recipe[] = parseRecipes(config.data?.recipes);
   const nextId: number = config.data?.nextId ?? 200;
   const catOrder: FragCat[] | null = config.data?.catOrder ?? null;
   const catImagesMap: Record<string, string> = catImages.data?.items ?? {};

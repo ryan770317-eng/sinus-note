@@ -93,7 +93,7 @@ export function RecipeHome({ recipes, catImagesMap, catOrder, onCatClick, onSave
               className="w-full text-left bg-card border border-border px-4 py-3 hover:border-ink-2 transition-colors"
             >
               <p className="font-serif text-sm text-ink">{r.name}</p>
-              <p className="text-xs text-ink-2 font-light">{r.num} · {FRAG_CATS[r.fragCat].label}</p>
+              <p className="text-xs text-ink-2 font-light">{r.num} · {FRAG_CATS[r.fragCat]?.label ?? r.fragCat}</p>
             </button>
           ))}
         </div>

@@ -3,6 +3,7 @@ import { useFirestoreDoc } from './useFirestore';
 import type { Task } from '../types';
 import { daysUntil } from '../utils/date';
 import { TASK_TYPES } from '../utils/constants';
+import { parseTasks } from '../schemas';
 
 interface TasksDoc {
   items: Task[];
@@ -12,7 +13,7 @@ interface TasksDoc {
 export function useTasks(userId: string | null) {
   const { data, loading, save, suppressSync } = useFirestoreDoc<TasksDoc>(userId, 'tasks');
 
-  const tasks: Task[] = data?.items ?? [];
+  const tasks: Task[] = parseTasks(data?.items);
 
   const saveTasks = useCallback(
     async (items: Task[]) => {
