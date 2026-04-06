@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useFirestoreDoc } from './useFirestore';
 import type { Material } from '../types';
+import { parseMaterials } from '../schemas';
 
 interface MaterialsDoc {
   items: Material[];
@@ -10,7 +11,7 @@ interface MaterialsDoc {
 export function useMaterials(userId: string | null) {
   const { data, loading, save, suppressSync } = useFirestoreDoc<MaterialsDoc>(userId, 'materials');
 
-  const materials: Material[] = data?.items ?? [];
+  const materials: Material[] = parseMaterials(data?.items);
 
   const saveMaterials = useCallback(
     async (items: Material[]) => {
