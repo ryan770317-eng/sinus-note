@@ -58,7 +58,9 @@ export function BatchImport({
     setParsing(true);
     setActions([]);
     try {
-      const raw = await callClaude(BATCH_SYSTEM_PROMPT, input);
+      let raw = await callClaude(BATCH_SYSTEM_PROMPT, input);
+      // Strip markdown code fences that Claude sometimes wraps around JSON
+      raw = raw.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/g, '').trim();
       const parsed = JSON.parse(raw) as BatchAction[];
       setActions(parsed.map((a) => ({ action: a, status: 'pending' })));
     } catch (err) {
