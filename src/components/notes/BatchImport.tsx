@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { Recipe, Material, Task, IngredientCat, FragCat, TaskType, TaskStatus } from '../../types';
 import { callClaude, BATCH_SYSTEM_PROMPT } from '../../services/claude';
 import { todayISO } from '../../utils/date';
@@ -42,18 +42,30 @@ interface Props {
 
 const MISSING_BG = 'rgba(200,170,80,0.15)';
 
-function MissingInput({ value, onChange, placeholder, className }: {
-  value: string; onChange: (v: string) => void; placeholder: string; className?: string;
+/** Input that keeps local state and syncs on blur — avoids losing focus on parent re-render */
+function EditableField({ initial, onCommit, placeholder, label }: {
+  initial: string; onCommit: (v: string) => void; placeholder: string; label: string;
 }) {
+  const [val, setVal] = useState(initial);
+  const ref = useRef<HTMLInputElement>(null);
+
+  // Sync if parent value changes externally
+  useEffect(() => { setVal(initial); }, [initial]);
+
   return (
-    <input
-      type="text"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      className={`text-xs px-1.5 py-0.5 border border-dashed border-amber-400 rounded font-light ${className ?? ''}`}
-      style={{ background: MISSING_BG, minWidth: 60 }}
-    />
+    <span className="text-xs font-light">
+      <span className="text-ink-2">{label}</span>{' '}
+      <input
+        ref={ref}
+        type="text"
+        value={val}
+        onChange={(e) => setVal(e.target.value)}
+        onBlur={() => onCommit(val)}
+        placeholder={placeholder}
+        className="text-xs px-1.5 py-0.5 border border-dashed border-amber-400 rounded font-light"
+        style={{ background: MISSING_BG, minWidth: 80 }}
+      />
+    </span>
   );
 }
 
@@ -66,6 +78,39 @@ function Field({ label, value, missing }: { label: string; value: string; missin
         : value}
     </span>
   );
+}
+
+/** Sanitize Claude's JSON output: strip fences, trailing commas, unknown quirks */
+function sanitizeJson(raw: string): string {
+  let s = raw;
+  // Strip markdown code fences
+  s = s.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/g, '');
+  // Remove single-line // comments
+  s = s.replace(/^\s*\/\/.*$/gm, '');
+  // Remove trailing commas before } or ]
+  s = s.replace(/,\s*([}\]])/g, '$1');
+  return s.trim();
+}
+
+/** Strip unknown keys from parsed actions — keep only known fields per type */
+function cleanAction(a: Record<string, unknown>): BatchAction | null {
+  const type = a.type as string;
+  switch (type) {
+    case 'material_add':
+      return { type, cat: a.cat as IngredientCat ?? 'herb', name: a.name as string ?? '', origin: a.origin as string ?? '', supplier: a.supplier as string ?? '', note: a.note as string ?? '', qty: Number(a.qty) || 0, unit: a.unit as string ?? 'g' };
+    case 'stock_update':
+      return { type, name: a.name as string ?? '', qty: Number(a.qty) || 0, unit: a.unit as string ?? 'g' };
+    case 'recipe_add':
+      return { type, name: a.name as string ?? '', fragCat: (a.fragCat as FragCat) || 'improve', totalWeight: Number(a.totalWeight) || 0, ingredients: Array.isArray(a.ingredients) ? a.ingredients.map((i: Record<string, unknown>) => ({ cat: i.cat as IngredientCat ?? 'herb', name: i.name as string ?? '', amount: Number(i.amount) || 0, unit: i.unit as string ?? 'g' })) : [], notes: a.notes as string ?? '' };
+    case 'recipe_note':
+      return { type, recipeId: a.recipeId as number | undefined, recipeName: a.recipeName as string ?? '', note: a.note as string ?? '' };
+    case 'task_add':
+      return { type, title: a.title as string ?? '', material: a.material as string, taskType: a.taskType as TaskType ?? 'other', notes: a.notes as string ?? '', status: a.status as TaskStatus, dueDate: a.dueDate as string };
+    case 'journal':
+      return { type };
+    default:
+      return null; // Unknown type — skip
+  }
 }
 
 // ── Component ─────────────────────────────────────────────────────
@@ -86,7 +131,7 @@ export function BatchImport({
   const [parsing, setParsing] = useState(false);
   const [actions, setActions] = useState<ActionState[]>([]);
 
-  // ── Update a single action's fields ──────────────────────────────
+  // ── Update a single action's fields (used by EditableField onBlur) ──
   function updateAction(idx: number, patch: Partial<BatchAction>) {
     setActions((prev) => prev.map((a, i) =>
       i === idx ? { ...a, action: { ...a.action, ...patch } as BatchAction } : a,
@@ -99,9 +144,14 @@ export function BatchImport({
     setParsing(true);
     setActions([]);
     try {
-      let raw = await callClaude(BATCH_SYSTEM_PROMPT, input);
-      raw = raw.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/g, '').trim();
-      const parsed = JSON.parse(raw) as BatchAction[];
+      const raw = await callClaude(BATCH_SYSTEM_PROMPT, input);
+      const cleaned = sanitizeJson(raw);
+      const arr = JSON.parse(cleaned) as Record<string, unknown>[];
+      const parsed = arr.map(cleanAction).filter((a): a is BatchAction => a !== null);
+      if (parsed.length === 0) {
+        alert('解析結果為空，請確認貼入的內容格式');
+        return;
+      }
       setActions(parsed.map((a) => ({ action: a, status: 'pending' })));
     } catch (err) {
       alert(`解析失敗：${err instanceof Error ? err.message : String(err)}`);
@@ -187,16 +237,12 @@ export function BatchImport({
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             {editable && !a.origin ? (
-              <span className="text-xs font-light"><span className="text-ink-2">產地:</span>{' '}
-                <MissingInput value={a.origin ?? ''} onChange={(v) => updateAction(idx, { origin: v })} placeholder="產地" />
-              </span>
+              <EditableField label="產地:" initial={a.origin ?? ''} onCommit={(v) => updateAction(idx, { origin: v })} placeholder="產地" />
             ) : (
               <Field label="產地:" value={a.origin || ''} missing={!a.origin} />
             )}
             {editable && !a.supplier ? (
-              <span className="text-xs font-light"><span className="text-ink-2">供應商:</span>{' '}
-                <MissingInput value={a.supplier ?? ''} onChange={(v) => updateAction(idx, { supplier: v })} placeholder="供應商" />
-              </span>
+              <EditableField label="供應商:" initial={a.supplier ?? ''} onCommit={(v) => updateAction(idx, { supplier: v })} placeholder="供應商" />
             ) : (
               <Field label="供應商:" value={a.supplier || ''} missing={!a.supplier} />
             )}
