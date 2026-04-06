@@ -33,7 +33,9 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
   const grouped: Record<RecipeStatus, Recipe[]> = {
     success: [], fail: [], pending: [], progress: [], order: [],
   };
-  for (const r of catRecipes) grouped[r.status].push(r);
+  for (const r of catRecipes) {
+    if (r.status in grouped) grouped[r.status].push(r);
+  }
 
   return (
     <div className="max-w-content mx-auto px-4 pt-7 pb-20">

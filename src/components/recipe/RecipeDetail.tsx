@@ -40,7 +40,7 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
       <div className="mb-5">
         <div className="flex items-start justify-between gap-3 mb-1">
           <div>
-            <p className="text-xs text-ink-3 font-light">{recipe.num} · {FRAG_CATS[recipe.fragCat].label}</p>
+            <p className="text-xs text-ink-3 font-light">{recipe.num} · {FRAG_CATS[recipe.fragCat]?.label ?? recipe.fragCat}</p>
             <h1 className="font-serif text-xl text-ink">{recipe.name}</h1>
           </div>
           <StatusBadge status={recipe.status} />
