@@ -52,7 +52,7 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
       {STATUS_ORDER.map((status) => {
         const group = grouped[status];
         if (group.length === 0) return null;
-        const st = RECIPE_STATUS[status];
+        const st = RECIPE_STATUS[status] ?? RECIPE_STATUS['pending'];
         return (
           <div key={status} className="mb-6">
             {/* Status group header with colored accent */}

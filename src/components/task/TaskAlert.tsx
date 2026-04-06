@@ -16,7 +16,7 @@ export function TaskAlert({ tasks, recipes, onEdit }: Props) {
       <p className="section-label mb-3">今日提醒</p>
       <div className="space-y-2">
         {tasks.map((task) => {
-          const tt = TASK_TYPES[task.taskType];
+          const tt = TASK_TYPES[task.taskType] ?? TASK_TYPES['other'];
           const isInstant = tt.defaultDays === 0;
           const recipe = task.recipeId ? recipes.find((r) => r.id === task.recipeId) : null;
           let badge = '';

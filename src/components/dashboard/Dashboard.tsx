@@ -67,7 +67,7 @@ export function Dashboard({
   // ── Alerts: overdue or due ≤ 3 days ─────────────────────────────
   const alertTasks = tasks.filter((t) => {
     if (t.status === 'done') return false;
-    const tt = TASK_TYPES[t.taskType];
+    const tt = TASK_TYPES[t.taskType] ?? TASK_TYPES['other'];
     if (tt.defaultDays === 0) return true;
     if (!t.dueDate) return false;
     return daysUntil(t.dueDate) <= 3;
@@ -139,7 +139,7 @@ export function Dashboard({
           <SectionHeader title="需要注意" count={alertTasks.length} color="#a06050" onMore={() => onTabChange('task')} />
           <div className="space-y-2">
             {alertTasks.map((t) => {
-              const tt = TASK_TYPES[t.taskType];
+              const tt = TASK_TYPES[t.taskType] ?? TASK_TYPES['other'];
               const isInstant = tt.defaultDays === 0;
               let urgency = '';
               let urgencyColor = '';
@@ -181,7 +181,7 @@ export function Dashboard({
           <SectionHeader title="工序進行中" count={activeTasks.length} onMore={() => onTabChange('task')} />
           <div className="space-y-2">
             {activeTasks.map((t) => {
-              const tt = TASK_TYPES[t.taskType];
+              const tt = TASK_TYPES[t.taskType] ?? TASK_TYPES['other'];
               const isInstant = tt.defaultDays === 0;
               const progress = !isInstant && t.dueDate ? calcProgress(t.startDate, t.dueDate) : null;
               const phaseColor = PHASE_COLOR[tt.phase];
@@ -232,7 +232,7 @@ export function Dashboard({
           <SectionHeader title="近期配方" count={recipes.length} onMore={() => onTabChange('recipe')} />
           <div className="space-y-2">
             {recentRecipes.map((r) => {
-              const st = RECIPE_STATUS[r.status];
+              const st = RECIPE_STATUS[r.status] ?? RECIPE_STATUS['pending'];
               return (
                 <button
                   key={r.id}

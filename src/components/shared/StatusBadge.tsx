@@ -6,7 +6,7 @@ interface Props {
 }
 
 export function StatusBadge({ status }: Props) {
-  const s = RECIPE_STATUS[status];
+  const s = RECIPE_STATUS[status] ?? RECIPE_STATUS['pending'];
   return (
     <span
       className="text-xs tracking-label px-2 py-0.5 font-light"

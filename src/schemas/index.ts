@@ -1,8 +1,7 @@
 import { z } from 'zod';
 
 // ── Shared enum schemas ────────────────────────────────────────────
-// .catch() means: if the value from Firestore is unrecognised, use the fallback
-// instead of crashing the app.
+// .catch() means: if the value is unrecognised, use the fallback instead of crashing.
 
 export const IngredientCatSchema = z
   .enum(['base', 'herb', 'resin', 'tincture', 'ferment', 'wine', 'binder'])
@@ -120,15 +119,13 @@ export const MaterialSchema = z.object({
 });
 
 // ── Parse helpers ──────────────────────────────────────────────────
-// Parses an array from Firestore, logs any items that fail validation,
-// and drops them rather than crashing the app.
 
 function parseArray<T>(schema: z.ZodType<T>, raw: unknown[], label: string): T[] {
   return raw
     .map((item) => {
       const result = schema.safeParse(item);
       if (!result.success) {
-        console.warn(`[schema] dropped invalid ${label}:`, result.error.issues, item);
+        console.warn(`[schema] dropped invalid ${label}: id=${(item as Record<string, unknown>)?.id ?? (item as Record<string, unknown>)?.name ?? '?'}`);
         return null;
       }
       return result.data;

@@ -1,4 +1,3 @@
-// Firestore may return Timestamp objects instead of plain numbers
 function toMillis(ts: unknown): number {
   if (typeof ts === 'number') return ts;
   if (ts && typeof (ts as { toMillis?: () => number }).toMillis === 'function') {

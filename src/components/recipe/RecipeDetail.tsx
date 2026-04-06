@@ -21,6 +21,8 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
   const allTasksDone = tasks.filter((t) => t.recipeId === recipe.id).every((t) => t.status === 'done');
   const hasTasks = tasks.some((t) => t.recipeId === recipe.id);
 
+  if (!version) return null;
+
   const catByIngCat: Record<string, Ingredient[]> = {};
   if (version) {
     for (const ing of (version.ingredients ?? [])) {

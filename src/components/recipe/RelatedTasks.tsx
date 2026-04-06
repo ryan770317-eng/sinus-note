@@ -28,7 +28,7 @@ export function RelatedTasks({ recipeId, tasks, onTaskClick }: Props) {
       {open && (
         <div className="mt-3 space-y-2">
           {related.map((task) => {
-            const tt = TASK_TYPES[task.taskType];
+            const tt = TASK_TYPES[task.taskType] ?? TASK_TYPES['other'];
             return (
               <button
                 key={task.id}

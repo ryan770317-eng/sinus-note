@@ -31,7 +31,7 @@ interface Props {
 
 export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRecipeClick }: Props) {
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const tt = TASK_TYPES[task.taskType];
+  const tt = TASK_TYPES[task.taskType] ?? TASK_TYPES['other'];
   const isInstant = tt.defaultDays === 0;
   const isDone = task.status === 'done';
   const recipe = task.recipeId ? recipes.find((r) => r.id === task.recipeId) : null;
