@@ -6,11 +6,13 @@ import type { Material } from '../../types';
 export function useMaterials(userId: string | null) {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const suppressRef = useRef(false);
 
   const fetchMaterials = useCallback(async () => {
     if (!userId) return;
-    const { data } = await sb.from('materials').select('*').eq('user_id', userId).order('name');
+    const { data, error: err } = await sb.from('materials').select('*').eq('user_id', userId).order('name');
+    if (err) { setError(`讀取材料失敗: ${err.message}`); return; }
     if (suppressRef.current) return;
     const rows = (data ?? []) as MaterialRow[];
     setMaterials(rows.map(rowToMaterial).filter((m): m is Material => m !== null));
@@ -32,40 +34,50 @@ export function useMaterials(userId: string | null) {
     if (!userId) return;
     suppressSync();
     if (items.length > 0) {
-      await sb.from('materials').upsert(items.map((m) => materialToRow(m, userId)));
+      const { error: err } = await sb.from('materials').upsert(items.map((m) => materialToRow(m, userId)));
+      if (err) { setError(`批次儲存材料失敗: ${err.message}`); return; }
     }
-    const newIds = new Set(items.map((m) => m.id));
-    const orphans = materials.filter((m) => !newIds.has(m.id)).map((m) => m.id);
+    let orphans: string[] = [];
+    setMaterials((prev) => {
+      const newIds = new Set(items.map((m) => m.id));
+      orphans = prev.filter((m) => !newIds.has(m.id)).map((m) => m.id);
+      return items;
+    });
     if (orphans.length > 0) {
-      await sb.from('materials').delete().in('id', orphans).eq('user_id', userId);
+      const { error: err } = await sb.from('materials').delete().in('id', orphans).eq('user_id', userId);
+      if (err) { setError(`刪除舊材料失敗: ${err.message}`); }
     }
-    setMaterials(items);
-  }, [userId, materials, suppressSync]);
+  }, [userId, suppressSync]);
 
   const addMaterial = useCallback(async (mat: Omit<Material, 'id'>) => {
     if (!userId) throw new Error('not authenticated');
     const id = `mu${Date.now()}`;
     const newMat: Material = { ...mat, id };
     suppressSync();
-    await sb.from('materials').insert(materialToRow(newMat, userId));
+    const { error: err } = await sb.from('materials').insert(materialToRow(newMat, userId));
+    if (err) { setError(`新增材料失敗: ${err.message}`); throw err; }
     setMaterials((prev) => [...prev, newMat]);
     return newMat;
   }, [userId, suppressSync]);
 
   const updateMaterial = useCallback(async (id: string, updates: Partial<Material>) => {
     if (!userId) return;
-    const mat = materials.find((m) => m.id === id);
-    if (!mat) return;
-    const updated = { ...mat, ...updates };
+    setMaterials((prev) => {
+      const mat = prev.find((m) => m.id === id);
+      if (!mat) return prev;
+      const updated = { ...mat, ...updates };
+      sb.from('materials').update(materialToRow(updated, userId)).eq('id', id).eq('user_id', userId)
+        .then(({ error: err }) => { if (err) setError(`更新材料失敗: ${err.message}`); });
+      return prev.map((m) => (m.id === id ? updated : m));
+    });
     suppressSync();
-    await sb.from('materials').update(materialToRow(updated, userId)).eq('id', id).eq('user_id', userId);
-    setMaterials((prev) => prev.map((m) => (m.id === id ? updated : m)));
-  }, [userId, materials, suppressSync]);
+  }, [userId, suppressSync]);
 
   const deleteMaterial = useCallback(async (id: string) => {
     if (!userId) return;
     suppressSync();
-    await sb.from('materials').delete().eq('id', id).eq('user_id', userId);
+    const { error: err } = await sb.from('materials').delete().eq('id', id).eq('user_id', userId);
+    if (err) { setError(`刪除材料失敗: ${err.message}`); return; }
     setMaterials((prev) => prev.filter((m) => m.id !== id));
   }, [userId, suppressSync]);
 
@@ -73,6 +85,7 @@ export function useMaterials(userId: string | null) {
     materials,
     materialNames: materials.map((m) => m.name),
     loading,
+    error,
     addMaterial,
     updateMaterial,
     deleteMaterial,
