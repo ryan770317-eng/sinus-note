@@ -263,10 +263,11 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete }: Props) {
                   <div className="flex-1 min-w-0">
                     <p className="font-serif text-sm text-ink">{mat.name}</p>
                     <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                      {(mat.origin || mat.supplier) && (
-                        <span className="text-xs text-ink-2 font-light">
-                          {[mat.origin, mat.supplier].filter(Boolean).join(' · ')}
-                        </span>
+                      {mat.origin && (
+                        <span className="text-xs text-ink-2 font-light">產地：{mat.origin}</span>
+                      )}
+                      {mat.supplier && (
+                        <span className="text-xs text-ink-2 font-light">{mat.origin ? '· ' : ''}供應商：{mat.supplier}</span>
                       )}
                       {similarCount >= 2 && (
                         <button
