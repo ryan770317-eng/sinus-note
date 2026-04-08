@@ -28,7 +28,7 @@ const SYNONYM_TABLE: [string, ...string[]][] = [
   ['乳香', '乳香', 'Frankincense', 'frankincense', 'Boswellia', 'boswellia'],
   ['沒藥', '沒藥', 'Myrrh', 'myrrh'],
   ['蘇合香', '蘇合香', 'Styrax', 'styrax', '楓香樹脂'],
-  ['安息香', '安息香'],
+  ['安息香', '安息香', '!金安息香'],
   ['降真香', '降真香'],
   ['檀香', '檀香', '老山檀', '新山檀'],
   ['沉香', '沉香'],
@@ -48,7 +48,11 @@ const SYNONYM_TABLE: [string, ...string[]][] = [
 function getGroups(name: string): string[] {
   const groups: string[] = [];
   for (const [label, ...keywords] of SYNONYM_TABLE) {
-    if (keywords.some((kw) => name.includes(kw))) {
+    // Keywords starting with "!" are exclusions — if any exclusion matches, skip this group
+    const excludes = keywords.filter((kw) => kw.startsWith('!'));
+    const includes = keywords.filter((kw) => !kw.startsWith('!'));
+    if (excludes.some((kw) => name.includes(kw.slice(1)))) continue;
+    if (includes.some((kw) => name.includes(kw))) {
       groups.push(label);
     }
   }
