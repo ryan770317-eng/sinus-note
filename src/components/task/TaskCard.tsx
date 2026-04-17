@@ -1,25 +1,15 @@
 import { useState } from 'react';
 import type { Task, Recipe } from '../../types';
-import { TASK_TYPES, TASK_STATUS } from '../../utils/constants';
+import {
+  TASK_TYPES,
+  TASK_STATUS,
+  PHASE_COLORS,
+  TASK_STATUS_BG,
+} from '../../utils/constants';
 import { calcProgress, daysUntil, fmtDate } from '../../utils/date';
 import { ProgressBar } from '../shared/ProgressBar';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { useToast } from '../shared/Toast';
-
-const PHASE_COLOR: Record<string, string> = {
-  pre:   '#6B6459',
-  make:  '#8B6F52',
-  post:  '#7a8c6e',
-  other: '#6B6459',
-};
-
-const STATUS_BG: Record<string, string> = {
-  prep:       'rgba(107,100,89,0.08)',
-  processing: 'rgba(139,111,82,0.10)',
-  waiting:    'transparent',
-  ready:      'rgba(122,140,110,0.10)',
-  done:       'transparent',
-};
 
 interface Props {
   task: Task;
@@ -27,10 +17,11 @@ interface Props {
   onEdit: (task: Task) => void;
   onComplete: (task: Task) => void;
   onDelete: (id: string) => void;
+  onRestore?: (task: Task) => Promise<void>;
   onRecipeClick: (recipeId: number) => void;
 }
 
-export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRecipeClick }: Props) {
+export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRestore, onRecipeClick }: Props) {
   const toast = useToast();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const tt = TASK_TYPES[task.taskType] ?? TASK_TYPES['other'];
@@ -38,7 +29,7 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRecipe
   const isDone = task.status === 'done';
   const recipe = task.recipeId ? recipes.find((r) => r.id === task.recipeId) : null;
   const progress = !isInstant && task.dueDate ? calcProgress(task.startDate, task.dueDate) : 0;
-  const phaseColor = PHASE_COLOR[tt.phase];
+  const phaseColor = PHASE_COLORS[tt.phase];
 
   let countdown = '';
   let countdownColor = '#6B6459';
@@ -56,7 +47,7 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRecipe
         style={{
           borderLeftWidth: 3,
           borderLeftColor: isDone ? '#D6CFC4' : phaseColor,
-          background: isDone ? 'transparent' : STATUS_BG[task.status],
+          background: isDone ? 'transparent' : TASK_STATUS_BG[task.status],
         }}
       >
         {/* Type + status */}
@@ -148,14 +139,30 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRecipe
 
       {confirmDelete && (
         <ConfirmDialog
-          message={`確定要刪除「${task.title}」？\n此操作無法復原。`}
+          message={`確定要刪除「${task.title}」？`}
           confirmLabel="刪除"
           tone="danger"
           onConfirm={async () => {
             setConfirmDelete(false);
             try {
               await onDelete(task.id);
-              toast.success('工序已刪除');
+              if (onRestore) {
+                toast.success('工序已刪除', {
+                  action: {
+                    label: '復原',
+                    onClick: async () => {
+                      try {
+                        await onRestore(task);
+                        toast.info('工序已復原');
+                      } catch (err) {
+                        toast.error(`復原失敗：${err instanceof Error ? err.message : String(err)}`);
+                      }
+                    },
+                  },
+                });
+              } else {
+                toast.success('工序已刪除');
+              }
             } catch (err) {
               toast.error(`刪除失敗：${err instanceof Error ? err.message : String(err)}`);
             }

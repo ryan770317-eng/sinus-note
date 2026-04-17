@@ -9,6 +9,7 @@ interface Props {
   onAdd: (mat: Omit<Material, 'id'>) => Promise<void>;
   onUpdate: (id: string, updates: Partial<Material>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  onRestore?: (mat: Material) => Promise<void>;
 }
 
 const CATS = Object.keys(ING_CATS) as IngredientCat[];
@@ -62,7 +63,7 @@ function getGroups(name: string): string[] {
 
 // ── Component ─────────────────────────────────────────────────────
 
-export function MaterialList({ materials, onAdd, onUpdate, onDelete }: Props) {
+export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }: Props) {
   const toast = useToast();
   const [activeCat, setActiveCat] = useState<IngredientCat>('base');
   const [search, setSearch] = useState('');
@@ -410,15 +411,32 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete }: Props) {
 
       {deleteId && (
         <ConfirmDialog
-          message={`確定要刪除「${materials.find((m) => m.id === deleteId)?.name}」？\n此操作無法復原。`}
+          message={`確定要刪除「${materials.find((m) => m.id === deleteId)?.name}」？`}
           confirmLabel="刪除"
           tone="danger"
           onConfirm={async () => {
-            const id = deleteId;
+            const mat = materials.find((m) => m.id === deleteId);
             setDeleteId(null);
+            if (!mat) return;
             try {
-              await onDelete(id);
-              toast.success('材料已刪除');
+              await onDelete(mat.id);
+              if (onRestore) {
+                toast.success('材料已刪除', {
+                  action: {
+                    label: '復原',
+                    onClick: async () => {
+                      try {
+                        await onRestore(mat);
+                        toast.info('材料已復原');
+                      } catch (err) {
+                        toast.error(`復原失敗：${err instanceof Error ? err.message : String(err)}`);
+                      }
+                    },
+                  },
+                });
+              } else {
+                toast.success('材料已刪除');
+              }
             } catch (err) {
               toast.error(`刪除失敗：${err instanceof Error ? err.message : String(err)}`);
             }

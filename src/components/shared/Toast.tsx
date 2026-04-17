@@ -2,18 +2,30 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 
 type ToastType = 'info' | 'success' | 'error';
 
+interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
+
 interface Toast {
   id: string;
   message: string;
   type: ToastType;
   duration: number;
+  action?: ToastAction;
+}
+
+export interface ToastOptions {
+  type?: ToastType;
+  duration?: number;
+  action?: ToastAction;
 }
 
 interface ToastApi {
-  show: (message: string, type?: ToastType, duration?: number) => void;
-  success: (message: string, duration?: number) => void;
-  error: (message: string, duration?: number) => void;
-  info: (message: string, duration?: number) => void;
+  show: (message: string, opts?: ToastOptions) => void;
+  success: (message: string, opts?: Omit<ToastOptions, 'type'>) => void;
+  error: (message: string, opts?: Omit<ToastOptions, 'type'>) => void;
+  info: (message: string, opts?: Omit<ToastOptions, 'type'>) => void;
 }
 
 const ToastContext = createContext<ToastApi | null>(null);
@@ -37,18 +49,20 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const show = useCallback((message: string, type: ToastType = 'info', duration = 3200) => {
+  const show = useCallback((message: string, opts?: ToastOptions) => {
+    const type = opts?.type ?? 'info';
+    const duration = opts?.duration ?? (opts?.action ? 6500 : type === 'error' ? 4200 : 3200);
     const id = `t_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
-    setToasts((prev) => [...prev, { id, message, type, duration }]);
+    setToasts((prev) => [...prev, { id, message, type, duration, action: opts?.action }]);
     const timer = window.setTimeout(() => dismiss(id), duration);
     timersRef.current.set(id, timer);
   }, [dismiss]);
 
   const api: ToastApi = {
     show,
-    success: (m, d) => show(m, 'success', d),
-    error: (m, d) => show(m, 'error', d ?? 4200),
-    info: (m, d) => show(m, 'info', d),
+    success: (m, o) => show(m, { ...o, type: 'success' }),
+    error:   (m, o) => show(m, { ...o, type: 'error' }),
+    info:    (m, o) => show(m, { ...o, type: 'info' }),
   };
 
   useEffect(() => {
@@ -69,19 +83,37 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         aria-atomic="true"
       >
         {toasts.map((t) => (
-          <button
+          <div
             key={t.id}
-            onClick={() => dismiss(t.id)}
-            className="pointer-events-auto text-xs font-light tracking-label px-4 py-2.5 shadow-sm transition-opacity max-w-sm w-full text-left"
+            className="pointer-events-auto flex items-center gap-3 shadow-sm max-w-sm w-full"
             style={{
               background: toastBg(t.type),
               color: toastFg(t.type),
               border: `1px solid ${toastBorder(t.type)}`,
             }}
-            aria-label={`關閉通知：${t.message}`}
           >
-            {t.message}
-          </button>
+            <button
+              type="button"
+              onClick={() => dismiss(t.id)}
+              className="flex-1 text-left text-xs font-light tracking-label px-4 py-2.5"
+              aria-label={`關閉通知：${t.message}`}
+            >
+              {t.message}
+            </button>
+            {t.action && (
+              <button
+                type="button"
+                onClick={() => {
+                  t.action?.onClick();
+                  dismiss(t.id);
+                }}
+                className="text-xs font-normal tracking-label px-4 py-2.5 border-l hover:opacity-80"
+                style={{ borderColor: toastBorder(t.type) }}
+              >
+                {t.action.label}
+              </button>
+            )}
+          </div>
         ))}
       </div>
     </ToastContext.Provider>

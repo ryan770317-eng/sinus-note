@@ -94,4 +94,31 @@ export const PHASE_COLORS: Record<'pre' | 'make' | 'post' | 'other', string> = {
   other: '#6B6459', // 灰
 };
 
+// Recipe status: muted background tint (cards, list rows)
+export const RECIPE_STATUS_BG: Record<RecipeStatus, string> = {
+  success:  'rgba(139,111,82,0.10)',
+  fail:     'rgba(160,96,80,0.10)',
+  pending:  'rgba(107,100,89,0.06)',
+  progress: 'rgba(95,122,95,0.10)',
+  order:    'rgba(90,122,140,0.10)',
+};
+
+// Recipe status: left-border accent colour
+export const RECIPE_STATUS_BORDER: Record<RecipeStatus, string> = {
+  success:  '#8B6F52',
+  fail:     '#a06050',
+  pending:  '#D6CFC4',
+  progress: '#5f7a5f',
+  order:    '#5a7a8c',
+};
+
+// Task status: muted background tint for active cards
+export const TASK_STATUS_BG: Record<TaskStatus, string> = {
+  waiting:    'transparent',
+  processing: 'rgba(139,111,82,0.10)',
+  prep:       'rgba(107,100,89,0.08)',
+  ready:      'rgba(122,140,110,0.10)',
+  done:       'transparent',
+};
+
 export const TASK_STATUS_ORDER: TaskStatus[] = ['waiting', 'processing', 'prep', 'ready', 'done'];

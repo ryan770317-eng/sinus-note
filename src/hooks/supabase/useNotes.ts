@@ -81,5 +81,14 @@ export function useNotes(userId: string | null) {
     setNotes((prev) => prev.filter((n) => n.id !== id));
   }, [userId, suppressSync]);
 
-  return { notes, loading, error, addNote, updateNote, deleteNote, saveNotes, suppressSync };
+  /** Re-insert a previously deleted note (used to implement Undo). */
+  const restoreNote = useCallback(async (note: Note) => {
+    if (!userId) return;
+    suppressSync();
+    const { error: err } = await sb.from('notes').insert(noteToRow(note, userId));
+    if (err) { setError(`還原筆記失敗: ${err.message}`); throw err; }
+    setNotes((prev) => [note, ...prev.filter((n) => n.id !== note.id)]);
+  }, [userId, suppressSync]);
+
+  return { notes, loading, error, addNote, updateNote, deleteNote, restoreNote, saveNotes, suppressSync };
 }

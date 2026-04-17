@@ -13,9 +13,10 @@ interface Props {
   onAdd: (text: string) => Promise<void>;
   onUpdate: (id: string, updates: Partial<Note>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  onRestore?: (note: Note) => Promise<void>;
 }
 
-export function NotesList({ notes, onAdd, onUpdate, onDelete }: Props) {
+export function NotesList({ notes, onAdd, onUpdate, onDelete, onRestore }: Props) {
   const toast = useToast();
   const [input, setInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -180,11 +181,27 @@ export function NotesList({ notes, onAdd, onUpdate, onDelete }: Props) {
           confirmLabel="刪除"
           tone="danger"
           onConfirm={async () => {
-            const id = pendingDelete.id;
+            const note = pendingDelete;
             setPendingDelete(null);
             try {
-              await onDelete(id);
-              toast.success('已刪除');
+              await onDelete(note.id);
+              if (onRestore) {
+                toast.success('已刪除', {
+                  action: {
+                    label: '復原',
+                    onClick: async () => {
+                      try {
+                        await onRestore(note);
+                        toast.info('已復原');
+                      } catch (err) {
+                        toast.error(`復原失敗：${err instanceof Error ? err.message : String(err)}`);
+                      }
+                    },
+                  },
+                });
+              } else {
+                toast.success('已刪除');
+              }
             } catch (err) {
               toast.error(`刪除失敗：${err instanceof Error ? err.message : String(err)}`);
             }

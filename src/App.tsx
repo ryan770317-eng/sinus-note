@@ -20,6 +20,7 @@ import { MaterialList } from './components/material/MaterialList';
 import { NotesList } from './components/notes/NotesList';
 import { ConfirmDialog } from './components/shared/ConfirmDialog';
 import { useToast } from './components/shared/Toast';
+import { OfflineBanner } from './components/shared/OfflineBanner';
 
 import { exportBackup, readJsonFile, mergePatch, type BackupData } from './utils/export';
 import { MOCK_RECIPES, MOCK_TASKS, MOCK_MATERIALS, MOCK_NOTES } from './utils/mockData';
@@ -137,10 +138,27 @@ export default function App() {
   }
 
   async function handleDeleteRecipe(id: number) {
+    const recipe = recipeStore.recipes.find((r) => r.id === id);
     try {
       await recipeStore.deleteRecipe(id);
-      toast.success('配方已刪除');
       setRecipeScreen('category');
+      if (recipe) {
+        toast.success('配方已刪除', {
+          action: {
+            label: '復原',
+            onClick: async () => {
+              try {
+                await recipeStore.restoreRecipe(recipe);
+                toast.info('配方已復原');
+              } catch (err) {
+                toast.error(`復原失敗：${err instanceof Error ? err.message : String(err)}`);
+              }
+            },
+          },
+        });
+      } else {
+        toast.success('配方已刪除');
+      }
     } catch (err) {
       toast.error(`刪除失敗：${err instanceof Error ? err.message : String(err)}`);
     }
@@ -326,6 +344,7 @@ export default function App() {
           onAdd={async (data) => { await taskStore.addTask(data); }}
           onUpdate={taskStore.updateTask}
           onDelete={taskStore.deleteTask}
+          onRestore={taskStore.restoreTask}
           onRecipeClick={(id) => { goRecipeDetail(id); }}
           onBurnSave={handleBurnSave}
         />
@@ -339,6 +358,7 @@ export default function App() {
           onAdd={handleAddMaterial}
           onUpdate={matStore.updateMaterial}
           onDelete={matStore.deleteMaterial}
+          onRestore={matStore.restoreMaterial}
         />
       );
     }
@@ -350,6 +370,7 @@ export default function App() {
           onAdd={async (text) => { await noteStore.addNote(text); }}
           onUpdate={noteStore.updateNote}
           onDelete={noteStore.deleteNote}
+          onRestore={noteStore.restoreNote}
         />
       );
     }
@@ -376,6 +397,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-bg">
+      <OfflineBanner />
       <div className="md:pt-12">
         {renderTab()}
         {/* Mobile: extra spacer for bottom nav + iOS safe area */}

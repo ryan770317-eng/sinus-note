@@ -16,6 +16,7 @@ interface Props {
   onAdd: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   onUpdate: (id: string, updates: Partial<Task>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  onRestore?: (task: Task) => Promise<void>;
   onRecipeClick: (recipeId: number) => void;
   onBurnSave: (taskId: string, recipeId: number | null, entry: BurnEntry) => Promise<void>;
 }
@@ -30,6 +31,7 @@ export function TaskDashboard({
   onAdd,
   onUpdate,
   onDelete,
+  onRestore,
   onRecipeClick,
   onBurnSave,
 }: Props) {
@@ -118,6 +120,7 @@ export function TaskDashboard({
                   onEdit={setEditTask}
                   onComplete={handleComplete}
                   onDelete={onDelete}
+                  onRestore={onRestore}
                   onRecipeClick={onRecipeClick}
                 />
               ))}

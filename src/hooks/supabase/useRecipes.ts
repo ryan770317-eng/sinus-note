@@ -134,6 +134,14 @@ export function useRecipes(userId: string | null) {
     setRecipes((prev) => prev.filter((r) => r.id !== id));
   }, [userId, suppressSync]);
 
+  const restoreRecipe = useCallback(async (recipe: Recipe) => {
+    if (!userId) return;
+    suppressSync();
+    const { error: err } = await sb.from('recipes').insert(recipeToRow(recipe, userId));
+    if (err) { setError(`還原配方失敗: ${err.message}`); throw err; }
+    setRecipes((prev) => [...prev.filter((r) => r.id !== recipe.id), recipe]);
+  }, [userId, suppressSync]);
+
   // saveRecipes: bulk replace (used for import / merge-import).
   const saveRecipes = useCallback(async (
     newRecipes: Recipe[],
@@ -180,6 +188,7 @@ export function useRecipes(userId: string | null) {
     addRecipe,
     updateRecipe,
     deleteRecipe,
+    restoreRecipe,
     saveRecipes,
     saveCatImages,
     suppressSync,

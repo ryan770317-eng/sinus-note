@@ -82,6 +82,14 @@ export function useMaterials(userId: string | null) {
     setMaterials((prev) => prev.filter((m) => m.id !== id));
   }, [userId, suppressSync]);
 
+  const restoreMaterial = useCallback(async (mat: Material) => {
+    if (!userId) return;
+    suppressSync();
+    const { error: err } = await sb.from('materials').insert(materialToRow(mat, userId));
+    if (err) { setError(`還原材料失敗: ${err.message}`); throw err; }
+    setMaterials((prev) => [...prev.filter((m) => m.id !== mat.id), mat]);
+  }, [userId, suppressSync]);
+
   return {
     materials,
     materialNames: materials.map((m) => m.name),
@@ -90,6 +98,7 @@ export function useMaterials(userId: string | null) {
     addMaterial,
     updateMaterial,
     deleteMaterial,
+    restoreMaterial,
     saveMaterials,
     suppressSync,
   };

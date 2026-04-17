@@ -1,21 +1,10 @@
 import type { Recipe, FragCat, RecipeStatus } from '../../types';
-import { FRAG_CATS, RECIPE_STATUS } from '../../utils/constants';
-
-const STATUS_BORDER: Record<RecipeStatus, string> = {
-  success:  '#8B6F52',
-  fail:     '#a06050',
-  pending:  '#D6CFC4',
-  progress: '#8B6F52',
-  order:    '#6B6459',
-};
-
-const STATUS_BG: Record<RecipeStatus, string> = {
-  success:  'rgba(139,111,82,0.10)',
-  fail:     'rgba(160,96,80,0.10)',
-  pending:  'transparent',
-  progress: 'rgba(139,111,82,0.05)',
-  order:    'rgba(107,100,89,0.05)',
-};
+import {
+  FRAG_CATS,
+  RECIPE_STATUS,
+  RECIPE_STATUS_BG,
+  RECIPE_STATUS_BORDER,
+} from '../../utils/constants';
 
 interface Props {
   cat: FragCat;
@@ -76,8 +65,8 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
                   className="w-full text-left border border-border px-4 py-3 hover:border-ink-2 transition-colors"
                   style={{
                     borderLeftWidth: 3,
-                    borderLeftColor: STATUS_BORDER[r.status],
-                    background: STATUS_BG[r.status],
+                    borderLeftColor: RECIPE_STATUS_BORDER[r.status],
+                    background: RECIPE_STATUS_BG[r.status],
                   }}
                 >
                   <div className="flex items-start justify-between gap-3">

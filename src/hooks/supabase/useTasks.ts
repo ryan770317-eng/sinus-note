@@ -86,6 +86,14 @@ export function useTasks(userId: string | null) {
     setTasks((prev) => prev.filter((t) => t.id !== id));
   }, [userId, suppressSync]);
 
+  const restoreTask = useCallback(async (task: Task) => {
+    if (!userId) return;
+    suppressSync();
+    const { error: err } = await sb.from('tasks').insert(taskToRow(task, userId));
+    if (err) { setError(`還原工序失敗: ${err.message}`); throw err; }
+    setTasks((prev) => [...prev.filter((t) => t.id !== task.id), task]);
+  }, [userId, suppressSync]);
+
   const alertTasks = tasks.filter((t) => {
     if (t.status === 'done') return false;
     const tt = TASK_TYPES[t.taskType];
@@ -102,6 +110,7 @@ export function useTasks(userId: string | null) {
     addTask,
     updateTask,
     deleteTask,
+    restoreTask,
     saveTasks,
     suppressSync,
   };
