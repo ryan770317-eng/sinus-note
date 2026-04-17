@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { sb, materialToRow, rowToMaterial, subscribeTable } from '../../lib/supabase';
 import type { MaterialRow } from '../../lib/supabase';
 import type { Material } from '../../types';
+import { uid } from '../../utils/id';
 
 export function useMaterials(userId: string | null) {
   const [materials, setMaterials] = useState<Material[]>([]);
@@ -51,7 +52,7 @@ export function useMaterials(userId: string | null) {
 
   const addMaterial = useCallback(async (mat: Omit<Material, 'id'>) => {
     if (!userId) throw new Error('not authenticated');
-    const id = `mu${Date.now()}`;
+    const id = uid('mu');
     const newMat: Material = { ...mat, id };
     suppressSync();
     const { error: err } = await sb.from('materials').insert(materialToRow(newMat, userId));

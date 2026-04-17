@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { sb, noteToRow, rowToNote, subscribeTable } from '../../lib/supabase';
 import type { NoteRow } from '../../lib/supabase';
 import type { Note } from '../../types';
+import { uid } from '../../utils/id';
 
 export function useNotes(userId: string | null) {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -50,7 +51,7 @@ export function useNotes(userId: string | null) {
 
   const addNote = useCallback(async (text: string) => {
     if (!userId) throw new Error('not authenticated');
-    const id = `n_${Date.now()}`;
+    const id = uid('n');
     const newNote: Note = { id, text, ts: Date.now() };
     suppressSync();
     const { error: err } = await sb.from('notes').insert(noteToRow(newNote, userId));

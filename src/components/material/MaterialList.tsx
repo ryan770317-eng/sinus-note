@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import type { Material, IngredientCat } from '../../types';
 import { ING_CATS, ING_CAT_COLORS } from '../../utils/constants';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
+import { useToast } from '../shared/Toast';
 
 interface Props {
   materials: Material[];
@@ -62,6 +63,7 @@ function getGroups(name: string): string[] {
 // ── Component ─────────────────────────────────────────────────────
 
 export function MaterialList({ materials, onAdd, onUpdate, onDelete }: Props) {
+  const toast = useToast();
   const [activeCat, setActiveCat] = useState<IngredientCat>('base');
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -70,6 +72,8 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete }: Props) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showGroupFor, setShowGroupFor] = useState<string | null>(null); // materialId showing group list
+  const [submitting, setSubmitting] = useState(false);
+  const [nameError, setNameError] = useState(false);
 
   // ── Precompute similar groups ───────────────────────────────────
   const { matGroups, groupMembers } = useMemo(() => {
@@ -133,14 +137,29 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name.trim()) return;
-    if (editId) {
-      await onUpdate(editId, form);
-    } else {
-      await onAdd(form);
+    if (submitting) return;
+    if (!form.name.trim()) {
+      setNameError(true);
+      toast.error('請填寫材料名稱');
+      return;
     }
-    setShowForm(false);
-    setEditId(null);
+    setSubmitting(true);
+    try {
+      if (editId) {
+        await onUpdate(editId, form);
+        toast.success('材料已更新');
+      } else {
+        await onAdd(form);
+        toast.success('材料已新增');
+      }
+      setShowForm(false);
+      setEditId(null);
+      setNameError(false);
+    } catch (err) {
+      toast.error(`儲存失敗：${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function setF<K extends keyof typeof form>(key: K, val: typeof form[K]) {
@@ -207,8 +226,17 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete }: Props) {
               </select>
             </div>
             <div>
-              <label className="section-label block mb-1">名稱 *</label>
-              <input required value={form.name} onChange={(e) => setF('name', e.target.value)} className="input-field" />
+              <label htmlFor="mat-name" className="section-label block mb-1">名稱 *</label>
+              <input
+                id="mat-name"
+                required
+                aria-required="true"
+                aria-invalid={nameError}
+                value={form.name}
+                onChange={(e) => { setF('name', e.target.value); if (nameError && e.target.value.trim()) setNameError(false); }}
+                className={`input-field ${nameError ? 'border-error' : ''}`}
+              />
+              {nameError && <p className="text-xs text-error font-light mt-1">請填寫名稱</p>}
             </div>
             <div>
               <label className="section-label block mb-1">產地</label>
@@ -238,8 +266,21 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete }: Props) {
             </div>
           </div>
           <div className="flex gap-3 justify-end">
-            <button type="button" onClick={() => { setShowForm(false); setEditId(null); }} className="btn text-xs">取消</button>
-            <button type="submit" className="btn-primary text-xs">儲存</button>
+            <button
+              type="button"
+              onClick={() => { setShowForm(false); setEditId(null); setNameError(false); }}
+              disabled={submitting}
+              className="btn text-xs disabled:opacity-50"
+            >
+              取消
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="btn-primary text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submitting ? '儲存中…' : '儲存'}
+            </button>
           </div>
         </form>
       )}
@@ -276,6 +317,8 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete }: Props) {
                       {similarCount >= 2 && (
                         <button
                           onClick={(e) => handleGroupClick(e, mat.id)}
+                          aria-label={`查看 ${mat.name} 的同類材料（${similarCount} 項）`}
+                          aria-expanded={showingGroup}
                           className="text-[10px] px-1.5 py-0.5 rounded-full font-light transition-colors"
                           style={{
                             background: showingGroup ? 'rgba(139,111,82,0.25)' : 'rgba(139,111,82,0.12)',
@@ -331,8 +374,20 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete }: Props) {
                   )}
 
                   <div className="flex gap-3 pt-1">
-                    <button onClick={() => startEdit(mat)} className="btn text-xs">編輯</button>
-                    <button onClick={() => setDeleteId(mat.id)} className="btn text-xs text-error border-error">刪除</button>
+                    <button
+                      onClick={() => startEdit(mat)}
+                      className="btn text-xs"
+                      aria-label={`編輯 ${mat.name}`}
+                    >
+                      編輯
+                    </button>
+                    <button
+                      onClick={() => setDeleteId(mat.id)}
+                      className="btn text-xs text-error border-error"
+                      aria-label={`刪除 ${mat.name}`}
+                    >
+                      刪除
+                    </button>
                   </div>
                 </div>
               )}
@@ -345,7 +400,8 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete }: Props) {
       {!showForm && (
         <button
           onClick={startAdd}
-          className="fixed right-5 bottom-16 w-11 h-11 bg-ink text-bg text-xl flex items-center justify-center z-40"
+          className="fixed right-5 w-14 h-14 bg-ink text-bg text-2xl flex items-center justify-center z-40 shadow-sm hover:bg-ink-2 transition-colors"
+          style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom))' }}
           aria-label="新增材料"
         >
           ＋
@@ -354,8 +410,19 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete }: Props) {
 
       {deleteId && (
         <ConfirmDialog
-          message={`確定要刪除「${materials.find((m) => m.id === deleteId)?.name}」？`}
-          onConfirm={async () => { await onDelete(deleteId); setDeleteId(null); }}
+          message={`確定要刪除「${materials.find((m) => m.id === deleteId)?.name}」？\n此操作無法復原。`}
+          confirmLabel="刪除"
+          tone="danger"
+          onConfirm={async () => {
+            const id = deleteId;
+            setDeleteId(null);
+            try {
+              await onDelete(id);
+              toast.success('材料已刪除');
+            } catch (err) {
+              toast.error(`刪除失敗：${err instanceof Error ? err.message : String(err)}`);
+            }
+          }}
           onCancel={() => setDeleteId(null)}
         />
       )}

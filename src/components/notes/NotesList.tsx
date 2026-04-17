@@ -3,6 +3,8 @@ import type { Note } from '../../types';
 import { formatNoteDate } from '../../utils/date';
 import { callClaude, NOTE_ANALYSIS_PROMPT } from '../../services/claude';
 import { VoiceInput } from './VoiceInput';
+import { ConfirmDialog } from '../shared/ConfirmDialog';
+import { useToast } from '../shared/Toast';
 
 const COLLAPSE_THRESHOLD = 120; // chars
 
@@ -14,16 +16,27 @@ interface Props {
 }
 
 export function NotesList({ notes, onAdd, onUpdate, onDelete }: Props) {
+  const toast = useToast();
   const [input, setInput] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [analyzing, setAnalyzing] = useState<Set<string>>(new Set());
+  const [pendingDelete, setPendingDelete] = useState<Note | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!input.trim()) return;
-    await onAdd(input.trim());
-    setInput('');
+    const text = input.trim();
+    if (!text || submitting) return;
+    setSubmitting(true);
+    try {
+      await onAdd(text);
+      setInput('');
+    } catch (err) {
+      toast.error(`儲存失敗：${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function toggleExpand(id: string) {
@@ -39,8 +52,9 @@ export function NotesList({ notes, onAdd, onUpdate, onDelete }: Props) {
     try {
       const result = await callClaude(NOTE_ANALYSIS_PROMPT, note.text);
       await onUpdate(note.id, { aiResult: result });
+      toast.success('AI 解析完成');
     } catch (err) {
-      alert(`AI 解析失敗：${err instanceof Error ? err.message : String(err)}`);
+      toast.error(`AI 解析失敗：${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setAnalyzing((prev) => { const n = new Set(prev); n.delete(note.id); return n; });
     }
@@ -72,7 +86,14 @@ export function NotesList({ notes, onAdd, onUpdate, onDelete }: Props) {
                 textareaRef.current?.focus();
               }}
             />
-            <button type="submit" className="btn-primary text-xs px-3 py-2">記錄</button>
+            <button
+              type="submit"
+              disabled={submitting || !input.trim()}
+              className="btn-primary text-xs px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="記錄筆記"
+            >
+              {submitting ? '儲存中…' : '記錄'}
+            </button>
           </div>
         </div>
       </form>
@@ -135,13 +156,15 @@ export function NotesList({ notes, onAdd, onUpdate, onDelete }: Props) {
                 <button
                   onClick={() => handleAnalyze(note)}
                   disabled={analyzing.has(note.id)}
-                  className="btn text-xs"
+                  className="btn text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label={analyzing.has(note.id) ? '解析中' : '以 AI 解析此筆記'}
                 >
                   {analyzing.has(note.id) ? '解析中...' : 'AI 解析'}
                 </button>
                 <button
-                  onClick={() => { if (confirm('確定刪除？')) onDelete(note.id); }}
+                  onClick={() => setPendingDelete(note)}
                   className="btn text-xs text-error border-error"
+                  aria-label="刪除筆記"
                 >
                   刪除
                 </button>
@@ -150,6 +173,25 @@ export function NotesList({ notes, onAdd, onUpdate, onDelete }: Props) {
           );
         })}
       </div>
+
+      {pendingDelete && (
+        <ConfirmDialog
+          message={`確定要刪除這則隨手記？\n${pendingDelete.text.slice(0, 60)}${pendingDelete.text.length > 60 ? '…' : ''}`}
+          confirmLabel="刪除"
+          tone="danger"
+          onConfirm={async () => {
+            const id = pendingDelete.id;
+            setPendingDelete(null);
+            try {
+              await onDelete(id);
+              toast.success('已刪除');
+            } catch (err) {
+              toast.error(`刪除失敗：${err instanceof Error ? err.message : String(err)}`);
+            }
+          }}
+          onCancel={() => setPendingDelete(null)}
+        />
+      )}
     </div>
   );
 }

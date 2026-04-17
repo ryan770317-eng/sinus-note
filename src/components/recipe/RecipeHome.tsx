@@ -131,8 +131,9 @@ export function RecipeHome({ recipes, catImagesMap, catOrder, onCatClick, onSave
               </div>
               <button
                 onClick={(e) => handleImgClick(cat, e)}
-                className="absolute top-2 right-2 w-6 h-6 bg-bg/70 flex items-center justify-center text-ink-2 text-xs z-20"
+                className="absolute top-2 right-2 w-9 h-9 bg-bg/70 flex items-center justify-center text-ink-2 text-xs z-20"
                 title="上傳封面圖"
+                aria-label={`為「${FRAG_CATS[cat].label}」上傳封面圖`}
               >
                 ▲
               </button>

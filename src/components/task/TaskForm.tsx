@@ -2,16 +2,18 @@ import { useState, useEffect } from 'react';
 import type { Task, TaskType, TaskStatus, Recipe } from '../../types';
 import { TASK_TYPES, TASK_STATUS } from '../../utils/constants';
 import { todayISO, addDays } from '../../utils/date';
+import { useToast } from '../shared/Toast';
 
 interface Props {
   initial?: Task;
   recipes: Recipe[];
   materialNames: string[];
-  onSave: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onSave: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => void | Promise<void>;
   onCancel: () => void;
 }
 
 export function TaskForm({ initial, recipes, materialNames, onSave, onCancel }: Props) {
+  const toast = useToast();
   const [quick, setQuick] = useState(false);
   const [title, setTitle] = useState(initial?.title ?? '');
   const [material, setMaterial] = useState(initial?.material ?? '');
@@ -22,6 +24,8 @@ export function TaskForm({ initial, recipes, materialNames, onSave, onCancel }: 
   const [recipeId, setRecipeId] = useState<number | null>(initial?.recipeId ?? null);
   const [notes, setNotes] = useState(initial?.notes ?? '');
   const [matSuggestions, setMatSuggestions] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [titleError, setTitleError] = useState(false);
 
   // Auto-compute dueDate when taskType or startDate changes
   useEffect(() => {
@@ -43,21 +47,34 @@ export function TaskForm({ initial, recipes, materialNames, onSave, onCancel }: 
     setMatSuggestions(materialNames.filter((n) => n.includes(val)).slice(0, 5));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim()) return;
-    onSave({
-      title: title.trim(),
-      material: material.trim(),
-      taskType,
-      status,
-      startDate,
-      dueDate: dueDate || null,
-      recipeId,
-      notes: notes.trim(),
-      completedDate: initial?.completedDate ?? null,
-      checkpoints: initial?.checkpoints ?? [],
-    });
+    if (submitting) return;
+    if (!title.trim()) {
+      setTitleError(true);
+      toast.error('請填寫標題');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await onSave({
+        title: title.trim(),
+        material: material.trim(),
+        taskType,
+        status,
+        startDate,
+        dueDate: dueDate || null,
+        recipeId,
+        notes: notes.trim(),
+        completedDate: initial?.completedDate ?? null,
+        checkpoints: initial?.checkpoints ?? [],
+      });
+      toast.success(initial ? '工序已更新' : '工序已新增');
+    } catch (err) {
+      toast.error(`儲存失敗：${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -71,8 +88,17 @@ export function TaskForm({ initial, recipes, materialNames, onSave, onCancel }: 
       </div>
 
       <div>
-        <label className="section-label block mb-1">標題 *</label>
-        <input value={title} onChange={(e) => setTitle(e.target.value)} required className="input-field" />
+        <label htmlFor="task-title" className="section-label block mb-1">標題 *</label>
+        <input
+          id="task-title"
+          value={title}
+          onChange={(e) => { setTitle(e.target.value); if (titleError && e.target.value.trim()) setTitleError(false); }}
+          required
+          aria-required="true"
+          aria-invalid={titleError}
+          className={`input-field ${titleError ? 'border-error' : ''}`}
+        />
+        {titleError && <p className="text-xs text-error font-light mt-1">請填寫標題</p>}
       </div>
 
       <div>
@@ -157,8 +183,14 @@ export function TaskForm({ initial, recipes, materialNames, onSave, onCancel }: 
       )}
 
       <div className="flex gap-3 justify-end pt-1">
-        <button type="button" onClick={onCancel} className="btn text-xs">取消</button>
-        <button type="submit" className="btn-primary text-xs">儲存</button>
+        <button type="button" onClick={onCancel} disabled={submitting} className="btn text-xs disabled:opacity-50">取消</button>
+        <button
+          type="submit"
+          disabled={submitting}
+          className="btn-primary text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {submitting ? '儲存中…' : '儲存'}
+        </button>
       </div>
     </form>
   );

@@ -40,9 +40,15 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
   return (
     <div className="max-w-content mx-auto px-4 pt-7 pb-20">
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={onBack} className="text-ink-2 text-sm font-light">← 返回</button>
+        <button
+          onClick={onBack}
+          className="text-ink-2 text-sm font-light py-2 -ml-2 px-2"
+          aria-label="返回分類總覽"
+        >
+          ← 返回
+        </button>
         <h1 className="font-serif text-xl text-ink tracking-wide">{FRAG_CATS[cat].label}</h1>
-        <span className="text-xs text-ink-2 opacity-60 font-light">{catRecipes.length} 個</span>
+        <span className="text-xs text-ink-2 opacity-60 font-light" aria-label={`共 ${catRecipes.length} 個配方`}>{catRecipes.length} 個</span>
       </div>
 
       {catRecipes.length === 0 && (
@@ -100,8 +106,9 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
 
       <button
         onClick={onNew}
-        className="fixed right-5 bottom-16 w-11 h-11 bg-ink text-bg text-xl flex items-center justify-center z-40"
-        aria-label="新增配方"
+        className="fixed right-5 w-14 h-14 bg-ink text-bg text-2xl flex items-center justify-center z-40 shadow-sm hover:bg-ink-2 transition-colors"
+        style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom))' }}
+        aria-label={`新增 ${FRAG_CATS[cat].label} 配方`}
       >
         ＋
       </button>

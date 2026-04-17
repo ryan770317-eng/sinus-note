@@ -4,6 +4,7 @@ import type { TaskRow } from '../../lib/supabase';
 import type { Task } from '../../types';
 import { daysUntil } from '../../utils/date';
 import { TASK_TYPES } from '../../utils/constants';
+import { uid } from '../../utils/id';
 
 export function useTasks(userId: string | null) {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -54,7 +55,7 @@ export function useTasks(userId: string | null) {
 
   const addTask = useCallback(async (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (!userId) throw new Error('not authenticated');
-    const id = `tk_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const id = uid('tk');
     const now = new Date().toISOString();
     const newTask: Task = { ...task, id, createdAt: now, updatedAt: now };
     suppressSync();

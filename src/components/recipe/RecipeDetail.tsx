@@ -35,7 +35,13 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
   return (
     <div className="max-w-content mx-auto px-4 pt-7 pb-20">
       <div className="flex items-center gap-3 mb-2">
-        <button onClick={onBack} className="text-ink-2 text-sm font-light">← 返回</button>
+        <button
+          onClick={onBack}
+          className="text-ink-2 text-sm font-light py-2 -ml-2 px-2"
+          aria-label="返回上一頁"
+        >
+          ← 返回
+        </button>
       </div>
 
       {/* Header */}
@@ -200,12 +206,17 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
 
       {/* Actions */}
       <div className="flex gap-3 mt-6 border-t border-border pt-4">
-        <button onClick={() => onEdit(recipe)} className="btn text-xs">編輯</button>
         <button
-          onClick={() => {
-            if (confirm(`確定要刪除「${recipe.name}」？`)) onDelete(recipe.id);
-          }}
+          onClick={() => onEdit(recipe)}
+          className="btn text-xs"
+          aria-label={`編輯配方 ${recipe.name}`}
+        >
+          編輯
+        </button>
+        <button
+          onClick={() => onDelete(recipe.id)}
           className="btn text-xs text-error border-error"
+          aria-label={`刪除配方 ${recipe.name}`}
         >
           刪除
         </button>

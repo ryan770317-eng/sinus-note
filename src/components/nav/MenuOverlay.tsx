@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useToast } from '../shared/Toast';
 
 interface Props {
   onClose: () => void;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function MenuOverlay({ onClose, onExport, onImport, onMergeImport, onLogout }: Props) {
+  const toast = useToast();
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('sinus_anthropic_key') ?? '');
   const [showApiKey, setShowApiKey] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -23,17 +25,25 @@ export function MenuOverlay({ onClose, onExport, onImport, onMergeImport, onLogo
     return () => document.removeEventListener('mousedown', handler);
   }, [onClose]);
 
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose();
+    }
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
   function saveApiKey() {
     localStorage.setItem('sinus_anthropic_key', apiKey);
-    alert('API key 已儲存');
+    toast.success('API key 已儲存');
   }
 
   const importRef = useRef<HTMLInputElement>(null);
   const mergeRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-end">
-      <div className="absolute inset-0 bg-ink/20" onClick={onClose} />
+    <div className="fixed inset-0 z-[60] flex items-end justify-end" role="dialog" aria-modal="true" aria-label="設定選單">
+      <div className="absolute inset-0 bg-ink/20" onClick={onClose} aria-hidden="true" />
       <div
         ref={overlayRef}
         className="relative bg-bg border border-border w-64 mb-12 mr-0 shadow-none"

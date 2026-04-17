@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { Recipe, FragCat, RecipeStatus, IngredientCat, Ingredient, Version } from '../../types';
 import { FRAG_CATS, ING_CATS, RECIPE_STATUS } from '../../utils/constants';
 import { todayISO } from '../../utils/date';
+import { versionTag } from '../../utils/id';
+import { useToast } from '../shared/Toast';
 
 interface Props {
   initial?: Recipe;
@@ -18,7 +20,7 @@ function emptyVersion(): Version {
 
 function emptyRecipe(nextId: number, fragCat: FragCat = 'test'): Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'> {
   return {
-    num: `V-${String.fromCharCode(64 + (nextId % 26 || 26))}`,
+    num: versionTag(nextId),
     name: '',
     fragCat,
     status: 'pending',
@@ -41,11 +43,21 @@ export function RecipeForm({ initial, nextId, materialNames, fragCat, onSave, on
     versions: raw.versions?.length ? raw.versions : [emptyVersion()],
     burnLog: raw.burnLog ?? [],
   };
+  const toast = useToast();
   const [form, setForm] = useState<Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>>(init);
   const [vIdx, setVIdx] = useState(0);
   const [tagInput, setTagInput] = useState((init.tags ?? []).join(', '));
   const [matSuggestions, setMatSuggestions] = useState<string[]>([]);
   const [activeIngIdx, setActiveIngIdx] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [nameError, setNameError] = useState(false);
+  const blurTimerRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (blurTimerRef.current != null) {
+      clearTimeout(blurTimerRef.current);
+    }
+  }, []);
 
   const version = form.versions[vIdx];
 
@@ -86,14 +98,34 @@ export function RecipeForm({ initial, nextId, materialNames, fragCat, onSave, on
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name.trim()) return;
-    await onSave({ ...form, tags: tagInput.split(',').map((t) => t.trim()).filter(Boolean) });
+    if (submitting) return;
+    if (!form.name.trim()) {
+      setNameError(true);
+      toast.error('請填寫配方名稱');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await onSave({ ...form, tags: tagInput.split(',').map((t) => t.trim()).filter(Boolean) });
+      toast.success(initial ? '配方已更新' : '配方已新增');
+    } catch (err) {
+      toast.error(`儲存失敗：${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
     <div className="max-w-content mx-auto px-4 pt-7 pb-20">
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={onCancel} className="text-ink-2 text-sm font-light">← 返回</button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="text-ink-2 text-sm font-light py-2 -ml-2 px-2"
+          aria-label="返回上一頁"
+        >
+          ← 返回
+        </button>
         <h1 className="font-serif text-xl text-ink">{initial ? '編輯配方' : '新增配方'}</h1>
       </div>
 
@@ -105,8 +137,19 @@ export function RecipeForm({ initial, nextId, materialNames, fragCat, onSave, on
             <input value={form.num} onChange={(e) => setF('num', e.target.value)} className="input-field" />
           </div>
           <div>
-            <label className="section-label block mb-1">名稱 *</label>
-            <input required value={form.name} onChange={(e) => setF('name', e.target.value)} className="input-field" />
+            <label htmlFor="recipe-name" className="section-label block mb-1">名稱 *</label>
+            <input
+              id="recipe-name"
+              required
+              aria-required="true"
+              aria-invalid={nameError}
+              value={form.name}
+              onChange={(e) => { setF('name', e.target.value); if (nameError && e.target.value.trim()) setNameError(false); }}
+              className={`input-field ${nameError ? 'border-error' : ''}`}
+            />
+            {nameError && (
+              <p className="text-xs text-error font-light mt-1">請填寫配方名稱</p>
+            )}
           </div>
           <div>
             <label className="section-label block mb-1">香氣分類</label>
@@ -213,9 +256,16 @@ export function RecipeForm({ initial, nextId, materialNames, fragCat, onSave, on
                     value={ing.name}
                     onChange={(e) => handleIngNameInput(i, e.target.value)}
                     onFocus={() => setActiveIngIdx(i)}
-                    onBlur={() => setTimeout(() => setMatSuggestions([]), 150)}
+                    onBlur={() => {
+                      if (blurTimerRef.current != null) clearTimeout(blurTimerRef.current);
+                      blurTimerRef.current = window.setTimeout(() => {
+                        setMatSuggestions([]);
+                        blurTimerRef.current = null;
+                      }, 150);
+                    }}
                     placeholder="材料名"
                     className="input-field text-xs w-full"
+                    aria-label={`材料 ${i + 1} 名稱`}
                   />
                   {activeIngIdx === i && matSuggestions.length > 0 && (
                     <div className="absolute z-10 left-0 right-0 top-full bg-bg border border-border">
@@ -229,7 +279,14 @@ export function RecipeForm({ initial, nextId, materialNames, fragCat, onSave, on
                 </div>
                 <input type="number" value={ing.amount} onChange={(e) => updateIngredient(i, { amount: Number(e.target.value) })} placeholder="用量" className="input-field text-xs" step="0.1" />
                 <input value={ing.unit} onChange={(e) => updateIngredient(i, { unit: e.target.value })} placeholder="g" className="input-field text-xs" />
-                <button type="button" onClick={() => removeIngredient(i)} className="text-ink-4 hover:text-error text-sm">×</button>
+                <button
+                  type="button"
+                  onClick={() => removeIngredient(i)}
+                  className="text-ink-4 hover:text-error text-sm min-w-[28px] min-h-[28px]"
+                  aria-label={`移除第 ${i + 1} 項材料`}
+                >
+                  ×
+                </button>
               </div>
             ))}
           </div>
@@ -242,8 +299,21 @@ export function RecipeForm({ initial, nextId, materialNames, fragCat, onSave, on
         </div>
 
         <div className="flex gap-3 justify-end pt-2 border-t border-border">
-          <button type="button" onClick={onCancel} className="btn text-xs">取消</button>
-          <button type="submit" className="btn-primary text-xs">儲存</button>
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={submitting}
+            className="btn text-xs disabled:opacity-50"
+          >
+            取消
+          </button>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="btn-primary text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {submitting ? '儲存中…' : '儲存'}
+          </button>
         </div>
       </form>
     </div>

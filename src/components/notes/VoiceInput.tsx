@@ -46,7 +46,9 @@ export function VoiceInput({ onResult }: Props) {
       type="button"
       onClick={toggle}
       title={recording ? '停止錄音' : '語音輸入'}
-      className={`p-2 border transition-colors ${
+      aria-label={recording ? '停止錄音' : '開始語音輸入'}
+      aria-pressed={recording}
+      className={`p-2 border transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center ${
         recording
           ? 'border-error text-error bg-error/10'
           : 'border-border text-ink-2 hover:bg-card'

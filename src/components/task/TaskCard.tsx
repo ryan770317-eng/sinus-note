@@ -4,6 +4,7 @@ import { TASK_TYPES, TASK_STATUS } from '../../utils/constants';
 import { calcProgress, daysUntil, fmtDate } from '../../utils/date';
 import { ProgressBar } from '../shared/ProgressBar';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
+import { useToast } from '../shared/Toast';
 
 const PHASE_COLOR: Record<string, string> = {
   pre:   '#6B6459',
@@ -30,6 +31,7 @@ interface Props {
 }
 
 export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRecipeClick }: Props) {
+  const toast = useToast();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const tt = TASK_TYPES[task.taskType] ?? TASK_TYPES['other'];
   const isInstant = tt.defaultDays === 0;
@@ -119,17 +121,45 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRecipe
         {/* Actions */}
         <div className="flex gap-3 mt-2">
           {!isDone && (
-            <button onClick={() => onComplete(task)} className="btn text-xs">完成</button>
+            <button
+              onClick={() => onComplete(task)}
+              className="btn text-xs"
+              aria-label={`將工序「${task.title}」標記為完成`}
+            >
+              完成
+            </button>
           )}
-          <button onClick={() => onEdit(task)} className="btn text-xs">編輯</button>
-          <button onClick={() => setConfirmDelete(true)} className="btn text-xs text-error border-error">刪除</button>
+          <button
+            onClick={() => onEdit(task)}
+            className="btn text-xs"
+            aria-label={`編輯工序「${task.title}」`}
+          >
+            編輯
+          </button>
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="btn text-xs text-error border-error"
+            aria-label={`刪除工序「${task.title}」`}
+          >
+            刪除
+          </button>
         </div>
       </div>
 
       {confirmDelete && (
         <ConfirmDialog
-          message={`確定要刪除「${task.title}」？`}
-          onConfirm={() => { onDelete(task.id); setConfirmDelete(false); }}
+          message={`確定要刪除「${task.title}」？\n此操作無法復原。`}
+          confirmLabel="刪除"
+          tone="danger"
+          onConfirm={async () => {
+            setConfirmDelete(false);
+            try {
+              await onDelete(task.id);
+              toast.success('工序已刪除');
+            } catch (err) {
+              toast.error(`刪除失敗：${err instanceof Error ? err.message : String(err)}`);
+            }
+          }}
           onCancel={() => setConfirmDelete(false)}
         />
       )}

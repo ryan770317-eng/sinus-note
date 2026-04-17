@@ -3,6 +3,8 @@ import type { Recipe, Material, Task, IngredientCat, FragCat, TaskType, TaskStat
 import { callClaude, BATCH_SYSTEM_PROMPT } from '../../services/claude';
 import { todayISO } from '../../utils/date';
 import { FRAG_CATS, ING_CATS, TASK_TYPES } from '../../utils/constants';
+import { useToast } from '../shared/Toast';
+import { versionTag, uid } from '../../utils/id';
 
 type BatchAction =
   | { type: 'material_add'; cat: IngredientCat; name: string; origin: string; supplier: string; note: string; qty: number; unit: string }
@@ -135,6 +137,7 @@ export function BatchImport({
   onAddTask,
   suppressSync,
 }: Props) {
+  const toast = useToast();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [parsing, setParsing] = useState(false);
@@ -157,10 +160,14 @@ export function BatchImport({
     try {
       const raw = await callClaude(BATCH_SYSTEM_PROMPT, input);
       const cleaned = sanitizeJson(raw);
-      const arr = JSON.parse(cleaned) as Record<string, unknown>[];
-      const parsed = arr.map(cleanAction).filter((a): a is BatchAction => a !== null);
+      const parsedRaw = JSON.parse(cleaned);
+      if (!Array.isArray(parsedRaw)) {
+        toast.error('解析結果格式錯誤：應為陣列');
+        return;
+      }
+      const parsed = (parsedRaw as Record<string, unknown>[]).map(cleanAction).filter((a): a is BatchAction => a !== null);
       if (parsed.length === 0) {
-        alert('解析結果為空，請確認貼入的內容格式');
+        toast.info('解析結果為空，請確認貼入的內容格式');
         return;
       }
 
@@ -168,7 +175,7 @@ export function BatchImport({
       const results: ActionState[] = [];
       let skippedCount = 0;
       for (const a of parsed) {
-        const stableId = `${a.type}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+        const stableId = uid(a.type);
         if (a.type === 'material_add' && existingMatNames.has(a.name)) {
           results.push({ action: a, id: stableId, status: 'skipped' });
           skippedCount++;
@@ -179,10 +186,12 @@ export function BatchImport({
 
       setActions(results);
       if (skippedCount > 0) {
-        alert(`已自動跳過 ${skippedCount} 筆已存在的材料`);
+        toast.info(`已自動跳過 ${skippedCount} 筆已存在的材料`);
+      } else {
+        toast.success(`共解析出 ${parsed.length} 筆動作`);
       }
     } catch (err) {
-      alert(`解析失敗：${err instanceof Error ? err.message : String(err)}`);
+      toast.error(`解析失敗：${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setParsing(false);
     }
@@ -205,7 +214,7 @@ export function BatchImport({
       } else if (a.type === 'recipe_add') {
         const tw = a.totalWeight || (a.ingredients ?? []).reduce((s, i) => s + i.amount, 0);
         await onAddRecipe({
-          num: `V-${String.fromCharCode(64 + (nextId % 26 || 26))}`,
+          num: versionTag(nextId),
           name: a.name,
           fragCat: a.fragCat || 'improve',
           status: 'pending',
@@ -238,8 +247,9 @@ export function BatchImport({
         });
       }
       setActions((prev) => prev.map((aa, i) => i === idx ? { ...aa, status: 'done' } : aa));
+      toast.success('寫入完成');
     } catch (err) {
-      alert(`寫入失敗：${err instanceof Error ? err.message : String(err)}`);
+      toast.error(`寫入失敗：${err instanceof Error ? err.message : String(err)}`);
       setActions((prev) => prev.map((aa, i) => i === idx ? { ...aa, status: 'pending' } : aa));
     }
   }

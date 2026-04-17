@@ -18,17 +18,24 @@ import { RecipeForm } from './components/recipe/RecipeForm';
 import { TaskDashboard } from './components/task/TaskDashboard';
 import { MaterialList } from './components/material/MaterialList';
 import { NotesList } from './components/notes/NotesList';
+import { ConfirmDialog } from './components/shared/ConfirmDialog';
+import { useToast } from './components/shared/Toast';
 
 import { exportBackup, readJsonFile, mergePatch, type BackupData } from './utils/export';
 import { MOCK_RECIPES, MOCK_TASKS, MOCK_MATERIALS, MOCK_NOTES } from './utils/mockData';
 import { TASK_TYPES } from './utils/constants';
 import type { Recipe, FragCat, BurnEntry, Material } from './types';
 
+type PendingImport =
+  | { kind: 'replace'; data: BackupData }
+  | { kind: 'merge'; patch: Partial<BackupData> };
+
 type RecipeScreen = 'home' | 'category' | 'detail' | 'form';
 
 export default function App() {
   const { user, loading, error, login, logout } = useAuth();
   const uid = user?.uid ?? null;
+  const toast = useToast();
 
   const recipeStore = useRecipes(uid);
   const matStore = useMaterials(uid);
@@ -45,10 +52,20 @@ export default function App() {
   const [editRecipe, setEditRecipe] = useState<Recipe | null>(null);
   const [newRecipeForCat, setNewRecipeForCat] = useState<FragCat | undefined>();
 
+  // Confirmation state (import / delete recipe)
+  const [pendingImport, setPendingImport] = useState<PendingImport | null>(null);
+  const [pendingDeleteRecipe, setPendingDeleteRecipe] = useState<Recipe | null>(null);
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-bg flex items-center justify-center">
-        <p className="text-sm text-ink-2 font-light tracking-label">SINUS NOTE</p>
+      <div
+        className="min-h-screen bg-bg flex flex-col items-center justify-center gap-3"
+        role="status"
+        aria-live="polite"
+        aria-label="載入中"
+      >
+        <p className="font-serif text-2xl text-ink tracking-wide">SINUS NOTE</p>
+        <p className="text-xs text-ink-3 font-light tracking-label">載入中…</p>
       </div>
     );
   }
@@ -120,8 +137,13 @@ export default function App() {
   }
 
   async function handleDeleteRecipe(id: number) {
-    await recipeStore.deleteRecipe(id);
-    setRecipeScreen('category');
+    try {
+      await recipeStore.deleteRecipe(id);
+      toast.success('配方已刪除');
+      setRecipeScreen('category');
+    } catch (err) {
+      toast.error(`刪除失敗：${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 
   async function handleBurnSave(_taskId: string, recipeId: number | null, entry: BurnEntry) {
@@ -169,29 +191,64 @@ export default function App() {
   async function handleImport(file: File) {
     try {
       const data = await readJsonFile(file) as BackupData;
-      if (!confirm('確定要覆蓋全部資料？')) return;
-      await recipeStore.saveRecipes(data.recipes ?? [], data.nextId, data.catOrder ?? null);
-      if (data.catImages) await recipeStore.saveCatImages(data.catImages);
-      if (data.materials) await matStore.saveMaterials(data.materials);
-      if (data.tasks) await taskStore.saveTasks(data.tasks);
-      alert('匯入完成');
-    } catch (err) { alert(`匯入失敗：${err instanceof Error ? err.message : String(err)}`); }
-    setMenuOpen(false);
+      setMenuOpen(false);
+      setPendingImport({ kind: 'replace', data });
+    } catch (err) {
+      toast.error(`讀取檔案失敗：${err instanceof Error ? err.message : String(err)}`);
+      setMenuOpen(false);
+    }
   }
 
   async function handleMergeImport(file: File) {
     try {
       const patch = await readJsonFile(file) as Partial<BackupData>;
-      const merged = mergePatch(
-        { recipes: recipeStore.recipes, materials: matStore.materials, tasks: taskStore.tasks },
-        { recipes: patch.recipes, materials: patch.materials, tasks: patch.tasks },
-      );
-      await recipeStore.saveRecipes(merged.recipes);
-      await matStore.saveMaterials(merged.materials);
-      await taskStore.saveTasks(merged.tasks);
-      alert(`合併完成：配方 +${merged.added.recipes}、材料 +${merged.added.materials}、工序 +${merged.added.tasks}`);
-    } catch (err) { alert(`合併失敗：${err instanceof Error ? err.message : String(err)}`); }
-    setMenuOpen(false);
+      setMenuOpen(false);
+      setPendingImport({ kind: 'merge', patch });
+    } catch (err) {
+      toast.error(`讀取檔案失敗：${err instanceof Error ? err.message : String(err)}`);
+      setMenuOpen(false);
+    }
+  }
+
+  async function confirmImport() {
+    if (!pendingImport) return;
+    const req = pendingImport;
+    setPendingImport(null);
+    try {
+      if (req.kind === 'replace') {
+        const data = req.data;
+        await recipeStore.saveRecipes(data.recipes ?? [], data.nextId, data.catOrder ?? null);
+        if (data.catImages) await recipeStore.saveCatImages(data.catImages);
+        if (data.materials) await matStore.saveMaterials(data.materials);
+        if (data.tasks) await taskStore.saveTasks(data.tasks);
+        toast.success('匯入完成');
+      } else {
+        const patch = req.patch;
+        const merged = mergePatch(
+          { recipes: recipeStore.recipes, materials: matStore.materials, tasks: taskStore.tasks },
+          { recipes: patch.recipes, materials: patch.materials, tasks: patch.tasks },
+        );
+        await recipeStore.saveRecipes(merged.recipes);
+        await matStore.saveMaterials(merged.materials);
+        await taskStore.saveTasks(merged.tasks);
+        toast.success(`合併完成：配方 +${merged.added.recipes}、材料 +${merged.added.materials}、工序 +${merged.added.tasks}`);
+      }
+    } catch (err) {
+      toast.error(`${req.kind === 'replace' ? '匯入' : '合併'}失敗：${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  function importConfirmMessage(req: PendingImport): string {
+    if (req.kind === 'replace') {
+      const r = req.data.recipes?.length ?? 0;
+      const m = req.data.materials?.length ?? 0;
+      const t = req.data.tasks?.length ?? 0;
+      return `匯入將覆蓋全部資料，無法復原。\n即將匯入：配方 ${r}、材料 ${m}、工序 ${t}。\n確定執行嗎？`;
+    }
+    const r = req.patch.recipes?.length ?? 0;
+    const m = req.patch.materials?.length ?? 0;
+    const t = req.patch.tasks?.length ?? 0;
+    return `合併匯入將保留既有資料並追加差異項。\n檔案內容：配方 ${r}、材料 ${m}、工序 ${t}。\n確定執行嗎？`;
   }
 
   // ── Render ────────────────────────────────────────────────────
@@ -240,7 +297,7 @@ export default function App() {
             tasks={tasks}
             onBack={goRecipeBack}
             onEdit={(r) => goRecipeForm(r)}
-            onDelete={handleDeleteRecipe}
+            onDelete={() => setPendingDeleteRecipe(recipe)}
             onTaskTab={() => setTab('task')}
           />
         );
@@ -339,6 +396,30 @@ export default function App() {
           onImport={handleImport}
           onMergeImport={handleMergeImport}
           onLogout={async () => { await logout(); setMenuOpen(false); }}
+        />
+      )}
+
+      {pendingImport && (
+        <ConfirmDialog
+          message={importConfirmMessage(pendingImport)}
+          confirmLabel={pendingImport.kind === 'replace' ? '覆蓋匯入' : '合併匯入'}
+          tone={pendingImport.kind === 'replace' ? 'danger' : 'default'}
+          onConfirm={confirmImport}
+          onCancel={() => setPendingImport(null)}
+        />
+      )}
+
+      {pendingDeleteRecipe && (
+        <ConfirmDialog
+          message={`確定要刪除配方「${pendingDeleteRecipe.name}」？\n此操作無法復原。`}
+          confirmLabel="刪除"
+          tone="danger"
+          onConfirm={async () => {
+            const target = pendingDeleteRecipe;
+            setPendingDeleteRecipe(null);
+            await handleDeleteRecipe(target.id);
+          }}
+          onCancel={() => setPendingDeleteRecipe(null)}
         />
       )}
     </div>

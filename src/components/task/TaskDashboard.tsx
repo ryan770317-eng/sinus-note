@@ -144,7 +144,8 @@ export function TaskDashboard({
       {!showForm && !editTask && (
         <button
           onClick={() => setShowForm(true)}
-          className="fixed right-5 bottom-16 w-11 h-11 bg-ink text-bg text-xl flex items-center justify-center z-40"
+          className="fixed right-5 w-14 h-14 bg-ink text-bg text-2xl flex items-center justify-center z-40 shadow-sm hover:bg-ink-2 transition-colors"
+          style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom))' }}
           aria-label="新增工序"
         >
           ＋
