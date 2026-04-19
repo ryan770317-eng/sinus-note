@@ -2,6 +2,57 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   Color tokens — § Ⅲ 四象限 + IngredientCat 獨立分色
+   Primitive 層只在此檔宣告。UI 讀 semantic token 或 Tailwind class。
+   ============================================================ */
+:root {
+  /* Neutral */
+  --bg:      #F5F1EB;
+  --card:    #EDE8E0;
+  --border:  #D6CFC4;
+  --ink:     #1A1A18;
+  --ink-2:   #6B6459;
+  --ink-3:   rgba(107, 100, 89, 0.7);
+  --ink-4:   #D6CFC4;
+
+  /* Four-quadrant palette · base + soft */
+  --earth:        #8B6F52;  /* 暖棕 */
+  --earth-soft:   #B08A65;
+  --moss:         #5f7a5f;  /* 草綠 */
+  --moss-soft:    #7B9579;
+  --mist:         #5a7a8c;  /* 藍灰 */
+  --mist-soft:    #7795A4;
+  --iris:         #7a6b8a;  /* 深紫 */
+  --iris-soft:    #968AA2;
+
+  /* Ingredient-specific accents（比例條並列需 7 色分明） */
+  --ing-base:      var(--earth);      /* #8B6F52 基底木 */
+  --ing-herb:      var(--moss);       /* #5f7a5f 花果藥草 */
+  --ing-resin:     #c49a40;            /* 琥珀（提亮以便比例條辨識） */
+  --ing-tincture:  var(--iris);       /* #7a6b8a 酊劑 */
+  --ing-ferment:   #9a6b4a;            /* 橙褐 發酵 */
+  --ing-wine:      #7a4a4a;            /* 深紅 酒媒 */
+  --ing-binder:    #a8a090;            /* 石灰 黏粉 */
+
+  /* Status */
+  --error:   #a06050;
+  --amber:   #9a8040;
+
+  /* Semantic: task phase */
+  --phase-pre:   var(--earth-soft);
+  --phase-make:  var(--earth);
+  --phase-post:  var(--moss);
+  --phase-other: var(--ink-2);
+
+  /* Semantic: recipe status */
+  --status-success:  var(--earth);
+  --status-progress: var(--moss);
+  --status-order:    var(--mist);
+  --status-fail:     var(--error);
+  --status-pending:  var(--border);
+}
+
 @layer base {
   * {
     border-radius: 0 !important;
@@ -11,8 +62,8 @@
   html, body {
     font-family: 'Noto Sans TC', sans-serif;
     font-weight: 300;
-    background-color: #F5F1EB;
-    color: #1A1A18;
+    background-color: var(--bg);
+    color: var(--ink);
     -webkit-font-smoothing: antialiased;
     /* PWA safe area — 配合 viewport-fit=cover */
     padding-top: env(safe-area-inset-top);

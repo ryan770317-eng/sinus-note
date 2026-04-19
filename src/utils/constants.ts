@@ -1,5 +1,53 @@
 import type { FragCat, RecipeStatus, IngredientCat, TaskType, TaskStatus } from '../types';
 
+/* ============================================================
+ * § Ⅲ 色碼系統 · V2 四象限 + IngredientCat 獨立分色
+ *
+ * 色碼 single source of truth 位於 src/styles/global.css 的 CSS variables。
+ * 此檔引用對應 token 以保持 runtime 一致性：
+ *   --earth / --earth-soft   暖棕家族
+ *   --moss  / --moss-soft    草綠家族
+ *   --mist  / --mist-soft    藍灰家族
+ *   --iris  / --iris-soft    深紫家族
+ *   --ing-*                  材料獨立分色（比例條並列）
+ * ============================================================ */
+
+// 工具：把 hex 轉 rgba（constants 仍需輸出實體 hex 供 inline style 用；
+// token 做為語意參照，hex 是落地值）
+const rgba = (hex: string, a: number): string => {
+  const n = hex.replace('#', '');
+  const r = parseInt(n.slice(0, 2), 16);
+  const g = parseInt(n.slice(2, 4), 16);
+  const b = parseInt(n.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${a})`;
+};
+
+// Palette 常數（與 global.css 同步；如需調整請兩處一起改）
+const PALETTE = {
+  earth:      '#8B6F52',
+  earthSoft:  '#B08A65',
+  moss:       '#5f7a5f',
+  mossSoft:   '#7B9579',
+  mist:       '#5a7a8c',
+  mistSoft:   '#7795A4',
+  iris:       '#7a6b8a',
+  irisSoft:   '#968AA2',
+  // Ingredient-specific（比例條並列需獨立色相）
+  ingResin:    '#c49a40',
+  ingFerment:  '#9a6b4a',
+  ingWine:     '#7a4a4a',
+  ingBinder:   '#a8a090',
+  // status
+  error:   '#a06050',
+  amber:   '#9a8040',
+  // neutral
+  ink2:    '#6B6459',
+  border:  '#D6CFC4',
+} as const;
+
+// 對外暴露（debug / 測試用）
+export const COLOR_PALETTE = PALETTE;
+
 // ── Recipe: fragrance categories ──────────────────────────────────
 export const FRAG_CATS: Record<FragCat, { label: string }> = {
   shrine:   { label: '供香' },
@@ -14,24 +62,31 @@ export const FRAG_CATS: Record<FragCat, { label: string }> = {
   test:     { label: '測試' },
 };
 
-// 每個香氣分類的識別色（border / bg / text）
+// FragCat 對應 4 家族，10 類 → 8 色位（每色位 1–2 類共用）
 export const FRAG_CAT_COLORS: Record<FragCat, { border: string; bg: string; text: string }> = {
-  shrine:   { border: '#7a6b8a', bg: 'rgba(122,107,138,0.12)', text: '#7a6b8a' }, // 紫 — 供香莊嚴
-  improve:  { border: '#9a8052', bg: 'rgba(154,128,82,0.10)',  text: '#9a8052' }, // 金琥珀 — 改良精進
-  green:    { border: '#5f7a5f', bg: 'rgba(95,122,95,0.10)',   text: '#5f7a5f' }, // 草綠 — 草本自然
-  wood:     { border: '#8B6F52', bg: 'rgba(139,111,82,0.10)',  text: '#8B6F52' }, // 暖棕 — 木質沉穩
-  floral:   { border: '#9a7070', bg: 'rgba(154,112,112,0.10)', text: '#9a7070' }, // 玫瑰 — 花香柔美
-  resin:    { border: '#9a8040', bg: 'rgba(154,128,64,0.10)',  text: '#9a8040' }, // 琥珀黃 — 樹脂溫潤
-  western:  { border: '#5a7a8c', bg: 'rgba(90,122,140,0.10)',  text: '#5a7a8c' }, // 藍灰 — 西方冷冽
-  special:  { border: '#6b5a8c', bg: 'rgba(107,90,140,0.10)',  text: '#6b5a8c' }, // 深紫 — 特殊神秘
-  tincture: { border: '#8a6b7a', bg: 'rgba(138,107,122,0.10)', text: '#8a6b7a' }, // 薰衣草 — 酊劑萃取
-  test:     { border: '#8c8070', bg: 'rgba(140,128,112,0.08)', text: '#8c8070' }, // 石灰 — 測試
+  // Earth 家族（木/改良/測試 base；樹脂走 soft）
+  wood:     { border: PALETTE.earth,     bg: rgba(PALETTE.earth, 0.10),    text: PALETTE.earth },
+  improve:  { border: PALETTE.earth,     bg: rgba(PALETTE.earth, 0.10),    text: PALETTE.earth },
+  test:     { border: PALETTE.earth,     bg: rgba(PALETTE.earth, 0.08),    text: PALETTE.earth },
+  resin:    { border: PALETTE.earthSoft, bg: rgba(PALETTE.earthSoft, 0.10), text: PALETTE.earthSoft },
+
+  // Moss 家族（草本）
+  green:    { border: PALETTE.moss,      bg: rgba(PALETTE.moss, 0.10),     text: PALETTE.moss },
+
+  // Mist 家族(西方)
+  western:  { border: PALETTE.mist,      bg: rgba(PALETTE.mist, 0.10),     text: PALETTE.mist },
+
+  // Iris 家族（供香/特殊 base；花香/酊劑 soft）
+  shrine:   { border: PALETTE.iris,      bg: rgba(PALETTE.iris, 0.12),     text: PALETTE.iris },
+  special:  { border: PALETTE.iris,      bg: rgba(PALETTE.iris, 0.12),     text: PALETTE.iris },
+  floral:   { border: PALETTE.irisSoft,  bg: rgba(PALETTE.irisSoft, 0.10), text: PALETTE.irisSoft },
+  tincture: { border: PALETTE.irisSoft,  bg: rgba(PALETTE.irisSoft, 0.10), text: PALETTE.irisSoft },
 };
 
 // ── Recipe: ingredient categories ─────────────────────────────────
 export const ING_CATS: Record<IngredientCat, { label: string }> = {
   base:      { label: '基底木' },
-  herb: { label: '花果藥草' },
+  herb:      { label: '花果藥草' },
   resin:     { label: '樹脂' },
   tincture:  { label: '酊劑' },
   ferment:   { label: '發酵' },
@@ -39,24 +94,24 @@ export const ING_CATS: Record<IngredientCat, { label: string }> = {
   binder:    { label: '黏粉' },
 };
 
-// 材料分類識別色
+// IngredientCat 獨立分色 — 比例條並列需 7 色分得開
 export const ING_CAT_COLORS: Record<IngredientCat, string> = {
-  base:      '#8B6F52', // 暖棕 — 基底木
-  herb: '#5f7a5f', // 草綠 — 花果藥草
-  resin:     '#9a8040', // 琥珀 — 樹脂
-  tincture:  '#8a6b7a', // 薰衣草 — 酊劑
-  ferment:   '#8a6b52', // 橙褐 — 發酵
-  wine:      '#7a4a4a', // 深紅 — 酒媒
-  binder:    '#6B6459', // 灰棕 — 黏粉
+  base:      PALETTE.earth,       // #8B6F52 暖棕 — 基底木
+  herb:      PALETTE.moss,        // #5f7a5f 草綠 — 花果藥草
+  resin:     PALETTE.ingResin,    // #c49a40 琥珀 — 樹脂（提亮以便比例條辨識）
+  tincture:  PALETTE.iris,        // #7a6b8a 深紫 — 酊劑
+  ferment:   PALETTE.ingFerment,  // #9a6b4a 橙褐 — 發酵（避開 earth）
+  wine:      PALETTE.ingWine,     // #7a4a4a 深紅 — 酒媒
+  binder:    PALETTE.ingBinder,   // #a8a090 石灰 — 黏粉
 };
 
 // ── Recipe status ─────────────────────────────────────────────────
 export const RECIPE_STATUS: Record<RecipeStatus, { label: string; color: string }> = {
-  success:  { label: '成功',   color: '#8B6F52' }, // 暖棕
-  fail:     { label: '失敗',   color: '#a06050' }, // 鏽紅
-  pending:  { label: '待製',   color: '#9a9080' }, // 灰暖
-  progress: { label: '進行中', color: '#5f7a5f' }, // 草綠
-  order:    { label: '訂單',   color: '#5a7a8c' }, // 鋼藍
+  success:  { label: '成功',   color: PALETTE.earth }, // 暖棕
+  fail:     { label: '失敗',   color: PALETTE.error }, // 鏽紅
+  pending:  { label: '待製',   color: PALETTE.ink2 },  // 灰
+  progress: { label: '進行中', color: PALETTE.moss },  // 草綠
+  order:    { label: '訂單',   color: PALETTE.mist },  // 藍灰
 };
 
 // ── Task types ────────────────────────────────────────────────────
@@ -86,38 +141,39 @@ export const TASK_STATUS: Record<TaskStatus, { label: string; order: number }> =
   done:       { label: '已完成', order: 4 },
 };
 
-// Phase colours for tasks
+// Phase colours for tasks — § Ⅲ 分層：pre=soft / make=base / post=moss
 export const PHASE_COLORS: Record<'pre' | 'make' | 'post' | 'other', string> = {
-  pre:   '#9a8040', // 琥珀 — 前置原料
-  make:  '#8B6F52', // 暖棕 — 成型製作
-  post:  '#5f7a5f', // 草綠 — 後置熟成
-  other: '#6B6459', // 灰
+  pre:   PALETTE.earthSoft, // 前置原料 — 淺暖棕
+  make:  PALETTE.earth,     // 製作核心 — 暖棕（較重）
+  post:  PALETTE.moss,      // 後置熟成 — 草綠
+  other: PALETTE.ink2,      // 灰
 };
 
-// Recipe status: muted background tint (cards, list rows)
+// Recipe status: muted background tint（cards, list rows）
 export const RECIPE_STATUS_BG: Record<RecipeStatus, string> = {
-  success:  'rgba(139,111,82,0.10)',
-  fail:     'rgba(160,96,80,0.10)',
-  pending:  'rgba(107,100,89,0.06)',
-  progress: 'rgba(95,122,95,0.10)',
-  order:    'rgba(90,122,140,0.10)',
+  success:  rgba(PALETTE.earth, 0.10),
+  fail:     rgba(PALETTE.error, 0.10),
+  pending:  rgba(PALETTE.ink2, 0.06),
+  progress: rgba(PALETTE.moss, 0.10),
+  order:    rgba(PALETTE.mist, 0.10),
 };
 
 // Recipe status: left-border accent colour
 export const RECIPE_STATUS_BORDER: Record<RecipeStatus, string> = {
-  success:  '#8B6F52',
-  fail:     '#a06050',
-  pending:  '#D6CFC4',
-  progress: '#5f7a5f',
-  order:    '#5a7a8c',
+  success:  PALETTE.earth,
+  fail:     PALETTE.error,
+  pending:  PALETTE.border,
+  progress: PALETTE.moss,
+  order:    PALETTE.mist,
 };
 
 // Task status: muted background tint for active cards
+// waiting / done 無底色；其他依 phase 語意上色（processing=暖棕、prep=灰暖、ready=草綠）
 export const TASK_STATUS_BG: Record<TaskStatus, string> = {
   waiting:    'transparent',
-  processing: 'rgba(139,111,82,0.10)',
-  prep:       'rgba(107,100,89,0.08)',
-  ready:      'rgba(122,140,110,0.10)',
+  processing: rgba(PALETTE.earth, 0.10),
+  prep:       rgba(PALETTE.ink2,  0.08),
+  ready:      rgba(PALETTE.moss,  0.10),
   done:       'transparent',
 };
 

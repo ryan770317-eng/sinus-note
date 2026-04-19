@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import type { Recipe, FragCat } from '../../types';
 import { FRAG_CATS, FRAG_CAT_COLORS } from '../../utils/constants';
+import { SearchField } from '../shared/SearchField';
 
 interface Props {
   recipes: Recipe[];
@@ -95,19 +96,21 @@ export function RecipeHome({
   return (
     <div className="max-w-content mx-auto px-4 pt-7 pb-20">
       {/* Header */}
-      <div className="flex items-baseline justify-between mb-5">
-        <h1 className="type-title">配方</h1>
-        <p className="font-mono type-micro tracking-wider uppercase">
-          {order.length} categories · {recipes.length} formulae
-        </p>
+      <div className="flex items-baseline justify-between gap-3 mb-4">
+        <h1 className="type-title shrink-0">配方</h1>
+        <div className="flex items-center gap-3 min-w-0">
+          <p className="font-mono type-micro tracking-wider uppercase hidden sm:block whitespace-nowrap">
+            {order.length} cats · {recipes.length} formulae
+          </p>
+          <SearchField
+            value={search}
+            onChange={setSearch}
+            placeholder="配方名稱、編號、標籤"
+            resultCount={filtered?.length}
+            className="w-full sm:w-[320px]"
+          />
+        </div>
       </div>
-
-      <input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="搜尋配方名稱、編號、標籤..."
-        className="input-field mb-6"
-      />
 
       {/* Search results */}
       {filtered && (
@@ -224,7 +227,7 @@ export function RecipeHome({
                 {/* 上傳封面按鈕（右下角，避開右上角點） */}
                 <button
                   onClick={(e) => handleImgClick(cat, e)}
-                  className="absolute bottom-2 right-2 w-7 h-7 bg-bg/70 flex items-center justify-center text-ink-2 text-[10px] z-20 hover:bg-bg transition-colors"
+                  className="absolute bottom-2 right-2 w-7 h-7 bg-bg/70 flex items-center justify-center text-ink-2 type-micro z-20 hover:bg-bg transition-colors"
                   title="上傳封面圖"
                   aria-label={`為「${FRAG_CATS[cat].label}」上傳封面圖`}
                 >

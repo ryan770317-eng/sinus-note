@@ -3,6 +3,7 @@ import type { Material, IngredientCat } from '../../types';
 import { ING_CATS, ING_CAT_COLORS } from '../../utils/constants';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { useToast } from '../shared/Toast';
+import { SearchField } from '../shared/SearchField';
 
 interface Props {
   materials: Material[];
@@ -67,6 +68,7 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
   const toast = useToast();
   const [activeCat, setActiveCat] = useState<IngredientCat>('base');
   const [search, setSearch] = useState('');
+  const [crossCat, setCrossCat] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<Omit<Material, 'id'>>(emptyForm());
@@ -119,9 +121,13 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
   }
 
   const filtered = materials.filter(
-    (m) =>
-      m.cat === activeCat &&
-      (!search || m.name.includes(search) || m.origin.includes(search) || m.supplier.includes(search)),
+    (m) => {
+      const matchesSearch = !search || m.name.includes(search) || m.origin.includes(search) || m.supplier.includes(search);
+      if (!matchesSearch) return false;
+      // 跨類模式：只在有搜尋詞時生效
+      if (search && crossCat) return true;
+      return m.cat === activeCat;
+    },
   );
 
   function startEdit(mat: Material) {
@@ -180,7 +186,18 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
 
   return (
     <div className="max-w-content mx-auto px-4 pt-7 pb-20">
-      <h1 className="type-title mb-5">材料庫</h1>
+      <div className="flex items-baseline justify-between gap-3 mb-4">
+        <h1 className="type-title shrink-0">材料庫</h1>
+        <SearchField
+          value={search}
+          onChange={setSearch}
+          placeholder="名稱、產地、供應商"
+          resultCount={filtered.length}
+          crossCategory={crossCat}
+          onCrossCategoryChange={setCrossCat}
+          className="w-full sm:w-[320px]"
+        />
+      </div>
 
       {/* Category tabs */}
       <div className="flex gap-0 mb-4 border-b border-border overflow-x-auto">
@@ -208,12 +225,7 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
       </div>
 
       {/* Search */}
-      <input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="搜尋材料..."
-        className="input-field mb-4"
-      />
+      {/* —— SearchField 已移至 header、不再重複 —— */}
 
       {/* Form */}
       {showForm && (
@@ -307,7 +319,17 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
               <div className="p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="type-name">{mat.name}</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {search && crossCat && (
+                        <span
+                          className="type-micro tracking-label uppercase"
+                          style={{ color: ING_CAT_COLORS[mat.cat] }}
+                        >
+                          {ING_CATS[mat.cat].label}
+                        </span>
+                      )}
+                      <p className="type-name">{mat.name}</p>
+                    </div>
                     <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                       {mat.origin && (
                         <span className="type-meta">產地：{mat.origin}</span>
