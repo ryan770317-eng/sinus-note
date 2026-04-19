@@ -67,7 +67,7 @@ export function NotesList({ notes, onAdd, onUpdate, onDelete, onRestore }: Props
 
   return (
     <div className="max-w-content mx-auto px-4 pt-7 pb-20">
-      <h1 className="font-serif text-xl text-ink tracking-wide mb-5">隨手記</h1>
+      <h1 className="type-title mb-5">隨手記</h1>
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="mb-6">
@@ -102,7 +102,7 @@ export function NotesList({ notes, onAdd, onUpdate, onDelete, onRestore }: Props
       {/* Notes list */}
       <div className="space-y-3">
         {notes.length === 0 && (
-          <p className="text-sm text-ink-3 font-light text-center py-8">尚無筆記</p>
+          <p className="type-body text-ink-3 text-center py-8">尚無筆記</p>
         )}
         {notes.map((note) => {
           const { date, time } = formatNoteDate(note.ts);
@@ -112,7 +112,7 @@ export function NotesList({ notes, onAdd, onUpdate, onDelete, onRestore }: Props
           return (
             <div key={note.id} className="bg-card border border-border p-4">
               {/* Timestamp */}
-              <p className="text-xs text-ink-2 font-light mb-2">
+              <p className="type-meta mb-2">
                 <span className="font-normal text-ink note-card-date">{date}</span>
                 {' '}{time}
               </p>
@@ -120,7 +120,7 @@ export function NotesList({ notes, onAdd, onUpdate, onDelete, onRestore }: Props
               {/* Text */}
               <div className="relative">
                 <p
-                  className="text-sm font-light text-ink whitespace-pre-wrap"
+                  className="type-body whitespace-pre-wrap"
                   style={collapsible && !isExpanded ? {
                     display: '-webkit-box',
                     WebkitLineClamp: 3,
@@ -138,7 +138,7 @@ export function NotesList({ notes, onAdd, onUpdate, onDelete, onRestore }: Props
               {collapsible && (
                 <button
                   onClick={() => toggleExpand(note.id)}
-                  className="text-xs text-accent font-light mt-1"
+                  className="text-xs text-accent mt-1"
                 >
                   {isExpanded ? '收合' : '展開全文'}
                 </button>
@@ -147,8 +147,8 @@ export function NotesList({ notes, onAdd, onUpdate, onDelete, onRestore }: Props
               {/* AI result */}
               {note.aiResult && (
                 <div className="mt-3 pt-3 border-t border-border">
-                  <p className="text-xs text-ink-2 tracking-label mb-1">AI 解析</p>
-                  <p className="text-xs text-ink font-light whitespace-pre-wrap">{note.aiResult}</p>
+                  <p className="type-meta tracking-label mb-1">AI 解析</p>
+                  <p className="type-meta text-ink whitespace-pre-wrap">{note.aiResult}</p>
                 </div>
               )}
 

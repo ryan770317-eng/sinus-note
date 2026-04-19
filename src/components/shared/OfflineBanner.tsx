@@ -16,7 +16,7 @@ export function OfflineBanner() {
       style={{ top: 'calc(env(safe-area-inset-top) + 0.5rem)' }}
     >
       <div
-        className="pointer-events-auto px-3 py-1.5 text-[11px] font-light tracking-label border shadow-sm"
+        className="pointer-events-auto px-3 py-1.5 type-micro tracking-label border shadow-sm"
         style={{
           background: 'rgba(160,96,80,0.96)',
           color: '#F5F1EB',

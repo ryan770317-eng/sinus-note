@@ -121,12 +121,12 @@ export function RecipeForm({ initial, nextId, materialNames, fragCat, onSave, on
         <button
           type="button"
           onClick={onCancel}
-          className="text-ink-2 text-sm font-light py-2 -ml-2 px-2"
+          className="type-meta py-2 -ml-2 px-2"
           aria-label="返回上一頁"
         >
           ← 返回
         </button>
-        <h1 className="font-serif text-xl text-ink">{initial ? '編輯配方' : '新增配方'}</h1>
+        <h1 className="type-title">{initial ? '編輯配方' : '新增配方'}</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">

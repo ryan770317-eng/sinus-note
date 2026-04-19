@@ -34,7 +34,7 @@ export function ActionDetail({ item, existingMatNames, onPatch }: Props) {
         {a.note && <Field label="備注:" value={a.note} />}
         {(a.qty > 0) && <Field label="庫存:" value={`${a.qty}${a.unit ?? 'g'}`} />}
         {item.status === 'skipped' && existingMatNames.has(a.name) && (
-          <p className="text-[10px] text-ink-2">材料庫已有此品項</p>
+          <p className="type-micro text-ink-2">材料庫已有此品項</p>
         )}
       </div>
     );
@@ -71,7 +71,7 @@ export function ActionDetail({ item, existingMatNames, onPatch }: Props) {
           </table>
         )}
         {a.notes && (
-          <p className="text-xs font-light text-ink-2 whitespace-pre-wrap">{a.notes}</p>
+          <p className="type-meta whitespace-pre-wrap">{a.notes}</p>
         )}
       </div>
     );
@@ -100,7 +100,7 @@ export function ActionDetail({ item, existingMatNames, onPatch }: Props) {
   if (a.type === 'recipe_note') {
     return (
       <div className="mt-1">
-        <p className="text-xs font-light text-ink">{a.recipeName}：{a.note.slice(0, 80)}</p>
+        <p className="type-meta text-ink">{a.recipeName}：{a.note.slice(0, 80)}</p>
       </div>
     );
   }

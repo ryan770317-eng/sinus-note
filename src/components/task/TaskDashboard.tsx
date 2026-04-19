@@ -71,7 +71,7 @@ export function TaskDashboard({
 
   return (
     <div className="max-w-content mx-auto px-4 pt-7 pb-20">
-      <h1 className="font-serif text-xl text-ink tracking-wide mb-6">工序</h1>
+      <h1 className="type-title mb-6">工序</h1>
 
       <TaskAlert tasks={alertTasks} recipes={recipes} onEdit={setEditTask} />
 
@@ -128,7 +128,7 @@ export function TaskDashboard({
             {status === 'done' && hiddenDone > 0 && !showAllDone && (
               <button
                 onClick={() => setShowAllDone(true)}
-                className="mt-3 text-xs text-ink-2 font-light underline"
+                className="mt-3 type-meta underline"
               >
                 顯示全部已完成（共 {totalDone} 筆）
               </button>
@@ -138,7 +138,7 @@ export function TaskDashboard({
       })}
 
       {tasks.length === 0 && !showForm && (
-        <p className="text-sm text-ink-3 font-light text-center py-16">
+        <p className="type-body text-ink-3 text-center py-16">
           還沒有工序，點 ＋ 新增
         </p>
       )}

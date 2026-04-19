@@ -30,7 +30,7 @@ export function MaterialOverviewSection({ materials, onOpen }: Props) {
               aria-label={`${ING_CATS[cat].label}：${count} 項`}
             >
               <p className="text-xs font-light" style={{ color: catColor }}>{ING_CATS[cat].label}</p>
-              <p className="font-serif text-sm" style={{ color: catColor }}>{count}</p>
+              <p className="type-name" style={{ color: catColor }}>{count}</p>
             </button>
           );
         })}

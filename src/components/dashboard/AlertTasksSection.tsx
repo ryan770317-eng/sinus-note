@@ -42,11 +42,11 @@ export function AlertTasksSection({ tasks, recipes, onOpen }: Props) {
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] tracking-label mb-0.5" style={{ color: PHASE_COLORS[tt.phase] }}>
+                  <p className="type-micro tracking-label mb-0.5" style={{ color: PHASE_COLORS[tt.phase] }}>
                     {tt.icon} {tt.label}
                     {recipe && <span className="text-ink-4 ml-1">· {recipe.name}</span>}
                   </p>
-                  <p className="text-sm font-serif text-ink truncate">{t.title}</p>
+                  <p className="type-name truncate">{t.title}</p>
                 </div>
                 <span className="text-xs font-light shrink-0" style={{ color: urgencyColor }}>{urgency}</span>
               </div>

@@ -31,17 +31,17 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={onBack}
-          className="text-ink-2 text-sm font-light py-2 -ml-2 px-2"
+          className="type-meta py-2 -ml-2 px-2"
           aria-label="返回分類總覽"
         >
           ← 返回
         </button>
-        <h1 className="font-serif text-xl text-ink tracking-wide">{FRAG_CATS[cat].label}</h1>
+        <h1 className="type-title">{FRAG_CATS[cat].label}</h1>
         <span className="text-xs text-ink-2 opacity-60 font-light" aria-label={`共 ${catRecipes.length} 個配方`}>{catRecipes.length} 個</span>
       </div>
 
       {catRecipes.length === 0 && (
-        <p className="text-sm text-ink-3 font-light py-8 text-center">此分類尚無配方</p>
+        <p className="type-body text-ink-3 py-8 text-center">此分類尚無配方</p>
       )}
 
       {STATUS_ORDER.map((status) => {
@@ -54,7 +54,7 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
             <div className="flex items-center gap-2 mb-3">
               <div className="w-1.5 h-1.5" style={{ background: st.color }} />
               <p className="text-xs tracking-label font-light" style={{ color: st.color }}>{st.label}</p>
-              <span className="text-[10px] text-ink-2 opacity-60 font-light">{group.length}</span>
+              <span className="type-micro opacity-60">{group.length}</span>
             </div>
 
             <div className="space-y-2">
@@ -71,18 +71,18 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-ink-3 font-light mb-0.5">{r.num}</p>
-                      <p className="font-serif text-sm text-ink">{r.name}</p>
+                      <p className="type-micro mb-0.5">{r.num}</p>
+                      <p className="type-name">{r.name}</p>
                       {(r.tags?.length ?? 0) > 0 && (
-                        <p className="text-[10px] text-ink-3 font-light mt-1">{r.tags.join(' · ')}</p>
+                        <p className="type-micro mt-1">{r.tags.join(' · ')}</p>
                       )}
                     </div>
                     <div className="text-right shrink-0">
                       {r.rating > 0 && (
-                        <p className="text-[10px] text-accent">{'★'.repeat(r.rating)}</p>
+                        <p className="type-micro text-accent">{'★'.repeat(r.rating)}</p>
                       )}
                       {(r.burnLog?.length ?? 0) > 0 && (
-                        <p className="text-[10px] text-ink-2 opacity-60 font-light">試燒 {r.burnLog!.length}</p>
+                        <p className="type-micro opacity-60">試燒 {r.burnLog!.length}</p>
                       )}
                     </div>
                   </div>

@@ -189,8 +189,8 @@ export function BatchImport({
         style={{ borderLeftWidth: 3, borderLeftColor: '#8B6F52' }}
       >
         <div className="flex items-center gap-2">
-          <span className="text-xs font-light text-ink">貼上對話 → 批次解析</span>
-          <span className="text-[10px] tracking-label text-ink-2 px-1.5 py-0.5" style={{ background: 'rgba(139,111,82,0.12)' }}>AI</span>
+          <span className="type-meta text-ink">貼上對話 → 批次解析</span>
+          <span className="type-micro tracking-label text-ink-2 px-1.5 py-0.5" style={{ background: 'rgba(139,111,82,0.12)' }}>AI</span>
         </div>
         <span className="text-ink-2 text-xs" aria-hidden="true">{open ? '▲' : '▼'}</span>
       </button>
@@ -220,7 +220,7 @@ export function BatchImport({
                 <div key={item.id} className="bg-card border border-border p-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
-                      <span className="text-xs text-ink-2 tracking-label">
+                      <span className="type-meta tracking-label">
                         {ACTION_LABELS[item.action.type] ?? item.action.type}
                       </span>
                       <ActionDetail
@@ -237,7 +237,7 @@ export function BatchImport({
                         </div>
                       )}
                       {item.status === 'writing' && (
-                        <span className="text-xs text-ink-2">寫入中...</span>
+                        <span className="type-meta">寫入中...</span>
                       )}
                       {item.status === 'done' && (
                         <span className="text-xs text-accent">✓ 已寫入</span>

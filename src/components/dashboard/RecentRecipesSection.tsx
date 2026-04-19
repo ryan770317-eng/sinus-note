@@ -37,23 +37,23 @@ export function RecentRecipesSection({ recipes, totalCount, onOpen, onRecipeClic
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] text-ink-2 tracking-label mb-0.5">
+                  <p className="type-micro tracking-label mb-0.5">
                     {r.num} · {FRAG_CATS[r.fragCat].label}
                   </p>
-                  <p className="text-sm font-serif text-ink truncate">{r.name}</p>
+                  <p className="type-name truncate">{r.name}</p>
                   {(r.tags?.length ?? 0) > 0 && (
-                    <p className="text-[10px] text-ink-3 font-light mt-0.5">{r.tags.join(' · ')}</p>
+                    <p className="type-micro mt-0.5">{r.tags.join(' · ')}</p>
                   )}
                 </div>
                 <span
-                  className="text-[10px] font-light px-1.5 py-0.5 shrink-0"
+                  className="type-micro px-1.5 py-0.5 shrink-0"
                   style={{ background: st.color, color: '#F5F1EB' }}
                 >
                   {st.label}
                 </span>
               </div>
               {r.rating > 0 && (
-                <p className="text-[10px] text-accent mt-1">
+                <p className="type-micro text-accent mt-1">
                   {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
                 </p>
               )}

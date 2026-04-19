@@ -34,15 +34,15 @@ export function ActiveTasksSection({ tasks, recipes, onOpen }: Props) {
             >
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] tracking-label mb-0.5" style={{ color: phaseColor }}>
+                  <p className="type-micro tracking-label mb-0.5" style={{ color: phaseColor }}>
                     {tt.icon} {tt.label}
                     {recipe && <span className="text-ink-4 ml-1">· {recipe.name}</span>}
                   </p>
-                  <p className="text-sm font-serif text-ink truncate">{t.title}</p>
+                  <p className="type-name truncate">{t.title}</p>
                 </div>
                 <div className="text-right shrink-0">
                   <span
-                    className="text-[10px] font-light px-1.5 py-0.5"
+                    className="type-micro px-1.5 py-0.5"
                     style={{ background: `${phaseColor}18`, color: phaseColor }}
                   >
                     {TASK_STATUS[t.status].label}
@@ -51,7 +51,7 @@ export function ActiveTasksSection({ tasks, recipes, onOpen }: Props) {
               </div>
               {progress !== null && (
                 <div>
-                  <div className="flex justify-between text-[10px] text-ink-4 font-light mb-1">
+                  <div className="flex justify-between type-micro text-ink-4 mb-1">
                     <span>{fmtDate(t.startDate)} → {fmtDate(t.dueDate)}</span>
                     <span>{progress}%</span>
                   </div>

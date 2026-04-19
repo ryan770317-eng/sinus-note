@@ -30,8 +30,8 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="min-h-screen bg-bg flex items-center justify-center px-4">
           <div className="w-full max-w-sm border border-border bg-card p-6">
-            <h1 className="font-serif text-lg text-ink mb-2">發生錯誤</h1>
-            <p className="text-xs text-ink-2 font-light mb-4 whitespace-pre-wrap">
+            <h1 className="type-heading mb-2">發生錯誤</h1>
+            <p className="type-meta mb-4 whitespace-pre-wrap">
               {this.state.error.message || '介面載入異常，您的資料仍然安全。'}
             </p>
             <div className="flex gap-2">

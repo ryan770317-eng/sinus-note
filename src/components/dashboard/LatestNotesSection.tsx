@@ -23,10 +23,10 @@ export function LatestNotesSection({ notes, onOpen }: Props) {
               className="w-full text-left bg-card border border-border px-4 py-3 hover:border-ink-2 transition-colors"
               aria-label={`開啟隨手記：${n.text.slice(0, 40)}`}
             >
-              <p className="text-[10px] text-ink-2 mb-1">
+              <p className="type-micro mb-1">
                 <span className="font-normal text-ink">{date}</span> {time}
               </p>
-              <p className="text-sm font-light text-ink line-clamp-2">{n.text}</p>
+              <p className="type-body line-clamp-2">{n.text}</p>
             </button>
           );
         })}

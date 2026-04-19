@@ -37,8 +37,8 @@ export function RelatedTasks({ recipeId, tasks, onTaskClick }: Props) {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-xs text-ink-2">{tt.icon} {tt.label}</span>
-                    <p className="text-sm font-serif text-ink">{task.title}</p>
+                    <span className="type-meta">{tt.icon} {tt.label}</span>
+                    <p className="type-name">{task.title}</p>
                   </div>
                   <span className="text-xs text-ink-3">{TASK_STATUS[task.status].label}</span>
                 </div>

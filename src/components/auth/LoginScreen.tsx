@@ -20,8 +20,8 @@ export function LoginScreen({ onLogin, error }: Props) {
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <h1 className="font-serif text-2xl text-ink tracking-wider mb-1">SINUS NOTE</h1>
-        <p className="text-xs text-ink-2 tracking-label mb-8">引香筆記</p>
+        <h1 className="type-display tracking-wider mb-1">SINUS NOTE</h1>
+        <p className="type-meta tracking-label mb-8">引香筆記</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input

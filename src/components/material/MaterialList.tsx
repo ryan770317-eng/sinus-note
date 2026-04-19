@@ -180,7 +180,7 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
 
   return (
     <div className="max-w-content mx-auto px-4 pt-7 pb-20">
-      <h1 className="font-serif text-xl text-ink tracking-wide mb-5">材料庫</h1>
+      <h1 className="type-title mb-5">材料庫</h1>
 
       {/* Category tabs */}
       <div className="flex gap-0 mb-4 border-b border-border overflow-x-auto">
@@ -289,7 +289,7 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
       {/* List */}
       <div className="space-y-2">
         {filtered.length === 0 && (
-          <p className="text-sm text-ink-3 font-light py-8 text-center">無材料</p>
+          <p className="type-body text-ink-3 py-8 text-center">無材料</p>
         )}
         {filtered.map((mat) => {
           const isExpanded = expandedId === mat.id;
@@ -307,20 +307,20 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
               <div className="p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="font-serif text-sm text-ink">{mat.name}</p>
+                    <p className="type-name">{mat.name}</p>
                     <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                       {mat.origin && (
-                        <span className="text-xs text-ink-2 font-light">產地：{mat.origin}</span>
+                        <span className="type-meta">產地：{mat.origin}</span>
                       )}
                       {mat.supplier && (
-                        <span className="text-xs text-ink-2 font-light">{mat.origin ? '· ' : ''}供應商：{mat.supplier}</span>
+                        <span className="type-meta">{mat.origin ? '· ' : ''}供應商：{mat.supplier}</span>
                       )}
                       {similarCount >= 2 && (
                         <button
                           onClick={(e) => handleGroupClick(e, mat.id)}
                           aria-label={`查看 ${mat.name} 的同類材料（${similarCount} 項）`}
                           aria-expanded={showingGroup}
-                          className="text-[10px] px-1.5 py-0.5 rounded-full font-light transition-colors"
+                          className="type-micro px-1.5 py-0.5 rounded-full transition-colors"
                           style={{
                             background: showingGroup ? 'rgba(139,111,82,0.25)' : 'rgba(139,111,82,0.12)',
                             color: '#8B6F52',
@@ -340,14 +340,14 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
                 <div className="px-4 pb-4 border-t border-border/50 pt-3 space-y-2" onClick={(e) => e.stopPropagation()}>
                   {mat.note && (
                     <div>
-                      <span className="text-[10px] text-ink-3 tracking-label">備注</span>
-                      <p className="text-xs text-ink font-light mt-0.5">{mat.note}</p>
+                      <span className="type-micro tracking-label">備注</span>
+                      <p className="type-meta text-ink mt-0.5">{mat.note}</p>
                     </div>
                   )}
                   {(mat.stock.qty > 0 || mat.stock.note) && (
                     <div>
-                      <span className="text-[10px] text-ink-3 tracking-label">庫存</span>
-                      <p className="text-xs text-ink font-light mt-0.5">
+                      <span className="type-micro tracking-label">庫存</span>
+                      <p className="type-meta text-ink mt-0.5">
                         {mat.stock.qty > 0 && <>{mat.stock.qty} {mat.stock.unit}</>}
                         {mat.stock.qty > 0 && mat.stock.note && ' · '}
                         {mat.stock.note}
@@ -358,7 +358,7 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
                   {/* Similar group list */}
                   {showingGroup && (
                     <div>
-                      <span className="text-[10px] text-ink-3 tracking-label">同種材料</span>
+                      <span className="type-micro tracking-label">同種材料</span>
                       <div className="mt-1 space-y-1">
                         {getSimilarMaterials(mat).map((sm) => (
                           <div key={sm.id} className="flex items-center gap-2 text-xs font-light">

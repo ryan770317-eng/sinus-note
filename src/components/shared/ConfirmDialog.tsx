@@ -26,7 +26,7 @@ export function ConfirmDialog({
 
   return (
     <Modal onClose={onCancel} describedBy={msgId} ariaLabel="確認對話框">
-      <p id={msgId} className="text-sm font-light text-ink mb-6 whitespace-pre-line">{message}</p>
+      <p id={msgId} className="type-body mb-6 whitespace-pre-line">{message}</p>
       <div className="flex gap-3 justify-end">
         <button onClick={onCancel} className="btn text-xs" aria-label={cancelLabel}>
           {cancelLabel}

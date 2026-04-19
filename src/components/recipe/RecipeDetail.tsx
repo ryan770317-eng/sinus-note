@@ -37,7 +37,7 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
       <div className="flex items-center gap-3 mb-2">
         <button
           onClick={onBack}
-          className="text-ink-2 text-sm font-light py-2 -ml-2 px-2"
+          className="type-meta py-2 -ml-2 px-2"
           aria-label="返回上一頁"
         >
           ← 返回
@@ -48,13 +48,13 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
       <div className="mb-5">
         <div className="flex items-start justify-between gap-3 mb-1">
           <div>
-            <p className="text-xs text-ink-3 font-light">{recipe.num} · {FRAG_CATS[recipe.fragCat]?.label ?? recipe.fragCat}</p>
-            <h1 className="font-serif text-xl text-ink">{recipe.name}</h1>
+            <p className="type-micro">{recipe.num} · {FRAG_CATS[recipe.fragCat]?.label ?? recipe.fragCat}</p>
+            <h1 className="type-title">{recipe.name}</h1>
           </div>
           <StatusBadge status={recipe.status} />
         </div>
         {(recipe.tags?.length ?? 0) > 0 && (
-          <p className="text-xs text-ink-2 font-light">{recipe.tags.join(' · ')}</p>
+          <p className="type-meta">{recipe.tags.join(' · ')}</p>
         )}
 
         {/* Status suggestion */}
@@ -85,7 +85,7 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
         <div className="mb-5">
           <div className="flex items-center justify-between mb-3">
             <p className="section-label">配方組成</p>
-            <p className="text-xs text-ink-2 font-light">總重 {version.totalWeight}g</p>
+            <p className="type-meta">總重 {version.totalWeight}g</p>
           </div>
           {/* Stacked proportion bar — one bar, one color per category */}
           {(version.totalWeight ?? 0) > 0 && (() => {
@@ -115,14 +115,14 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
               if (!ings?.length) return null;
               return (
                 <div key={cat}>
-                  <p className="text-xs text-ink-2 font-light mb-2" style={{ color: ING_CAT_COLORS[cat] }}>{ING_CATS[cat].label}</p>
+                  <p className="type-meta mb-2" style={{ color: ING_CAT_COLORS[cat] }}>{ING_CATS[cat].label}</p>
                   <div className="space-y-1">
                     {ings.map((ing, i) => {
                       const pct = version.totalWeight ? (ing.amount / version.totalWeight) * 100 : 0;
                       return (
                         <div key={i} className="flex items-center justify-between py-1 border-b border-border/50">
-                          <p className="text-sm font-light text-ink">{ing.name}</p>
-                          <p className="text-sm font-light text-ink-2">
+                          <p className="type-body">{ing.name}</p>
+                          <p className="type-body text-ink-2">
                             {ing.amount}{ing.unit}
                             {pct > 0 && <span className="text-xs text-ink-2 opacity-60 ml-1">{pct.toFixed(1)}%</span>}
                           </p>
@@ -135,12 +135,12 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
             })}
           </div>
           {version.notes && (
-            <p className="text-sm text-ink-2 font-light mt-4 whitespace-pre-wrap">{version.notes}</p>
+            <p className="type-body text-ink-2 mt-4 whitespace-pre-wrap">{version.notes}</p>
           )}
           {(version.comments?.length ?? 0) > 0 && (
             <div className="mt-3 space-y-1">
               {version.comments.map((c, i) => (
-                <p key={i} className="text-xs text-ink-3 font-light">· {c}</p>
+                <p key={i} className="type-micro">· {c}</p>
               ))}
             </div>
           )}
@@ -189,7 +189,7 @@ export function RecipeDetail({ recipe, tasks, onBack, onEdit, onDelete, onTaskTa
             {recipe.process.ferment && <span className="border border-border text-xs text-ink-2 px-2 py-0.5">發酵</span>}
             {recipe.process.wine && <span className="border border-border text-xs text-ink-2 px-2 py-0.5">酒媒</span>}
           </div>
-          {recipe.process.notes && <p className="text-sm text-ink-2 font-light">{recipe.process.notes}</p>}
+          {recipe.process.notes && <p className="type-body text-ink-2">{recipe.process.notes}</p>}
         </div>
       )}
 

@@ -52,11 +52,11 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRestor
       >
         {/* Type + status */}
         <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] tracking-label" style={{ color: phaseColor }}>
+          <span className="type-micro tracking-label" style={{ color: phaseColor }}>
             {tt.icon} {tt.label}
           </span>
           <span
-            className="text-[10px] font-light px-1.5 py-0.5"
+            className="type-micro px-1.5 py-0.5"
             style={{
               background: isDone ? 'transparent' : `${phaseColor}18`,
               color: isDone ? '#D6CFC4' : phaseColor,
@@ -72,10 +72,10 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRestor
         </p>
 
         {task.material && (
-          <p className="text-xs text-ink-2 font-light mb-1">{task.material}</p>
+          <p className="type-meta mb-1">{task.material}</p>
         )}
         {task.notes && (
-          <p className="text-xs text-ink-2 font-light mb-2">{task.notes}</p>
+          <p className="type-meta mb-2">{task.notes}</p>
         )}
 
         {recipe && (
@@ -91,7 +91,7 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRestor
         {/* Timeline */}
         {!isInstant && task.dueDate && (
           <div className="flex items-center justify-between mb-2">
-            <p className="text-xs text-ink-3 font-light">
+            <p className="type-micro">
               {fmtDate(task.startDate)} → {fmtDate(task.dueDate)}
               <span className="ml-1 text-ink-4">
                 ({Math.round((new Date(task.dueDate).getTime() - new Date(task.startDate).getTime()) / 86400000)}天)

@@ -49,7 +49,7 @@ export function MenuOverlay({ onClose, onExport, onImport, onMergeImport, onLogo
         className="relative bg-bg border border-border w-64 mb-12 mr-0 shadow-none"
       >
         <div className="p-4 border-b border-border">
-          <p className="text-xs text-ink-2 tracking-label mb-2">Anthropic API Key</p>
+          <p className="type-meta tracking-label mb-2">Anthropic API Key</p>
           <div className="flex gap-2">
             <input
               type={showApiKey ? 'text' : 'password'}
@@ -71,24 +71,24 @@ export function MenuOverlay({ onClose, onExport, onImport, onMergeImport, onLogo
         </div>
 
         <div className="divide-y divide-border">
-          <button onClick={onExport} className="w-full text-left px-4 py-3 text-sm font-light text-ink-2 hover:bg-card tracking-label">
+          <button onClick={onExport} className="w-full text-left px-4 py-3 type-body text-ink-2 hover:bg-card tracking-label">
             匯出備份
           </button>
           <button
             onClick={() => importRef.current?.click()}
-            className="w-full text-left px-4 py-3 text-sm font-light text-ink-2 hover:bg-card tracking-label"
+            className="w-full text-left px-4 py-3 type-body text-ink-2 hover:bg-card tracking-label"
           >
             完整匯入（覆蓋）
           </button>
           <button
             onClick={() => mergeRef.current?.click()}
-            className="w-full text-left px-4 py-3 text-sm font-light text-ink-2 hover:bg-card tracking-label"
+            className="w-full text-left px-4 py-3 type-body text-ink-2 hover:bg-card tracking-label"
           >
             合併匯入（追加）
           </button>
           <button
             onClick={onLogout}
-            className="w-full text-left px-4 py-3 text-sm font-light text-error hover:bg-card tracking-label"
+            className="w-full text-left px-4 py-3 text-sm text-error hover:bg-card tracking-label"
           >
             登出
           </button>

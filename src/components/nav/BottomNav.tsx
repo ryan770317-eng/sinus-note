@@ -117,7 +117,7 @@ export function BottomNav({ current, onChange, onMenuOpen }: Props) {
             aria-expanded={open}
             aria-controls="mobile-nav-menu"
             aria-label={`目前分頁：${currentLabel}，點擊${open ? '收合' : '展開'}其他分頁`}
-            className="flex-1 flex items-center px-5 gap-2 h-full text-sm font-light text-ink tracking-label"
+            className="flex-1 flex items-center px-5 gap-2 h-full type-body tracking-label"
           >
             <span className="font-normal">{currentLabel}</span>
             <span

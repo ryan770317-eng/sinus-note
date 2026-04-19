@@ -45,12 +45,12 @@ export function TaskAlert({ tasks, recipes, onEdit }: Props) {
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-xs text-ink-2">{tt.icon} {tt.label}</span>
+                    <span className="type-meta">{tt.icon} {tt.label}</span>
                     {recipe && (
                       <span className="text-xs text-ink-3">· {recipe.name}</span>
                     )}
                   </div>
-                  <p className="text-sm font-serif text-ink truncate">{task.title}</p>
+                  <p className="type-name truncate">{task.title}</p>
                   {task.dueDate && !isInstant && (
                     <p className="text-xs text-ink-3 mt-0.5">{fmtDate(task.startDate)} → {fmtDate(task.dueDate)}</p>
                   )}

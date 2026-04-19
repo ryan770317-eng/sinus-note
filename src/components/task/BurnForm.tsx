@@ -41,7 +41,7 @@ export function BurnForm({ onSave, onCancel }: Props) {
       labelledBy={titleId}
       contentClassName="relative bg-bg border border-border p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
     >
-      <h3 id={titleId} className="font-serif text-base text-ink mb-4 tracking-wide">試燒紀錄</h3>
+      <h3 id={titleId} className="type-heading mb-4">試燒紀錄</h3>
 
       <div className="space-y-3">
         <div>

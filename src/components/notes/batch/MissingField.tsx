@@ -60,7 +60,7 @@ export function Field({
   missing?: boolean;
 }) {
   return (
-    <span className="text-xs font-light text-ink">
+    <span className="type-meta text-ink">
       <span className="text-ink-2">{label}</span>{' '}
       {missing ? (
         <span className="px-1 rounded" style={{ background: MISSING_BG }}>未填</span>

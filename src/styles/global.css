@@ -27,23 +27,77 @@
 }
 
 @layer components {
+  /* ==========================================================
+     Typography system — 一套 9 個語意類別，統一全站字體層級
+     所有類別繼承 body 的 font-weight: 300
+     ========================================================== */
+
+  /* 頁面主標（品牌、登入頁） */
+  .type-display {
+    @apply font-serif text-2xl text-ink tracking-wide;
+  }
+
+  /* 頁內 h1（配方、工序、材料庫、隨手記） */
+  .type-title {
+    @apply font-serif text-xl text-ink tracking-wide;
+  }
+
+  /* Section / 卡片標題（試燒紀錄、發生錯誤） */
+  .type-heading {
+    @apply font-serif text-base text-ink tracking-wide;
+  }
+
+  /* 條目名稱（配方卡、材料列、工序標題） */
+  .type-name {
+    @apply font-serif text-sm text-ink;
+  }
+
+  /* 內文 */
+  .type-body {
+    @apply text-sm text-ink;
+  }
+
+  /* 描述、標籤、時間等次要資訊 */
+  .type-meta {
+    @apply text-xs text-ink-2;
+  }
+
+  /* 極小標註（編號、分類計數、狀態標籤） */
+  .type-micro {
+    @apply text-[11px] text-ink-3;
+  }
+
+  /* 按鈕、tab、uppercase 小標籤 */
+  .type-label {
+    @apply text-xs tracking-label uppercase;
+  }
+
+  /* 數字（統計、計數、等待天數） */
+  .type-numeric {
+    @apply font-serif tabular-nums;
+  }
+
+  /* ==========================================================
+     Buttons / inputs — 使用 type-label 的同款 tracking
+     ========================================================== */
   .btn {
-    @apply px-4 py-2 border border-border font-light text-sm tracking-label bg-transparent text-ink-2 hover:bg-card transition-colors cursor-pointer;
+    @apply px-4 py-2 border border-border text-sm tracking-label bg-transparent text-ink-2 hover:bg-card transition-colors cursor-pointer;
   }
 
   .btn-primary {
-    @apply px-4 py-2 border border-ink bg-ink text-bg font-light text-sm tracking-label hover:bg-ink-2 transition-colors cursor-pointer;
+    @apply px-4 py-2 border border-ink bg-ink text-bg text-sm tracking-label hover:bg-ink-2 transition-colors cursor-pointer;
   }
 
   .input-field {
-    @apply w-full bg-card border border-border px-3 py-2 text-sm font-light text-ink placeholder:text-ink-2 focus:outline-none focus:border-ink-2;
+    @apply w-full bg-card border border-border px-3 py-2 text-sm text-ink placeholder:text-ink-2 focus:outline-none focus:border-ink-2;
   }
 
   .card {
     @apply bg-card border border-border p-4;
   }
 
+  /* 保留舊 class 相容（避免散點遺漏） */
   .section-label {
-    @apply text-xs text-ink-2 tracking-wider uppercase font-light;
+    @apply text-xs text-ink-2 tracking-wider uppercase;
   }
 }

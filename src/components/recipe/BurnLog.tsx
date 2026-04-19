@@ -16,7 +16,7 @@ export function BurnLog({ burnLog }: Props) {
     <div className="border-t border-border mt-4 pt-4">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 text-sm font-light text-ink-2 w-full text-left"
+        className="flex items-center gap-2 type-body text-ink-2 w-full text-left"
       >
         <span className="section-label">試燒紀錄</span>
         <span className="text-ink-4 text-xs ml-1">{burnLog.length} 筆</span>
@@ -28,16 +28,16 @@ export function BurnLog({ burnLog }: Props) {
           {burnLog.map((entry, i) => (
             <div key={i} className="bg-card border border-border p-3">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-ink-2">{entry.date}</p>
+                <p className="type-meta">{entry.date}</p>
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-ink-3">煙 {SMOKE_LABEL[entry.smoke]}</span>
                   <span className="text-xs text-ink-3">{'★'.repeat(entry.rating)}{'☆'.repeat(5 - entry.rating)}</span>
                 </div>
               </div>
-              {entry.front && <p className="text-xs font-light text-ink mb-0.5"><span className="text-ink-2">前</span> {entry.front}</p>}
-              {entry.mid && <p className="text-xs font-light text-ink mb-0.5"><span className="text-ink-2">中</span> {entry.mid}</p>}
-              {entry.tail && <p className="text-xs font-light text-ink mb-0.5"><span className="text-ink-2">後</span> {entry.tail}</p>}
-              {entry.notes && <p className="text-xs text-ink-3 font-light mt-1">{entry.notes}</p>}
+              {entry.front && <p className="type-meta text-ink mb-0.5"><span className="text-ink-2">前</span> {entry.front}</p>}
+              {entry.mid && <p className="type-meta text-ink mb-0.5"><span className="text-ink-2">中</span> {entry.mid}</p>}
+              {entry.tail && <p className="type-meta text-ink mb-0.5"><span className="text-ink-2">後</span> {entry.tail}</p>}
+              {entry.notes && <p className="type-micro mt-1">{entry.notes}</p>}
             </div>
           ))}
         </div>

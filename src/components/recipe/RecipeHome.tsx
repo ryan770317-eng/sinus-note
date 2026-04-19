@@ -96,8 +96,8 @@ export function RecipeHome({
     <div className="max-w-content mx-auto px-4 pt-7 pb-20">
       {/* Header */}
       <div className="flex items-baseline justify-between mb-5">
-        <h1 className="font-serif text-xl text-ink tracking-wide">配方</h1>
-        <p className="font-mono text-[10px] tracking-wider text-ink-3 uppercase">
+        <h1 className="type-title">配方</h1>
+        <p className="font-mono type-micro tracking-wider uppercase">
           {order.length} categories · {recipes.length} formulae
         </p>
       </div>
@@ -113,7 +113,7 @@ export function RecipeHome({
       {filtered && (
         <div className="space-y-2 mb-6">
           {filtered.length === 0 && (
-            <p className="text-sm text-ink-3 font-light">無結果</p>
+            <p className="type-body text-ink-3">無結果</p>
           )}
           {filtered.map((r) => (
             <button
@@ -121,8 +121,8 @@ export function RecipeHome({
               onClick={() => onCatClick(r.fragCat)}
               className="w-full text-left bg-card border border-border px-4 py-3 hover:border-ink-2 transition-colors"
             >
-              <p className="font-serif text-sm text-ink">{r.name}</p>
-              <p className="text-xs text-ink-2 font-light">
+              <p className="type-name">{r.name}</p>
+              <p className="type-meta">
                 {r.num} · {FRAG_CATS[r.fragCat]?.label ?? r.fragCat}
               </p>
             </button>
@@ -245,7 +245,7 @@ export function RecipeHome({
                   'repeating-linear-gradient(-45deg, transparent 0 8px, rgba(154,144,128,0.15) 8px 9px)',
               }}
             >
-              <span className="font-mono text-[10px] tracking-wider text-ink-3 uppercase">
+              <span className="font-mono type-micro tracking-wider uppercase">
                 — vacant —
               </span>
             </div>

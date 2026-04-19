@@ -81,7 +81,7 @@ export function TaskForm({ initial, recipes, materialNames, onSave, onCancel }: 
     <form onSubmit={handleSubmit} className="bg-card border border-border p-4 space-y-3">
       <div className="flex items-center justify-between mb-1">
         <p className="section-label">{initial ? '編輯工序' : '新增工序'}</p>
-        <label className="flex items-center gap-2 text-xs text-ink-2 font-light cursor-pointer">
+        <label className="flex items-center gap-2 type-meta cursor-pointer">
           <input type="checkbox" checked={quick} onChange={(e) => setQuick(e.target.checked)} className="accent-accent" />
           快速模式
         </label>
@@ -132,7 +132,7 @@ export function TaskForm({ initial, recipes, materialNames, onSave, onCancel }: 
                     key={s}
                     type="button"
                     onClick={() => { setMaterial(s); setMatSuggestions([]); }}
-                    className="w-full text-left px-3 py-2 text-sm font-light hover:bg-card"
+                    className="w-full text-left px-3 py-2 type-body hover:bg-card"
                   >
                     {s}
                   </button>

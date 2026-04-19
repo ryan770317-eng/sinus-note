@@ -81,14 +81,14 @@ export function Dashboard({
     <div className="max-w-content mx-auto px-4 pt-7 pb-20">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="font-serif text-2xl text-ink tracking-wide">SINUS NOTE</h1>
-        <p className="text-xs text-ink-2 font-light mt-0.5">{today}</p>
+        <h1 className="type-display">SINUS NOTE</h1>
+        <p className="type-meta mt-0.5">{today}</p>
       </div>
 
       {/* Mock data banner */}
       {isMock && (
         <div
-          className="mb-5 px-3 py-2 border border-dashed border-ink-4 text-xs text-ink-3 font-light"
+          className="mb-5 px-3 py-2 border border-dashed border-ink-4 type-micro"
           role="status"
         >
           目前顯示示範資料（假），登入後將自動載入您的真實資料
@@ -127,7 +127,7 @@ export function Dashboard({
       {empty && (
         <div className="text-center py-16">
           <p className="font-serif text-2xl text-ink-4 mb-3">引香筆記</p>
-          <p className="text-sm text-ink-3 font-light">從下方選單開始新增配方或工序</p>
+          <p className="type-body text-ink-3">從下方選單開始新增配方或工序</p>
         </div>
       )}
     </div>

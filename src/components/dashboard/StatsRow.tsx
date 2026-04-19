@@ -26,8 +26,8 @@ export function StatsRow({ recipes, tasks }: Props) {
           style={{ borderTopWidth: 2, borderTopColor: s.color }}
         >
           <p className="font-serif text-2xl" style={{ color: s.color }}>{s.value}</p>
-          <p className="text-[10px] tracking-label mt-0.5" style={{ color: s.color }}>{s.label}</p>
-          <p className="text-[10px] text-ink-2 font-light opacity-70">{s.sub}</p>
+          <p className="type-micro tracking-label mt-0.5" style={{ color: s.color }}>{s.label}</p>
+          <p className="type-micro text-ink-2 opacity-70">{s.sub}</p>
         </div>
       ))}
     </div>
