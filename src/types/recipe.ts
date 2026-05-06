@@ -9,6 +9,16 @@ export type IngredientCat =
 
 export interface Ingredient {
   cat: IngredientCat;
+  /**
+   * v2.1：強制使用 materialId 引用材料庫條目（"m60" 等）。
+   * 但為了向後相容（舊資料尚未遷移），此欄位暫時設為選填。
+   * Phase 2 Step 5 遷移完成後，可考慮在 schema 層改為必填。
+   */
+  materialId?: string;
+  /**
+   * 寫入時的快照名稱。即使材料改名，配方仍可顯示原始紀錄。
+   * 新建配方時應由 materialId 對應 Material.name 自動帶入。
+   */
   name: string;
   amount: number;
   unit: string;

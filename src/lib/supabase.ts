@@ -59,6 +59,18 @@ export interface MaterialRow {
   supplier: string;
   note: string;
   stock: Record<string, unknown>;
+  // ── v2.1 新增欄位（DB 端皆為 nullable，舊 row 沒有也能讀）──
+  display_short?: string | null;
+  species?: string | null;
+  species_group?: string | null;
+  grade?: string | null;
+  quality_note?: string | null;
+  aliases?: string[] | null;
+  v3_warnings?: string[] | null;
+  hard_ceiling?: number | null;
+  test_status?: string | null;
+  added_at?: string | null;
+  updated_at?: string | null;
 }
 
 export interface NoteRow {
@@ -164,6 +176,18 @@ export function rowToMaterial(row: MaterialRow): Material | null {
     supplier: row.supplier,
     note: row.note,
     stock: row.stock,
+    // v2.1 欄位 — null/undefined 統一轉 undefined 餵給 zod
+    displayShort: row.display_short ?? undefined,
+    species:      row.species ?? undefined,
+    speciesGroup: row.species_group ?? undefined,
+    grade:        row.grade ?? undefined,
+    qualityNote:  row.quality_note ?? undefined,
+    aliases:      row.aliases ?? undefined,
+    v3Warnings:   row.v3_warnings ?? undefined,
+    hardCeiling:  row.hard_ceiling ?? undefined,
+    testStatus:   row.test_status ?? undefined,
+    addedAt:      row.added_at ?? undefined,
+    updatedAt:    row.updated_at ?? undefined,
   }]);
   return parsed[0] ?? null;
 }
@@ -178,6 +202,18 @@ export function materialToRow(m: Material, userId: string): MaterialRow {
     supplier: m.supplier,
     note: m.note,
     stock: m.stock as Record<string, unknown>,
+    // v2.1 欄位 — undefined 寫成 null，避免 supabase upsert 把 undefined 當作「不更新」
+    display_short: m.displayShort ?? null,
+    species:       m.species ?? null,
+    species_group: m.speciesGroup ?? null,
+    grade:         m.grade ?? null,
+    quality_note:  m.qualityNote ?? null,
+    aliases:       m.aliases ?? null,
+    v3_warnings:   m.v3Warnings ?? null,
+    hard_ceiling:  m.hardCeiling ?? null,
+    test_status:   m.testStatus ?? null,
+    added_at:      m.addedAt ?? null,
+    updated_at:    m.updatedAt ?? null,
   };
 }
 

@@ -18,10 +18,12 @@ export const RecipeStatusSchema = z
 // ── Recipe sub-schemas ─────────────────────────────────────────────
 
 const IngredientSchema = z.object({
-  cat:    IngredientCatSchema,
-  name:   z.string().catch(''),
-  amount: z.number().catch(0),
-  unit:   z.string().catch('g'),
+  cat:        IngredientCatSchema,
+  // v2.1: materialId 為向後相容暫設選填，遷移完成後可考慮收緊
+  materialId: z.string().optional().catch(undefined),
+  name:       z.string().catch(''),
+  amount:     z.number().catch(0),
+  unit:       z.string().catch('g'),
 });
 
 const VersionSchema = z.object({
@@ -104,7 +106,13 @@ export const TaskSchema = z.object({
 
 // ── Material schema ────────────────────────────────────────────────
 
+// ── v2.1 Material 擴充欄位 ─────────────────────────────────────────
+const MaterialTestStatusSchema = z
+  .enum(['pending', 'tested', 'verified'])
+  .catch('pending');
+
 export const MaterialSchema = z.object({
+  // ── 既有欄位 ──
   id:       z.string(),
   cat:      IngredientCatSchema,
   name:     z.string().catch(''),
@@ -116,6 +124,19 @@ export const MaterialSchema = z.object({
     unit: z.string().catch('g'),
     note: z.string().catch(''),
   }).catch({ qty: 0, unit: 'g', note: '' }),
+
+  // ── v2.1 新增欄位（全部選填）──
+  displayShort: z.string().optional().catch(undefined),
+  species:      z.string().optional().catch(undefined),
+  speciesGroup: z.string().optional().catch(undefined),
+  grade:        z.string().optional().catch(undefined),
+  qualityNote:  z.string().optional().catch(undefined),
+  aliases:      z.array(z.string()).optional().catch(undefined),
+  v3Warnings:   z.array(z.string()).optional().catch(undefined),
+  hardCeiling:  z.number().optional().catch(undefined),
+  testStatus:   MaterialTestStatusSchema.optional().catch(undefined),
+  addedAt:      z.string().optional().catch(undefined),
+  updatedAt:    z.string().optional().catch(undefined),
 });
 
 // ── Parse helpers ──────────────────────────────────────────────────
