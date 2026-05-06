@@ -315,7 +315,7 @@ export default function App() {
           <RecipeForm
             initial={editRecipe ?? undefined}
             nextId={recipeStore.nextId}
-            materialNames={matStore.materialNames}
+            materials={materials}
             fragCat={newRecipeForCat}
             onSave={editRecipe ? handleUpdateRecipe : handleAddRecipe}
             onCancel={goRecipeBack}
@@ -329,6 +329,7 @@ export default function App() {
           <RecipeDetail
             recipe={recipe}
             tasks={tasks}
+            materials={materials}
             onBack={goRecipeBack}
             onEdit={(r) => goRecipeForm(r)}
             onDelete={() => setPendingDeleteRecipe(recipe)}

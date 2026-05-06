@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
-import type { Recipe, FragCat, RecipeStatus, IngredientCat, Ingredient, Version } from '../../types';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import type { Recipe, FragCat, RecipeStatus, IngredientCat, Ingredient, Version, Material } from '../../types';
 import { FRAG_CATS, ING_CATS, RECIPE_STATUS } from '../../utils/constants';
+import { speciesGroupLabel } from '../../utils/species';
 import { todayISO } from '../../utils/date';
 import { versionTag } from '../../utils/id';
 import { useToast } from '../shared/Toast';
@@ -8,10 +9,46 @@ import { useToast } from '../shared/Toast';
 interface Props {
   initial?: Recipe;
   nextId: number;
-  materialNames: string[];
+  /** v2.1: 整個 Material[] 用於 autocomplete + materialId 寫回 */
+  materials: Material[];
   fragCat?: FragCat;
   onSave: (recipe: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   onCancel: () => void;
+}
+
+interface Suggestion {
+  material: Material;
+  score: number;
+  hitField: 'name' | 'displayShort' | 'alias' | 'species';
+}
+
+function scoreSuggestion(query: string, mat: Material): Suggestion | null {
+  const q = query.trim();
+  if (!q) return null;
+  const lo = q.toLowerCase();
+
+  // 完全相符 / startsWith / 子字串 三層分數
+  function compare(field: string, src: string | undefined, tag: Suggestion['hitField']): Suggestion | null {
+    if (!src) return null;
+    const s = src.toLowerCase();
+    if (s === lo) return { material: mat, score: 100, hitField: tag };
+    if (s.startsWith(lo)) return { material: mat, score: 80, hitField: tag };
+    if (s.includes(lo)) return { material: mat, score: 60, hitField: tag };
+    return null;
+  }
+
+  // 試各欄位，取最高分
+  const candidates = [
+    compare('name', mat.name, 'name'),
+    compare('displayShort', mat.displayShort, 'displayShort'),
+    compare('species', mat.species, 'species'),
+    ...(mat.aliases ?? []).map((a) => compare('alias', a, 'alias')),
+  ].filter((c): c is Suggestion => c !== null);
+  if (!candidates.length) return null;
+
+  // 取最高分；同分時 alias 略低於 displayShort/name
+  candidates.sort((a, b) => b.score - a.score);
+  return candidates[0];
 }
 
 function emptyVersion(): Version {
@@ -33,7 +70,7 @@ function emptyRecipe(nextId: number, fragCat: FragCat = 'test'): Omit<Recipe, 'i
   };
 }
 
-export function RecipeForm({ initial, nextId, materialNames, fragCat, onSave, onCancel }: Props) {
+export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCancel }: Props) {
   const raw = initial ?? emptyRecipe(nextId, fragCat);
   const init = {
     ...raw,
@@ -47,8 +84,9 @@ export function RecipeForm({ initial, nextId, materialNames, fragCat, onSave, on
   const [form, setForm] = useState<Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>>(init);
   const [vIdx, setVIdx] = useState(0);
   const [tagInput, setTagInput] = useState((init.tags ?? []).join(', '));
-  const [matSuggestions, setMatSuggestions] = useState<string[]>([]);
+  const [matSuggestions, setMatSuggestions] = useState<Suggestion[]>([]);
   const [activeIngIdx, setActiveIngIdx] = useState<number | null>(null);
+  const [activeQuery, setActiveQuery] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [nameError, setNameError] = useState(false);
   const blurTimerRef = useRef<number | null>(null);
@@ -85,10 +123,27 @@ export function RecipeForm({ initial, nextId, materialNames, fragCat, onSave, on
   }
 
   function handleIngNameInput(i: number, val: string) {
-    updateIngredient(i, { name: val });
+    // 用戶手打名稱 → 清掉舊 materialId（除非選到候選才設回）
+    updateIngredient(i, { name: val, materialId: undefined });
     setActiveIngIdx(i);
-    if (val.length < 1) { setMatSuggestions([]); return; }
-    setMatSuggestions(materialNames.filter((n) => n.includes(val)).slice(0, 5));
+    setActiveQuery(val);
+    if (val.trim().length < 1) { setMatSuggestions([]); return; }
+    const list = materials
+      .map((m) => scoreSuggestion(val, m))
+      .filter((s): s is Suggestion => s !== null)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 6);
+    setMatSuggestions(list);
+  }
+
+  function pickSuggestion(i: number, sug: Suggestion) {
+    updateIngredient(i, {
+      materialId: sug.material.id,
+      name: sug.material.name,           // 用 material 的完整三段式名（snapshot）
+      cat: sug.material.cat,             // 自動同步 cat
+    });
+    setMatSuggestions([]);
+    setActiveQuery('');
   }
 
   function addVersion() {
@@ -267,13 +322,50 @@ export function RecipeForm({ initial, nextId, materialNames, fragCat, onSave, on
                     className="input-field text-xs w-full"
                     aria-label={`材料 ${i + 1} 名稱`}
                   />
+                  {ing.materialId && (
+                    <span
+                      className="absolute right-1 top-1/2 -translate-y-1/2 type-micro text-accent pointer-events-none"
+                      title={`已對應 ${ing.materialId}`}
+                    >
+                      ✓
+                    </span>
+                  )}
                   {activeIngIdx === i && matSuggestions.length > 0 && (
-                    <div className="absolute z-10 left-0 right-0 top-full bg-bg border border-border">
+                    <div className="absolute z-10 left-0 right-0 top-full bg-bg border border-border max-h-64 overflow-y-auto">
                       {matSuggestions.map((s) => (
-                        <button key={s} type="button" onMouseDown={() => { updateIngredient(i, { name: s }); setMatSuggestions([]); }} className="w-full text-left px-2 py-1.5 text-xs font-light hover:bg-card">
-                          {s}
+                        <button
+                          key={s.material.id}
+                          type="button"
+                          onMouseDown={() => pickSuggestion(i, s)}
+                          className="w-full text-left px-2 py-1.5 hover:bg-card border-b border-border/50 last:border-b-0"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="type-micro text-ink-3">{s.material.id}</span>
+                            <span className="text-xs font-light text-ink truncate">
+                              {s.material.displayShort ?? s.material.name}
+                            </span>
+                            {s.material.supplier && (
+                              <span className="type-micro text-ink-3 ml-auto shrink-0">{s.material.supplier}</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            {s.material.species && (
+                              <span className="type-micro text-ink-3 italic truncate">{s.material.species}</span>
+                            )}
+                            {s.material.speciesGroup && (
+                              <span className="type-micro text-ink-3">· {speciesGroupLabel(s.material.speciesGroup)}</span>
+                            )}
+                            {s.hitField !== 'name' && s.hitField !== 'displayShort' && (
+                              <span className="type-micro text-accent ml-auto shrink-0">
+                                {s.hitField === 'alias' ? '別名' : '學名'}
+                              </span>
+                            )}
+                          </div>
                         </button>
                       ))}
+                      <p className="type-micro text-ink-3 px-2 py-1 bg-card">
+                        找不到？打完整名稱直接送出，新材料請先到材料庫建立
+                      </p>
                     </div>
                   )}
                 </div>
