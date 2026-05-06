@@ -5,10 +5,12 @@ import { SPECIES_GROUP_OPTIONS, speciesGroupLabel } from '../../utils/species';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { useToast } from '../shared/Toast';
 import { SearchField } from '../shared/SearchField';
+import { MaterialTestSopModal } from './MaterialTestSopModal';
 
 interface Props {
   materials: Material[];
-  onAdd: (mat: Omit<Material, 'id'>) => Promise<void>;
+  /** 新增材料 — 必須回傳建立後的 Material 以便觸發 SOP modal */
+  onAdd: (mat: Omit<Material, 'id'>) => Promise<Material>;
   onUpdate: (id: string, updates: Partial<Material>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
   onRestore?: (mat: Material) => Promise<void>;
@@ -109,6 +111,8 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [nameError, setNameError] = useState('');
+  /** 跑 SOP 測試的目標材料 — null 表示不顯示 modal */
+  const [sopMaterial, setSopMaterial] = useState<Material | null>(null);
 
   // ── Group index by speciesGroup ───────────────────────────────
   const { groupMembers } = useMemo(() => {
@@ -251,13 +255,20 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
       if (editId) {
         await onUpdate(editId, payload);
         toast.success('材料已更新');
+        setShowForm(false);
+        setEditId(null);
+        setNameError('');
       } else {
-        await onAdd(payload);
+        const created = await onAdd(payload);
         toast.success('材料已新增');
+        setShowForm(false);
+        setEditId(null);
+        setNameError('');
+        // 新增後自動跳入庫測試 SOP（pending 狀態才彈，已測試/驗證的不彈）
+        if ((created.testStatus ?? 'pending') === 'pending') {
+          setSopMaterial(created);
+        }
       }
-      setShowForm(false);
-      setEditId(null);
-      setNameError('');
     } catch (err) {
       toast.error(`儲存失敗：${err instanceof Error ? err.message : String(err)}`);
     } finally {
@@ -528,6 +539,7 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
           expandedId={expandedId}
           onEdit={startEdit}
           onDelete={(id) => setDeleteId(id)}
+          onRunSop={(m) => setSopMaterial(m)}
         />
       ) : (
         <FlatList
@@ -538,7 +550,16 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
           expandedId={expandedId}
           onEdit={startEdit}
           onDelete={(id) => setDeleteId(id)}
+          onRunSop={(m) => setSopMaterial(m)}
           showCatLabel={!!(search && crossCat)}
+        />
+      )}
+
+      {sopMaterial && (
+        <MaterialTestSopModal
+          material={sopMaterial}
+          onSave={onUpdate}
+          onClose={() => setSopMaterial(null)}
         />
       )}
 
@@ -601,6 +622,7 @@ interface ListProps {
   expandedId: string | null;
   onEdit: (mat: Material) => void;
   onDelete: (id: string) => void;
+  onRunSop: (m: Material) => void;
 }
 
 function FlatList({
@@ -611,6 +633,7 @@ function FlatList({
   expandedId,
   onEdit,
   onDelete,
+  onRunSop,
   showCatLabel,
 }: ListProps & {
   getSimilarCount: (m: Material) => number;
@@ -632,6 +655,7 @@ function FlatList({
           onExpand={() => onExpand(mat.id)}
           onEdit={() => onEdit(mat)}
           onDelete={() => onDelete(mat.id)}
+          onRunSop={() => onRunSop(mat)}
           showCatLabel={showCatLabel}
         />
       ))}
@@ -645,6 +669,7 @@ function ByGroupList({
   expandedId,
   onEdit,
   onDelete,
+  onRunSop,
 }: ListProps) {
   // 按 speciesKey 分組
   const groups = useMemo(() => {
@@ -684,6 +709,7 @@ function ByGroupList({
                 onExpand={() => onExpand(mat.id)}
                 onEdit={() => onEdit(mat)}
                 onDelete={() => onDelete(mat.id)}
+                onRunSop={() => onRunSop(mat)}
                 showCatLabel={false}
                 groupKnown
               />
@@ -705,6 +731,7 @@ function ByGroupList({
                 onExpand={() => onExpand(mat.id)}
                 onEdit={() => onEdit(mat)}
                 onDelete={() => onDelete(mat.id)}
+                onRunSop={() => onRunSop(mat)}
                 showCatLabel={false}
               />
             ))}
@@ -723,6 +750,7 @@ interface CardProps {
   onExpand: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onRunSop: () => void;
   showCatLabel: boolean;
   /** 在 by-group 視圖時，標題那邊的同種徽章可隱藏 */
   groupKnown?: boolean;
@@ -736,6 +764,7 @@ function MaterialCard({
   onExpand,
   onEdit,
   onDelete,
+  onRunSop,
   showCatLabel,
   groupKnown,
 }: CardProps) {
@@ -777,9 +806,14 @@ function MaterialCard({
                 </span>
               )}
               {isPending && (
-                <span className="type-micro px-1.5 py-0.5 border border-ink-3 text-ink-3">
-                  待測
-                </span>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); onRunSop(); }}
+                  className="type-micro px-1.5 py-0.5 border border-accent text-accent hover:bg-accent/10 transition-colors"
+                  aria-label={`跑 ${mat.name} 入庫測試 SOP`}
+                >
+                  待測 · 跑 SOP
+                </button>
               )}
             </div>
             <div className="flex items-center gap-2 mt-0.5 flex-wrap type-meta text-ink-2">
@@ -906,8 +940,17 @@ function MaterialCard({
             </div>
           )}
 
-          <div className="flex gap-3 pt-1">
+          <div className="flex gap-3 pt-1 flex-wrap">
             <button onClick={onEdit} className="btn text-xs" aria-label={`編輯 ${mat.name}`}>編輯</button>
+            {isPending && (
+              <button
+                onClick={onRunSop}
+                className="btn text-xs text-accent border-accent"
+                aria-label={`跑 ${mat.name} 入庫測試 SOP`}
+              >
+                入庫測試 SOP
+              </button>
+            )}
             <button onClick={onDelete} className="btn text-xs text-error border-error" aria-label={`刪除 ${mat.name}`}>刪除</button>
           </div>
         </div>

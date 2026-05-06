@@ -355,6 +355,9 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
                             {s.material.speciesGroup && (
                               <span className="type-micro text-ink-3">· {speciesGroupLabel(s.material.speciesGroup)}</span>
                             )}
+                            {(s.material.testStatus ?? 'pending') === 'pending' && (
+                              <span className="type-micro text-error">· 待測</span>
+                            )}
                             {s.hitField !== 'name' && s.hitField !== 'displayShort' && (
                               <span className="type-micro text-accent ml-auto shrink-0">
                                 {s.hitField === 'alias' ? '別名' : '學名'}

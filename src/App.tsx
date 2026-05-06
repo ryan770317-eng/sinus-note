@@ -204,8 +204,8 @@ export default function App() {
     });
   }
 
-  async function handleAddMaterial(mat: Omit<Material, 'id'>): Promise<void> {
-    await matStore.addMaterial(mat);
+  async function handleAddMaterial(mat: Omit<Material, 'id'>): Promise<Material> {
+    return await matStore.addMaterial(mat);
   }
 
   // ── Export / Import ───────────────────────────────────────────

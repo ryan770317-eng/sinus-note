@@ -64,9 +64,10 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
   }, [version, materials]);
 
   // ── v3Warnings 與硬上限檢查 ─────────────────────────────────
-  const { ceilingWarnings, materialWarnings } = useMemo(() => {
+  const { ceilingWarnings, materialWarnings, pendingMaterials } = useMemo(() => {
     const cw: CeilingWarning[] = [];
     const mw = new Map<string, string>();  // dedupe by warning text
+    const pending: Material[] = [];
     if (version && version.totalWeight > 0) {
       for (const r of resolved) {
         if (!r.material) continue;
@@ -75,11 +76,15 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
           cw.push({ material: r.material, ratioPct, ceilingPct: r.material.hardCeiling });
         }
         for (const w of r.material.v3Warnings ?? []) mw.set(w, r.material.name);
+        if ((r.material.testStatus ?? 'pending') === 'pending') {
+          if (!pending.some((p) => p.id === r.material!.id)) pending.push(r.material);
+        }
       }
     }
     return {
       ceilingWarnings: cw,
       materialWarnings: Array.from(mw.entries()).map(([text, source]) => ({ text, source })),
+      pendingMaterials: pending,
     };
   }, [resolved, version]);
 
@@ -140,7 +145,7 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
       )}
 
       {/* v3Warnings panel — 只在有警告時顯示 */}
-      {(ceilingWarnings.length > 0 || materialWarnings.length > 0) && (
+      {(ceilingWarnings.length > 0 || materialWarnings.length > 0 || pendingMaterials.length > 0) && (
         <div className="border border-error bg-error/5 p-3 mb-5">
           <p className="section-label text-error mb-2">v3.0 規則檢查</p>
 
@@ -156,10 +161,21 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
           )}
 
           {materialWarnings.length > 0 && (
-            <div>
+            <div className="mb-2">
               {materialWarnings.map((w, i) => (
                 <p key={i} className="type-meta text-error">
                   · {w.text} <span className="text-ink-3">（{w.source}）</span>
+                </p>
+              ))}
+            </div>
+          )}
+
+          {pendingMaterials.length > 0 && (
+            <div>
+              <p className="type-meta text-ink-2">下列材料尚未跑入庫測試 SOP（不影響配方建立，建議先測）：</p>
+              {pendingMaterials.map((m) => (
+                <p key={m.id} className="type-meta text-ink-2">
+                  · {m.displayShort ?? m.name}
                 </p>
               ))}
             </div>
