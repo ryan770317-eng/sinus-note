@@ -8,6 +8,7 @@ import { useNotes } from './hooks/supabase/useNotes';
 import { LoginScreen } from './components/auth/LoginScreen';
 import { BottomNav, type TabId } from './components/nav/BottomNav';
 import { MenuOverlay } from './components/nav/MenuOverlay';
+import { MigratePage } from './components/admin/MigratePage';
 
 import { Dashboard } from './components/dashboard/Dashboard';
 import { RecipeHome } from './components/recipe/RecipeHome';
@@ -73,6 +74,21 @@ export default function App() {
 
   if (!user) {
     return <LoginScreen onLogin={login} error={error} />;
+  }
+
+  // ── v2.1 Migration tool ─────────────────────────────────────────
+  // 走訪 window.location.pathname 而非 React Router（專案沒裝）。
+  // 跑完 Phase 2 Step 5 後此頁就用不到了，可直接移除。
+  if (typeof window !== 'undefined' && window.location.pathname === '/admin/migrate') {
+    return (
+      <MigratePage
+        onExit={() => {
+          window.history.replaceState(null, '', '/');
+          // 重新整理回到正常 app
+          window.location.reload();
+        }}
+      />
+    );
   }
 
   // ── Mock data fallback when store is empty ─────────────────────
