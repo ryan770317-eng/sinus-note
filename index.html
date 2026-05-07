@@ -1,20 +1,1082 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-TW">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#F5F1EB" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="SINUS NOTE" />
-    <link rel="apple-touch-icon" href="/icon-512.png" />
-    <title>SINUS NOTE</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>清邁 × 曼谷 — 2026 員工旅遊 · 就曰設計 / 朋棚創作</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+
+<!-- Google Sheets webhook URL — paste your Apps Script /exec URL here -->
+<script>
+  // To enable Google Sheets: deploy the Apps Script (instructions in README), then paste URL below
+  window.SHEET_URL = ""; // <-- paste here
+</script>
+
+<script>
+  // Tweak defaults — host rewrites this block on disk
+  window.TRIP_TWEAKS = /*EDITMODE-BEGIN*/{
+    "theme": "paper",
+    "typestyle": "lanna",
+    "density": "normal",
+    "showRyan": true
+  }/*EDITMODE-END*/;
+</script>
+</head>
+<body data-theme="paper" data-typestyle="lanna" data-density="normal">
+
+<!-- ════════════════════════════════════════
+     TOP BAR
+     ════════════════════════════════════════ -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      就曰設計 × 朋棚創作
+      <small>Studio Retreat · Vol. 01</small>
+    </div>
+    <nav class="topnav">
+      <a href="#glance">Itinerary</a>
+      <a href="#logistics">Logistics</a>
+      <a href="#day1">Chiang Mai</a>
+      <a href="#spa">SPA</a>
+      <a href="#ryan">Bangkok</a>
+      <a href="#map">Map</a>
+      <a href="#packer">My Trip</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════
+     COVER
+     ════════════════════════════════════════ -->
+<section class="hero" id="cover" data-screen-label="Cover">
+  <div class="hero-grid">
+    <div>
+      <div class="eyebrow">Vol. 01 · Studio Retreat 2026</div>
+      <div class="hero-title-en" data-comment-anchor="c9551e7f38-em"><em>Chiang Mai</em> — A Studio Field Trip</div>
+      <h1 class="h-display" data-comment-anchor="e59bda4689-h1">2026<br><span style="font-style:italic;color:var(--c-red);">清邁員旅</span></h1>
+
+      <div class="hero-meta" style="margin-top: 36px;">
+        <span>會期 · Dates<strong>5.14 — 5.20, 2026</strong></span>
+        <span>編制 · Crew<strong>9 人 / 兩座城</strong></span>
+        <span>主場 · Base<strong>Eastin Tan, Chiang Mai</strong></span>
+        <span>提醒 · Note<strong>你們只有五天</strong></span>
+      </div>
+
+      <div class="countdown">
+        <div class="countdown-cell">
+          <div class="countdown-num" id="cd-days">--</div>
+          <div class="countdown-lbl">Days</div>
+        </div>
+        <div class="countdown-cell">
+          <div class="countdown-num" id="cd-hrs">--</div>
+          <div class="countdown-lbl">Hours</div>
+        </div>
+        <div class="countdown-cell">
+          <div class="countdown-num" id="cd-mins">--</div>
+          <div class="countdown-lbl">Minutes</div>
+        </div>
+        <div class="countdown-cell" style="border-left:1px solid var(--c-rule); padding-left:28px;">
+          <div class="cap" style="margin-bottom:6px;">出發倒數</div>
+          <div class="bilingual-en">Until departure</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="hero-photo" style="background-image:url('/images/cover.jpg');"></div>
+      <div class="cap" style="margin-top:14px; text-align:right;">— Wat Phra Singh, Chiang Mai
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     EDITOR'S NOTE
+     ════════════════════════════════════════ -->
+<section class="section" style="padding-top: 80px; padding-bottom: 80px;" data-screen-label="Editors-Note">
+  <div class="section-inner">
+    <div class="editors-note" style="display:grid; grid-template-columns: 1fr 1.4fr; gap:80px; align-items:start;">
+      <div>
+        <div class="section-num">№ 00 — 編按</div>
+      </div>
+      <div>
+        <p class="lead">
+          這是一本給九個人的小冊子，紀錄一趟橫跨蘭納古城與曼谷的旅行。
+          所有行程除了機場接送之外都可自由參加；
+          請在每一站按下「我要加入」，讓我們知道誰會去。
+        </p>
+        <p class="bilingual-en" style="margin-top:18px;">
+          Nine of us, two cities, six and a half days. Tap "Join" on any stop you'd like to attend — your name will appear on the roster.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     GLANCE — full trip overview
+     ════════════════════════════════════════ -->
+<section class="section" id="glance" style="padding-top: 60px;" data-screen-label="At-a-Glance">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-num">№ 01 — 一覽</div>
+      <div class="section-title-block" data-comment-anchor="4bcc288b4b-div">
+        <h2 class="h-1">六天半 · 兩座城</h2>
+        <p class="lead">Six and a half days, two cities — at a glance.</p>
+      </div>
+    </div>
+
+    <div class="glance">
+      <div class="glance-day">
+        <div class="num">Day 01</div>
+        <div class="date">5.14</div>
+        <div class="city">Chiang Mai</div>
+        <div class="titles">抵達 · 尼曼熱身<br>Baan Kang Wat / GRAPH</div>
+      </div>
+      <div class="glance-day">
+        <div class="num">Day 02</div>
+        <div class="date">5.15</div>
+        <div class="city">Chiang Mai</div>
+        <div class="titles">Kaomai 煙草倉 · 員工聚餐<br>Kaomai · Weave · Huen Phen</div>
+      </div>
+      <div class="glance-day">
+        <div class="num">Day 03</div>
+        <div class="date">5.16</div>
+        <div class="city">Chiang Mai</div>
+        <div class="titles">當代藝術 · 隧道廟 · SPA<br>MAIIAM · Wat Umong · Oasis</div>
+      </div>
+      <div class="glance-day">
+        <div class="num">Day 04</div>
+        <div class="date">5.17</div>
+        <div class="city">Chiang Mai</div>
+        <div class="titles">叢林晨拍 · 週六夜市<br>Wat Pha Lat · MAYA · Wualai</div>
+      </div>
+      <div class="glance-day">
+        <div class="num">Day 05</div>
+        <div class="date">5.18</div>
+        <div class="city">Chiang Mai</div>
+        <div class="titles" data-comment-anchor="006e15aa74-div">員旅結束<br>Departure</div>
+      </div>
+      <div class="glance-day ryan">
+        <div class="num">Day 06</div>
+        <div class="date">5.18</div>
+        <div class="city">Bangkok · Ryan</div>
+        <div class="titles">抵達曼谷 · Dib<br>Dib Bangkok</div>
+      </div>
+      <div class="glance-day ryan">
+        <div class="num">Day 07</div>
+        <div class="date">5.19</div>
+        <div class="city">Bangkok · Ryan</div>
+        <div class="titles">市場 · 四面佛 · SPA<br>Or Tor Kor · Erawan · Oasis</div>
+      </div>
+      <div class="glance-day ryan">
+        <div class="num">Day 08</div>
+        <div class="date">5.20</div>
+        <div class="city">Bangkok · Ryan</div>
+        <div class="titles">選物店 · 飛回台灣<br>Fewer Better Things</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     LOGISTICS
+     ════════════════════════════════════════ -->
+<section class="section" id="logistics" data-screen-label="Logistics">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-num">№ 02 — 物流</div>
+      <div class="section-title-block">
+        <h2 class="h-1">航班 · 住宿 · 集合</h2>
+        <p class="lead">Flights, hotels, and how we get there.</p>
+      </div>
+    </div>
+
+    <h3 class="h-3" style="margin-bottom:18px;">航班 · Flights</h3>
+    <table class="flight-table">
+      <thead>
+        <tr><th>段次 / Leg</th><th>日期 / Date</th><th>航班 / Flight</th><th>出發 / Depart</th><th>抵達 / Arrive</th><th>備註</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>台灣 → 清邁<br><span class="cap">Taipei → CNX</span></td><td>5/14（三）</td><td class="code">CI851</td><td class="time">07:30<br><span class="cap">桃園 TPE</span></td><td class="time">10:20<br><span class="cap">清邁 CNX</span></td><td class="cap">全員 · all crew</td></tr>
+        <tr><td>清邁 → 台灣<br><span class="cap">CNX → Taipei</span></td><td>5/18（日）</td><td class="code">CI852</td><td class="time">11:20</td><td class="time">16:00</td><td class="cap">同事返台</td></tr>
+        <tr style="background:#F4EEDF;"><td>清邁 → 曼谷<br><span class="cap">CNX → DMK</span></td><td>5/18（日）</td><td class="code">FD3436</td><td class="time">11:05</td><td class="time">12:15</td><td class="cap" data-comment-anchor="cb876efd56-td" style="color:var(--c-red);">Ryan · [徐] · 獨立行程</td></tr>
+        <tr style="background:#F4EEDF;"><td>曼谷 → 台灣<br><span class="cap">BKK → Taipei</span></td><td>5/20（三）</td><td class="code">JX746</td><td class="time">17:50</td><td class="time">22:40</td><td class="cap" data-comment-anchor="e6f7fc6a6f-td" style="color:var(--c-red);">Ryan · [徐]</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note-banner" style="margin-top:36px;">
+      <strong>Important</strong>
+      <span data-comment-anchor="b58af1d107-span">5/18 09:00 會有旅行社人員來飯店接送前往清邁機場。建議 08:30 集合於飯店大廳。</span>
+    </div>
+
+    <div class="logistics-grid" style="margin-top:60px;">
+      <div class="logistics-cell">
+        <div class="eyebrow" style="margin-bottom:14px;">Hotel · Chiang Mai</div>
+        <h3 class="h-2">Eastin Tan Hotel</h3>
+        <p class="bilingual-en">171 Huay Kaew Rd, Suthep, Mueang Chiang Mai</p>
+        <dl class="stop-facts" style="margin-top:22px;">
+          <dt>入住 / Check-in</dt><dd>5/14（三）</dd>
+          <dt>退房 / Check-out</dt><dd>5/18（日）· 4 晚</dd>
+          <dt>房型 / Room</dt><dd>雙人房 × 5（含早餐）</dd>
+          <dt>電話 / Phone</dt><dd>+66 52 001 999</dd>
+        </dl>
+      </div>
+      <div class="logistics-cell">
+        <div class="eyebrow" style="margin-bottom:14px;">Departure · 7 同事</div>
+        <h3 class="h-2">辦公室集合</h3>
+        <p class="bilingual-en">Office pickup · group transfer to TPE</p>
+        <p class="body-text" style="margin-top:18px;">由旅行社安排專車從辦公室出發，統一前往桃園機場。集合時間請等候提醒通知。</p>
+      </div>
+      <div class="logistics-cell">
+        <div class="eyebrow" style="margin-bottom:14px;">Departure · Ryan & 老徐</div>
+        <h3 class="h-2">自行前往桃園機場</h3>
+        <p class="bilingual-en">Self-arrival at TPE</p>
+        <p class="body-text" style="margin-top:18px;">Ryan 與老徐自行抵達桃園機場，與全體於登機門會合。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     DAY 1
+     ════════════════════════════════════════ -->
+<section class="section day-section" id="day1" data-screen-label="Day-01">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-num">Day 01 — 5.14 三</div>
+      <div class="section-title-block">
+        <h2 class="h-1">抵達 · 尼曼熱身</h2>
+        <p class="bilingual-en" style="margin-top:8px;">Arrival, slow afternoon, and a riverside gallery.</p>
+      </div>
+    </div>
+
+    <div class="stops">
+
+      <div class="stop">
+        <div class="stop-time">10:20<small>Arrive</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">航班 · Arrival</div>
+          <h3>清邁國際機場落地</h3>
+          <div class="en">Chiang Mai International — Arrival</div>
+          <p class="desc">CI851 抵達清邁。出關後等候旅行社安排的接送專車前往飯店。</p>
+        </div>
+      </div>
+
+      <div class="stop">
+        <div class="stop-time">11:00<small>Hotel</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">住宿 · Hotel</div>
+          <h3 data-comment-anchor="ae29eaf37b-h3">Eastin Tan Hotel</h3>
+          <div class="en">Hotel Check-in · Drop bags</div>
+          <p class="desc">辦理入住或先寄放行李，整裝後出發第一站。</p>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/eastin-tan.jpg');"></div>
+      </div>
+
+      <div class="stop" id="d1-baankang">
+        <div class="stop-time">13:00<small>10 min · Grab</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">景點 · Village</div>
+          <h3>Baan Kang Wat 藝術村</h3>
+          <div class="en">Baan Kang Wat Artist Village</div>
+          <p class="desc">蘭納木造建築群環抱著一條石板小徑，工作室一間連著一間：陶藝、織品、皮件、手作香氛。週一公休，今天必去。</p>
+          <dl class="stop-facts">
+            <dt>Open</dt><dd>週二–日 10:00–18:00</dd>
+            <dt>Price</dt><dd>免費</dd>
+            <dt>Duration</dt><dd>≈ 2h</dd>
+            <dt>Note</dt><dd>週一公休</dd>
+          </dl>
+          <div class="join-row">
+            <button class="btn" data-join="d1-baankang">＋ 我要加入 · Join</button>
+            <div class="roster" data-roster="d1-baankang"></div>
+          </div>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/baankang.jpg');"></div>
+      </div>
+
+      <div class="stop" id="d1-no39">
+        <div class="stop-time">15:00<small>Walk · 2 min</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">咖啡 · Café</div>
+          <h3>No.39 Café</h3>
+          <div class="en">Lakeside Treehouse Café</div>
+          <p class="desc">人工湖中央的木造小屋，遠看像是 DJ 台，近看像是樹屋。下午陽光斜斜地照進湖面，慢慢喝杯 Latte。</p>
+          <dl class="stop-facts">
+            <dt>Open</dt><dd>每日 09:00–18:00</dd>
+            <dt>Drinks</dt><dd>≈ 100 銖</dd>
+          </dl>
+          <div class="join-row">
+            <button class="btn" data-join="d1-no39">＋ 我要加入 · Join</button>
+            <div class="roster" data-roster="d1-no39"></div>
+          </div>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/no39.jpg');"></div>
+      </div>
+
+      <div class="stop" id="d1-graph">
+        <div class="stop-time">16:30<small>15 min · Grab</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">藝廊 · Gallery</div>
+          <h3>GRAPH Contemporary</h3>
+          <div class="en">Riverside Coffee &amp; Gallery</div>
+          <p class="desc">河邊的舊倉庫改建為精品咖啡，牆上掛著本地插畫家的限量印刷品；單品手沖配著自家烘焙的可頌。</p>
+          <dl class="stop-facts">
+            <dt>Open</dt><dd>每日 09:00–17:00</dd>
+            <dt>Drinks</dt><dd>≈ 150 銖</dd>
+          </dl>
+          <div class="join-row">
+            <button class="btn" data-join="d1-graph">＋ 我要加入 · Join</button>
+            <div class="roster" data-roster="d1-graph"></div>
+          </div>
+        </div>
+      <div class="stop-photo" style="background-image:url('/images/graph.webp');"></div>
+      </div>
+
+      <div class="stop" id="d1-nimman">
+        <div class="stop-time">19:30<small>Free · Walk</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">自由 · Free time</div>
+          <h3>尼曼路自由晚餐</h3>
+          <div class="en">Nimman Free Dinner</div>
+          <p class="desc">回飯店梳洗後，尼曼路上各自探索：泰北菜、日式、義式、酒吧都有。想結伴的可在這裡集合。</p>
+          <div class="join-row">
+            <button class="btn ghost" data-join="d1-nimman" data-comment-anchor="69af76266d-button">＋ 揪伴一起 · Find companions</button>
+            <div class="roster" data-roster="d1-nimman"></div>
+          </div>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/nimman.jpg');" data-comment-anchor="a8ca82fccd-div"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     DAY 2
+     ════════════════════════════════════════ -->
+<section class="section day-section alt" id="day2" data-screen-label="Day-02">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-num">Day 02 — 5.15 四</div>
+      <div class="section-title-block">
+        <h2 class="h-1">煙草倉 · 工藝聚落 · 員工聚餐</h2>
+        <p class="bilingual-en" style="margin-top:8px;">A UNESCO-honoured tobacco-barn resort, an artisan ice-factory, and the first proper studio dinner.</p>
+      </div>
+    </div>
+
+    <div class="stops">
+
+      <div class="stop" id="d2-kaomai">
+        <div class="stop-time">08:10<small>40 min · Grab</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">建築 · Heritage</div>
+          <h3>Kaomai Lanna Resort</h3>
+          <div class="en">UNESCO Heritage Tobacco Barns · 1955</div>
+          <p class="desc">1955 年的煙草烘乾倉庫群，2018 年獲得 UNESCO 亞太文化遺產獎。47 萊（rai）的老樹園區裡，磚牆與大樹交錯。早出發避開熱氣。</p>
+          <dl class="stop-facts">
+            <dt>Open</dt><dd>全年無休</dd>
+            <dt>Price</dt><dd>免費入園</dd>
+            <dt>Duration</dt><dd>≈ 4h</dd>
+            <dt>Note</dt><dd>建議園區內用餐</dd>
+          </dl>
+          <div class="join-row">
+            <button class="btn" data-join="d2-kaomai">＋ 我要加入 · Join</button>
+            <div class="roster" data-roster="d2-kaomai"></div>
+          </div>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/kaomai-resort.jpg');" data-comment-anchor="eb29a0522e-div"></div>
+      </div>
+
+      <div class="stop" id="d2-rongbom">
+        <div class="stop-time">10:00<small>On-site</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">咖啡 · Café</div>
+          <h3 data-comment-anchor="167bfb3e10-h3">Café Rong Bom</h3>
+          <div class="en">Tobacco Barn Café</div>
+          <p class="desc">雙聯式煙草倉改建的咖啡廳，挑高的紅磚拱頂與斑駁的工業遺跡是建築層次最強的一棟。</p>
+          <div class="join-row">
+            <button class="btn" data-join="d2-rongbom">＋ 我要加入 · Join</button>
+            <div class="roster" data-roster="d2-rongbom"></div>
+          </div>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/rongbom.jpg');"></div>
+      </div>
+
+      <div class="stop" id="d2-taocha">
+        <div class="stop-time">11:00<small>On-site</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">茶 · Tea</div>
+          <h3>Tao Cha 茶屋</h3>
+          <div class="en">Tao Cha Tea House</div>
+          <p class="desc">得獎花草茶室，自種季節花材，從泡製到品飲都是嗅覺體驗。可單點下午茶套組。</p>
+          <div class="join-row">
+            <button class="btn" data-join="d2-taocha">＋ 我要加入 · Join</button>
+            <div class="roster" data-roster="d2-taocha"></div>
+          </div>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/kaomai-taocha.jpg');" data-comment-anchor="ddb5fe0b75-div"></div>
+      </div>
+
+      <div class="stop" id="d2-kaomai-lunch">
+        <div class="stop-time">12:00<small>On-site</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">用餐 · Lunch</div>
+          <h3>Kaomai 餐廳午餐</h3>
+          <div class="en">Lunch at Kaomai</div>
+          <p class="desc">建議在園區內用餐，菜色為改良式泰北家常料理。</p>
+          <div class="join-row">
+            <button class="btn" data-join="d2-kaomai-lunch">＋ 我要加入 · Join</button>
+            <div class="roster" data-roster="d2-kaomai-lunch"></div>
+          </div>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/kaomai-dining.jpg');" data-comment-anchor="21a122c84d-div"></div>
+      </div>
+
+      <div class="stop" id="d2-weave">
+        <div class="stop-time">15:00<small>10 min · Grab</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">工藝 · Artisan</div>
+          <h3>Weave Artisan Society</h3>
+          <div class="en">Reclaimed Ice Factory · Artisans</div>
+          <p class="desc">廢棄製冰廠改建的工藝聚落，職人工作室、小藝廊與咖啡共生。17:30 打烊，要趕時間。</p>
+          <dl class="stop-facts">
+            <dt>Open</dt><dd>每日 09:00–17:30</dd>
+            <dt>Price</dt><dd>免費</dd>
+          </dl>
+          <div class="join-row">
+            <button class="btn" data-join="d2-weave">＋ 我要加入 · Join</button>
+            <div class="roster" data-roster="d2-weave"></div>
+          </div>
+        </div>
+      <div class="stop-photo" style="background-image:url('/images/weave.jpg');"></div>
+      </div>
+
+      <div class="stop" id="d2-huenphen" style="background:var(--c-cream); padding:48px; margin-top:24px; border:1px solid var(--c-rule);">
+        <div class="stop-time" style="color:var(--c-red);">19:00<small>Walk · 2 min</small></div>
+        <div class="stop-body">
+          <div class="stop-kind" style="color:var(--c-red);">★ 員工聚餐 · Studio Dinner</div>
+          <h3>Huen Phen Nimman</h3>
+          <div class="en">Northern Thai · A Chiang Mai Institution</div>
+          <p class="desc">清邁最知名的泰北老字號。必點：豬肉咖哩 (แกงฮังเล)、北方香腸 (ไส้อั่ว)、豬皮脆片 (แคบหมู)、米線咖哩 (ขนมจีนน้ำเงี้ยว)。</p>
+          <dl class="stop-facts">
+            <dt>Booking</dt><dd>+66 82 206 9244</dd>
+            <dt>Time</dt><dd>5/15（四）19:00</dd>
+            <dt>Party</dt><dd>9 人 · 大桌</dd>
+            <dt>Status</dt><dd style="color:var(--c-red);">已訂位</dd>
+          </dl>
+          <div class="join-row">
+            <button class="btn red" data-join="d2-huenphen">＋ 確認出席 · Confirm</button>
+            <div class="roster" data-roster="d2-huenphen"></div>
+          </div>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/huenphen.jpg');" data-comment-anchor="6e5d3a9c3a-div"></div>
+      </div>
+
+      <div class="stop" id="d2-skybar">
+        <div class="stop-time">21:00<small>10 min · Grab</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">夜間 · Night</div>
+          <h3>Akyra Manor Rooftop · The Rooftop</h3>
+          <div class="en">Boutique Hotel Sky Bar</div>
+          <p class="desc">Nimman 區設計旅店頂樓的小型 Sky Bar，調酒水準高、夜風涼爽。比夜市悠閒，適合員工聚餐後的延伸續攤。</p>
+          <div class="join-row">
+            <button class="btn ghost" data-join="d2-skybar">＋ 我要加入 · Join</button>
+            <div class="roster" data-roster="d2-skybar"></div>
+          </div>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/akyra-rooftop.jpg');"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     DAY 3
+     ════════════════════════════════════════ -->
+<section class="section day-section" id="day3" data-screen-label="Day-03">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-num">Day 03 — 5.16 五</div>
+      <div class="section-title-block">
+        <h2 class="h-1">當代藝術 · 隧道森林廟 · SPA</h2>
+        <p class="bilingual-en" style="margin-top:8px;">Mirrored mosaics, a 14th-century forest tunnel, and a proper Nimman spa.</p>
+      </div>
+    </div>
+
+    <div class="stops">
+
+      <div class="stop" id="d3-maiiam">
+        <div class="stop-time">10:00<small>30 min · Grab</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">美術館 · Museum</div>
+          <h3>MAIIAM 當代美術館</h3>
+          <div class="en">MAIIAM Contemporary Art Museum</div>
+          <p class="desc">泰國唯一的東南亞當代藝術館，鏡面馬賽克外觀映出周圍的稻田與天光；倉庫展間與設計選品店。館內 Kampaeng Kaew Café 可午餐。</p>
+          <dl class="stop-facts">
+            <dt>Open</dt><dd>週一・三–日 10:00–18:00</dd>
+            <dt>Price</dt><dd>200 銖</dd>
+            <dt>Note</dt><dd>週二公休</dd>
+          </dl>
+          <div class="join-row">
+            <button class="btn" data-join="d3-maiiam">＋ 我要加入 · Join</button>
+            <div class="roster" data-roster="d3-maiiam"></div>
+          </div>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/maiiam.jpg');" data-comment-anchor="e3cd0520b2-div"></div>
+      </div>
+
+      <div class="stop" id="d3-watumong">
+        <div class="stop-time">15:30<small>20 min · Grab</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">寺廟 · Temple</div>
+          <h3>Wat Umong 地下隧道森林廟</h3>
+          <div class="en">14th-Century Forest Tunnel Temple</div>
+          <p class="desc">14 世紀蘭納王所建，山丘下的地下冥想隧道：苔蘚、蝙蝠、烏龜魚池。20 銖門票，清邁最冷門最獨特的廟。</p>
+          <dl class="stop-facts">
+            <dt>Open</dt><dd>每日 04:00–20:00</dd>
+            <dt>Price</dt><dd>20 銖</dd>
+          </dl>
+          <div class="join-row">
+            <button class="btn" data-join="d3-watumong">＋ 我要加入 · Join</button>
+            <div class="roster" data-roster="d3-watumong"></div>
+          </div>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/watumong.jpg');" data-comment-anchor="07613c25e2-div"></div>
+      </div>
+
+      <div class="stop" id="d3-sense-spa" style="background:var(--c-cream); padding:48px; margin-top:24px; border:1px solid var(--c-rule);">
+        <div class="stop-time" style="color:var(--c-red);">17:00<small>10 min · Grab</small></div>
+        <div class="stop-body">
+          <div class="stop-kind" style="color:var(--c-red);">★ SPA · 需報名</div>
+          <h3>Oasis Spa Lanna · 清邁</h3>
+          <div class="en">Oasis Spa Lanna · Premium Lanna-Style Villa</div>
+          <p class="desc">清邁最高級的連鎖 Spa 品牌，蘭納風獨棟 Villa 包廂、熱帶花園環抱。評價 4.8，泰國 Spa 業界標桿。（見下方 SPA 預約專區）</p>
+          <dl class="stop-facts">
+            <dt>Booking</dt><dd>+66 53 920 111</dd>
+            <dt>Time</dt><dd>5/16（五）預計 17:00</dd>
+            <dt>Status</dt><dd style="color:var(--c-mute);">預想時間·尚未訂位</dd>
+          </dl>
+          <div class="join-row">
+            <button class="btn red" data-join="d3-sense-spa" data-spa>＋ 預約 SPA · Book Spa</button>
+            <a href="#spa" class="btn ghost">查看名單 →</a>
+          </div>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/oasis-spa.jpg');" data-comment-anchor="02468ce382-div"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     DAY 4
+     ════════════════════════════════════════ -->
+<section class="section day-section alt" id="day4" data-screen-label="Day-04">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-num">Day 04 — 5.17 六</div>
+      <div class="section-title-block">
+        <h2 class="h-1">叢林晨拍 · 補眠日 · 週六銀器夜市</h2>
+        <p class="bilingual-en" style="margin-top:8px;">A misty 7 a.m. temple, a chilled afternoon, and a Saturday-only night market.</p>
+      </div>
+    </div>
+
+    <div class="stops">
+
+      <div class="stop" id="d4-phalat">
+        <div class="stop-time">07:00<small>15 min · Grab</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">晨拍 · Sunrise</div>
+          <h3 data-comment-anchor="60c325c3c8-h3">Wat Pha Lat 叢林秘境寺廟</h3>
+          <div class="en">Misty Jungle Temple</div>
+          <p class="desc">泰北小嵐山。半山腰的叢林寺廟，苔蘚石階、潺潺小溪、晨霧穿透樹冠。6:00 開放，早去人極少。</p>
+          <dl class="stop-facts">
+            <dt>Open</dt><dd>每日 06:00–17:30</dd>
+            <dt>Price</dt><dd>免費</dd>
+            <dt>Note</dt><dd>晨霧最美</dd>
+          </dl>
+          <div class="join-row">
+            <button class="btn" data-join="d4-phalat">＋ 我要加入 · Join</button>
+            <div class="roster" data-roster="d4-phalat"></div>
+          </div>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/phalat.jpg');" data-comment-anchor="e4c40b8785-div"></div>
+      </div>
+
+      <div class="stop" id="d4-maya">
+        <div class="stop-time">10:00<small>Walk · 5 min</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">購物 · Shopping</div>
+          <h3>MAYA Lifestyle Mall</h3>
+          <div class="en">MAYA Mall · Cool-Down Day</div>
+          <p class="desc">全館冷氣，B1 在地小吃食堂、4F 美食餐廳、頂樓清邁山景露台。輕鬆補眠日，逛到幾點算幾點。</p>
+          <dl class="stop-facts">
+            <dt>Open</dt><dd>每日 10:00–22:00</dd>
+            <dt>Price</dt><dd>自費</dd>
+          </dl>
+          <div class="join-row">
+            <button class="btn" data-join="d4-maya">＋ 我要加入 · Join</button>
+            <div class="roster" data-roster="d4-maya"></div>
+          </div>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/maya.jpg');"></div>
+      </div>
+
+      <div class="stop" id="d4-wualai-mkt" data-comment-anchor="2a2c336eda-div">
+        <div class="stop-time">18:00<small>10 min · Grab</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">夜市 · Market</div>
+          <h3>Wualai 週六銀器夜市</h3>
+          <div class="en">Saturday Walking Street</div>
+          <p class="desc">在地銀器職人的傳統鎚打工藝、手作市集、街邊小食。<strong>僅週六夜間開市</strong>（5/14 抵達當天週三未開），所以安排在 5/17 週六。</p>
+          <dl class="stop-facts">
+            <dt>Open</dt><dd>僅週六 17:00–22:00</dd>
+            <dt>Price</dt><dd>免費</dd>
+          </dl>
+          <div class="join-row">
+            <button class="btn" data-join="d4-wualai-mkt">＋ 我要加入</button>
+            <div class="roster" data-roster="d4-wualai-mkt"></div>
+          </div>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/wualai.jpg');"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     DAY 5
+     ════════════════════════════════════════ -->
+<section class="section day-section" id="day5" data-screen-label="Day-05">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-num">Day 05 — 5.18 日</div>
+      <div class="section-title-block">
+        <h2 class="h-1">員旅結束</h2>
+        <p class="bilingual-en" style="margin-top:8px;">The crew flies home; Ryan continues to Bangkok.</p>
+      </div>
+    </div>
+
+    <div class="stops">
+      <div class="stop">
+        <div class="stop-time">07:00<small>Hotel</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">早餐 · Breakfast</div>
+          <h3>飯店早餐 · 最後一頓</h3>
+          <div class="en">Final Chiang Mai breakfast</div>
+        </div>
+      </div>
+      <div class="stop">
+        <div class="stop-time">08:30<small>Lobby</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">集合 · Assembly</div>
+          <h3>退房・全員集合</h3>
+          <div class="en">Check-out · Assemble in lobby</div>
+          <p class="desc">09:00 統一搭 Grab 前往清邁機場，09:30 前抵達各自辦理登機。</p>
+        </div>
+      </div>
+      <div class="stop">
+        <div class="stop-time">11:20<small>CI852</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">航班 · Departure</div>
+          <h3>同事返台 · CI852</h3>
+          <div class="en">Crew return to Taipei · 16:00 arrival</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SPA SECTION
+     ════════════════════════════════════════ -->
+<section class="section" id="spa" data-screen-label="Spa">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-num">№ 03 — SPA 預約</div>
+      <div class="section-title-block">
+        <h2 class="h-1">SPA · 報名</h2>
+        <p class="lead">清邁最高評價的正規 Spa，請於下方填寫姓名報名。</p>
+      </div>
+    </div>
+
+    <!-- Sense Spa Nimman -->
+    <div class="spa-card">
+      <div class="spa-photo" style="background-image:url('https://images.unsplash.com/photo-1591343395082-e120087004b4?w=1000&q=80&auto=format&fit=crop');" data-comment-anchor="20b03e38b2-div"></div>
+      <div class="spa-info">
+        <div class="eyebrow" style="margin-bottom:14px;">Chiang Mai · 5/16 17:00</div>
+        <h3>Oasis Spa Lanna · 清邁</h3>
+        <div class="spa-rating">★ 4.8 · Lanna-Style Villa · Premium</div>
+        <p class="body-text" data-comment-anchor="56c8d4a6d4-p">清邁最高級的 Spa 品牌，蘭納風獨棟 Villa 包廂、熱帶花園環抱。預想時間 5/16（五）17:00，尚未訂位。請填寫姓名與療程類型。</p>
+        <dl class="stop-facts" style="margin-top:18px;">
+          <dt>Booking</dt><dd>+66 82 219 5496</dd>
+          <dt>Distance</dt><dd>飯店 ≈ 5 min Grab</dd>
+        </dl>
+        <div class="join-row">
+          <button class="btn red" data-join="d3-sense-spa" data-spa>＋ 報名 SPA · Sign up</button>
+        </div>
+        <div class="spa-roster">
+          <h4>已報名名單 · Sign-ups</h4>
+          <div class="spa-list" data-spa-list="d3-sense-spa"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     RYAN BANGKOK
+     ════════════════════════════════════════ -->
+<section class="ryan-banner" id="ryan" data-screen-label="Ryan-Bangkok">
+  <div class="section-inner">
+    <div class="eyebrow">Extension · 5.18 — 5.20</div>
+    <h2 class="h-1" style="margin-top:14px;">Ryan 專屬延伸行程 · 曼谷</h2>
+    <p class="lead" style="margin-top:14px; max-width:760px;" data-comment-anchor="ab5d8f033c-p">同事返台後，Ryan 一人飛往曼谷，三天兩夜，主軸是當代藝術、新派餐飲與選物店。</p>
+  </div>
+</section>
+
+<section class="section ryan-section" data-screen-label="Bangkok-Day1">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-num">BKK Day 06 — 5.18 日</div>
+      <div class="section-title-block">
+        <h2 class="h-1">抵達曼谷 · Dib Bangkok</h2>
+        <p class="bilingual-en" style="margin-top:8px;">A new contemporary museum, three minutes from the hotel.</p>
+      </div>
+    </div>
+
+    <div class="stops">
+      <div class="stop" id="r1-dib">
+        <div class="stop-time">14:30<small>Walk · 3 min</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">美術館 · Museum</div>
+          <h3>Dib Bangkok</h3>
+          <div class="en">Bangkok's Major New Contemporary Museum</div>
+          <p class="desc">泰國首座大型國際當代藝術館，2025 年底開幕，11 個展廳、戶外雕塑花園。當期展《(In)visible Presence》三樓 Montien Boonma 展間是全展最動人的空間。</p>
+          <dl class="stop-facts">
+            <dt>Open</dt><dd>週四–一 10:00–19:00</dd>
+            <dt>Price</dt><dd>700 銖（線上預購）</dd>
+            <dt>Show</dt><dd>(In)visible Presence · 至 8/3</dd>
+          </dl>
+        </div>
+        <div class="stop-photo" style="background-image:url('/images/dib-bangkok.jpg');" data-comment-anchor="7edbae160a-div"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section ryan-section" data-screen-label="Bangkok-Day2">
+  <div class="section-inner" data-comment-anchor="7698c91c12-div">
+    <div class="section-head">
+      <div class="section-num">BKK Day 07 — 5.19 一</div>
+      <div class="section-title-block">
+        <h2 class="h-1">市場 · 四面佛 · 生蠔 · SPA</h2>
+        <p class="bilingual-en" style="margin-top:8px;">Bangkok at full intensity — the densest day of the trip.</p>
+      </div>
+    </div>
+
+    <div class="stops">
+      <div class="stop" id="r2-ortorkor" style="grid-template-columns: 110px 1fr;">
+        <div class="stop-time">09:00<small>25 min · Grab</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">市場 · Market</div>
+          <h3>Or Tor Kor Market</h3>
+          <div class="en">Premier Fresh Market</div>
+          <p class="desc">曼谷最高品質的生鮮市場，進口水果、新鮮香料、視覺震撼。早上去最好。</p>
+        </div>
+      </div>
+      <div class="stop" id="r2-erawan" style="grid-template-columns: 110px 1fr;">
+        <div class="stop-time">11:00<small>20 min · Grab</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">宗教 · Shrine</div>
+          <h3>四面佛 Erawan Shrine</h3>
+          <div class="en">Erawan Shrine</div>
+          <p class="desc">市中心十字路口的四面佛，買鮮花線香套組（≈ 200 銖），跟著在地人的節奏參拜。</p>
+        </div>
+      </div>
+      <div class="stop" id="r2-80below" style="grid-template-columns: 110px 1fr;">
+        <div class="stop-time">12:30<small>Walk · 5 min</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">用餐 · Lunch</div>
+          <h3 data-comment-anchor="b8ef125b5b-h3">80below @ Siam Paragon</h3>
+          <div class="en">Live Oyster Bar</div>
+          <p class="desc">Siam Paragon B1 的活體海鮮生蠔吧，推薦 Gillardeau 品種，搭一杯 Chablis 白酒。</p>
+        </div>
+      </div>
+      <div class="stop" id="r2-oasis" style="grid-template-columns: 110px 1fr;">
+        <div class="stop-time">14:30<small>15 min · Grab</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">SPA · Spa</div>
+          <h3>Oasis Spa Ekkamai</h3>
+          <div class="en">Oasis Spa Ekkamai</div>
+          <p class="desc">Soi Ekkamai 21 的傳統泰式美學 Spa，私人獨立包廂，距 Thonglor 10 分鐘。Ryan 已預約 14:30 male therapist。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section ryan-section" data-screen-label="Bangkok-Day3">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-num">BKK Day 08 — 5.20 二</div>
+      <div class="section-title-block">
+        <h2 class="h-1">選物店 · 飛回台灣</h2>
+        <p class="bilingual-en" style="margin-top:8px;">One last stop, then JX746.</p>
+      </div>
+    </div>
+
+    <div class="stops">
+      <div class="stop" id="r3-fbt" style="grid-template-columns: 110px 1fr;">
+        <div class="stop-time">12:00<small>10 min · Grab</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">選物 · Boutique</div>
+          <h3>Fewer Better Things</h3>
+          <div class="en">Curated Menswear &amp; Goods</div>
+          <p class="desc">Sukhumvit 31 的男裝選物店，老闆親自介紹每個品牌的故事；同時也是生活選品的好地方。</p>
+          <dl class="stop-facts">
+            <dt>Open</dt><dd>週三–日 12:00–19:00</dd>
+            <dt>Note</dt><dd>週一、二公休</dd>
+          </dl>
+        </div>
+      </div>
+      <div class="stop">
+        <div class="stop-time">17:50<small>JX746</small></div>
+        <div class="stop-body">
+          <div class="stop-kind">航班 · Departure</div>
+          <h3>JX746 曼谷 → 桃園</h3>
+          <div class="en">Final flight home · 22:40 arrival</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     MAP
+     ════════════════════════════════════════ -->
+<section class="section" id="map" data-screen-label="Map">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-num">№ 04 — 地圖</div>
+      <div class="section-title-block">
+        <h2 class="h-1">所有站點 · 一張圖</h2>
+        <p class="lead">Click any pin to jump to that stop.</p>
+      </div>
+    </div>
+
+    <div class="map-wrap">
+      <svg class="map-svg" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+        <!-- background -->
+        <rect width="1600" height="900" fill="#ECE5D6"/>
+        <!-- decorative grid -->
+        <g stroke="#D9D2C2" stroke-width="0.5" opacity="0.5">
+          <line x1="0" y1="225" x2="1600" y2="225"/>
+          <line x1="0" y1="450" x2="1600" y2="450"/>
+          <line x1="0" y1="675" x2="1600" y2="675"/>
+          <line x1="400" y1="0" x2="400" y2="900"/>
+          <line x1="800" y1="0" x2="800" y2="900"/>
+          <line x1="1200" y1="0" x2="1200" y2="900"/>
+        </g>
+        <!-- divider between cities -->
+        <line x1="800" y1="80" x2="800" y2="820" stroke="#1C1A17" stroke-width="0.5" stroke-dasharray="4 6"/>
+
+        <!-- Chiang Mai label -->
+        <text x="60" y="80" font-family="Cormorant Garamond, serif" font-size="42" fill="#1C1A17">Chiang Mai</text>
+        <text x="60" y="108" font-family="JetBrains Mono, monospace" font-size="11" letter-spacing="3" fill="#8A8278">5.14 — 5.18</text>
+
+        <!-- Bangkok label -->
+        <text x="860" y="80" font-family="Cormorant Garamond, serif" font-size="42" fill="#1C1A17">Bangkok</text>
+        <text x="860" y="108" font-family="JetBrains Mono, monospace" font-size="11" letter-spacing="3" fill="#8A8278">5.18 — 5.20 · Ryan</text>
+
+        <!-- Chiang Mai pins (rough relative layout) -->
+        <g class="map-pin" data-stop="d1-baankang"><circle class="outer" cx="180" cy="540" r="22"/><circle class="inner" cx="180" cy="540" r="6"/><text x="200" y="544">Baan Kang Wat · D1</text></g>
+        <g class="map-pin" data-stop="d1-graph"><circle class="outer" cx="320" cy="640" r="22"/><circle class="inner" cx="320" cy="640" r="6"/><text x="340" y="644">GRAPH · D1</text></g>
+        <g class="map-pin" data-stop="d2-kaomai"><circle class="outer" cx="120" cy="320" r="22"/><circle class="inner" cx="120" cy="320" r="6"/><text x="140" y="324">Kaomai Lanna · D2</text></g>
+        <g class="map-pin" data-stop="d2-weave"><circle class="outer" cx="280" cy="380" r="22"/><circle class="inner" cx="280" cy="380" r="6"/><text x="300" y="384">Weave · D2</text></g>
+        <g class="map-pin" data-stop="d2-huenphen"><circle class="outer" cx="460" cy="460" r="22"/><circle class="inner" cx="460" cy="460" r="6"/><text x="480" y="464">Huen Phen ★ · D2</text></g>
+        <g class="map-pin" data-stop="d3-maiiam"><circle class="outer" cx="600" cy="280" r="22"/><circle class="inner" cx="600" cy="280" r="6"/><text x="620" y="284">MAIIAM · D3</text></g>
+        <g class="map-pin" data-stop="d3-watumong"><circle class="outer" cx="220" cy="700" r="22"/><circle class="inner" cx="220" cy="700" r="6"/><text x="240" y="704">Wat Umong · D3</text></g>
+        <g class="map-pin" data-stop="d3-sense-spa"><circle class="outer" cx="500" cy="580" r="22"/><circle class="inner" cx="500" cy="580" r="6"/><text x="520" y="584">Oasis Spa Lanna ★ · D3</text></g>
+        <g class="map-pin" data-stop="d4-phalat"><circle class="outer" cx="100" cy="180" r="22"/><circle class="inner" cx="100" cy="180" r="6"/><text x="120" y="184">Wat Pha Lat · D4</text></g>
+        <g class="map-pin" data-stop="d4-maya"><circle class="outer" cx="420" cy="200" r="22"/><circle class="inner" cx="420" cy="200" r="6"/><text x="440" y="204">MAYA · D4</text></g>
+        <g class="map-pin" data-stop="d4-wualai-mkt"><circle class="outer" cx="640" cy="720" r="22"/><circle class="inner" cx="640" cy="720" r="6"/><text x="660" y="724">Wualai Saturday · D4</text></g>
+
+        <!-- Bangkok pins -->
+        <g class="map-pin bkk" data-stop="r1-dib"><circle class="outer" cx="900" cy="320" r="22"/><circle class="inner" cx="900" cy="320" r="6"/><text x="920" y="324">Dib · BKK D6</text></g>
+        <g class="map-pin bkk" data-stop="r2-ortorkor"><circle class="outer" cx="1080" cy="220" r="22"/><circle class="inner" cx="1080" cy="220" r="6"/><text x="1100" y="224">Or Tor Kor · BKK D7</text></g>
+        <g class="map-pin bkk" data-stop="r2-erawan"><circle class="outer" cx="1240" cy="400" r="22"/><circle class="inner" cx="1240" cy="400" r="6"/><text x="1260" y="404">Erawan · BKK D7</text></g>
+        <g class="map-pin bkk" data-stop="r2-80below"><circle class="outer" cx="1380" cy="500" r="22"/><circle class="inner" cx="1380" cy="500" r="6"/><text x="1400" y="504">80below · BKK D7</text></g>
+        <g class="map-pin bkk" data-stop="r2-oasis"><circle class="outer" cx="1080" cy="580" r="22"/><circle class="inner" cx="1080" cy="580" r="6"/><text x="1100" y="584">Oasis Spa · BKK D7</text></g>
+        <g class="map-pin bkk" data-stop="r3-fbt"><circle class="outer" cx="940" cy="700" r="22"/><circle class="inner" cx="940" cy="700" r="6"/><text x="960" y="704">Fewer Better Things · BKK D8</text></g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     GRAB CALCULATOR
+     ════════════════════════════════════════ -->
+<section class="section" id="grab" data-screen-label="Grab">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-num">№ 05 — Grab 預估</div>
+      <div class="section-title-block">
+        <h2 class="h-1">交通預估</h2>
+        <p class="lead">Cumulative Grab fares for the full itinerary, in Thai baht.</p>
+      </div>
+    </div>
+
+    <table class="grab-table">
+      <thead>
+        <tr><th>城市 / City</th><th>累計 / Subtotal</th><th>每人均攤 / Per Head</th><th>備註</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>清邁 · Chiang Mai</td><td class="baht" id="grab-cm">— 銖</td><td class="baht" id="grab-perhead">—</td><td class="cap">9 人均攤</td></tr>
+        <tr><td>曼谷 · Bangkok（Ryan）</td><td class="baht" id="grab-bk">— 銖</td><td class="cap">individual</td><td class="cap">Ryan 個人負擔</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td>合計 · Total</td><td class="baht" id="grab-total">— 銖</td><td class="cap" colspan="2">不含機場接送（旅行社安排）</td></tr>
+      </tfoot>
+    </table>
+
+    <p class="cap" style="margin-top:24px;">數字為單程估算，實際依路況浮動。建議全員下載 Grab App 並綁定信用卡。</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     PERSONAL PACKER
+     ════════════════════════════════════════ -->
+<section class="section day-section alt" id="packer" data-screen-label="Packer">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-num">№ 06 — 我的行程</div>
+      <div class="section-title-block">
+        <h2 class="h-1">個人行程打包</h2>
+        <p class="lead">勾選你想參加的所有站點，產生你的個人化行程清單。</p>
+      </div>
+    </div>
+
+    <div class="pack-grid">
+      <div id="pack-list" class="pack-list"></div>
+      <div class="pack-summary">
+        <div class="eyebrow">Your Itinerary</div>
+        <h3>個人行程</h3>
+        <input type="text" class="pack-name-input" id="pack-name" placeholder="輸入你的名字 · Your name"/>
+        <div id="pack-summary-list" class="pack-day-list"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     CHECKLIST
+     ════════════════════════════════════════ -->
+<section class="section" id="checklist" data-screen-label="Checklist">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-num">№ 07 — 出發前</div>
+      <div class="section-title-block">
+        <h2 class="h-1">出發前清單</h2>
+        <p class="lead">Pre-departure checklist · 旅行社、Ryan 與全體三方分工。</p>
+      </div>
+    </div>
+
+    <div class="checklist">
+      <div class="checklist-col">
+        <h3>立刻處理</h3>
+        <ul>
+          <li>Huen Phen Nimman 訂位（5/15 19:00 · 9 人）</li>
+          <li>Dib Bangkok 線上購票（5/18 · 700 銖／人）</li>
+          <li>Sense Spa 訂位（5/16 17:00）</li>
+          <li>Oasis Spa 訂位（5/19 14:30）</li>
+        </ul>
+      </div>
+      <div class="checklist-col">
+        <h3>出發前一週</h3>
+        <ul>
+          <li>全員下載 Grab App 並綁定信用卡</li>
+          <li>確認所有人護照效期（回台日起算 6 個月以上）</li>
+          <li>兌換泰銖現金（每人 5,000–8,000 銖）</li>
+          <li>確認 Tao Cha 茶屋是否需預約</li>
+          <li>通知全體：5/18 早上 09:00 機場集合</li>
+        </ul>
+      </div>
+      <div class="checklist-col">
+        <h3>抵達當地</h3>
+        <ul>
+          <li>確認 Grab App 在泰國正常運作</li>
+          <li>Warorot Market 建議 10:00 前抵達</li>
+          <li>Wualai Walking Street 僅週六 17:00–22:00</li>
+          <li>5/18 全員 09:30 前抵達清邁機場</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     EMERGENCY CONTACTS
+     ════════════════════════════════════════ -->
+<section class="section day-section alt" id="contacts" data-screen-label="Contacts">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-num">№ 08 — 緊急聯絡</div>
+      <div class="section-title-block">
+        <h2 class="h-1">緊急聯絡資訊</h2>
+        <p class="lead">Emergency contacts · 飯店、航空、代表處。</p>
+      </div>
+    </div>
+
+    <div class="contacts">
+      <div class="contact-cell"><div class="label">清邁飯店 · Eastin Tan</div><div class="num">+66 52 001 999</div></div>
+      <div class="contact-cell"><div class="label">曼谷飯店 · Wyndham</div><div class="num">+66 2 381 1222</div></div>
+      <div class="contact-cell"><div class="label">中華航空泰國</div><div class="num">+66 2 631 1421</div></div>
+      <div class="contact-cell"><div class="label">星宇航空台灣</div><div class="num">+886 2 2791 1199</div></div>
+      <div class="contact-cell"><div class="label">台灣駐泰國代表處</div><div class="num">+66 2 670 0200</div></div>
+      <div class="contact-cell"><div class="label">泰國緊急 · 警察 / 救護</div><div class="num">191 / 1669</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     FOOTER
+     ════════════════════════════════════════ -->
+<footer class="footer">
+  <div>
+    <div class="eyebrow" style="color:var(--c-mute);">Studio Retreat 2026 · Vol. 01</div>
+    <h2 class="h-1" style="margin-top:14px;">慢慢走，我們在清邁見。</h2>
+    <p class="cap" style="margin-top:18px;">就曰設計 × 朋棚創作 · A studio field-book by 雜男萊恩</p>
+  </div>
+  <div class="cap">
+    最後更新 · 2026.05<br>
+    Vol. 01
+  </div>
+</footer>
+
+<!-- ════════════════════════════════════════
+     SIGNUP MODAL
+     ════════════════════════════════════════ -->
+<div class="modal-backdrop" id="signup-modal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <button class="modal-close" data-modal-close aria-label="close">×</button>
+    <div class="eyebrow" style="margin-bottom:6px;">Sign up</div>
+    <h3 id="modal-title">—</h3>
+    <div class="en" id="modal-en">—</div>
+    <form id="signup-form">
+      <div id="modal-body"></div>
+    </form>
+  </div>
+</div>
+
+<script src="/trip-data.js"></script>
+<script src="/app.js"></script>
+
+</body>
 </html>
