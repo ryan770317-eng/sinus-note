@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Task, Recipe, BurnEntry } from '../../types';
 import type { TaskStatus } from '../../types';
 import { TASK_STATUS, TASK_STATUS_ORDER } from '../../utils/constants';
+import { useToast } from '../shared/Toast';
 import { TaskAlert } from './TaskAlert';
 import { TaskCard } from './TaskCard';
 import { TaskForm } from './TaskForm';
@@ -21,8 +22,6 @@ interface Props {
   onBurnSave: (taskId: string, recipeId: number | null, entry: BurnEntry) => Promise<void>;
 }
 
-const SEVEN_DAYS_AGO = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
-
 export function TaskDashboard({
   tasks,
   alertTasks,
@@ -35,39 +34,56 @@ export function TaskDashboard({
   onRecipeClick,
   onBurnSave,
 }: Props) {
+  const toast = useToast();
   const [showForm, setShowForm] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [burnTask, setBurnTask] = useState<Task | null>(null);
   const [showAllDone, setShowAllDone] = useState(false);
+
+  // 元件內計算，不放 module scope — app 掛著跨日時基準才會跟著走
+  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
 
   function grouped(): Record<TaskStatus, Task[]> {
     const g: Record<TaskStatus, Task[]> = { waiting: [], processing: [], prep: [], ready: [], done: [] };
     for (const t of tasks) g[t.status].push(t);
     // Sort done: recent first, limit to 7 days unless expanded
     g.done = g.done
-      .filter((t) => showAllDone || (t.completedDate ?? '') >= SEVEN_DAYS_AGO)
+      .filter((t) => showAllDone || (t.completedDate ?? '') >= sevenDaysAgo)
       .sort((a, b) => (b.completedDate ?? '') > (a.completedDate ?? '') ? 1 : -1);
     return g;
   }
 
   async function handleComplete(task: Task) {
-    if (task.taskType === 'burn') {
-      setBurnTask(task);
-    } else {
-      await onUpdate(task.id, { status: 'done', completedDate: todayISO() });
+    try {
+      if (task.status === 'done') {
+        // 勾選已完成的工序 = 取消完成（回「待處理」），不會重跑試燒表單
+        await onUpdate(task.id, { status: 'ready', completedDate: null });
+        return;
+      }
+      if (task.taskType === 'burn') {
+        setBurnTask(task);
+      } else {
+        await onUpdate(task.id, { status: 'done', completedDate: todayISO() });
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
     }
   }
 
   async function handleBurnSave(entry: BurnEntry) {
     if (!burnTask) return;
-    await onBurnSave(burnTask.id, burnTask.recipeId, entry);
-    await onUpdate(burnTask.id, { status: 'done', completedDate: todayISO() });
-    setBurnTask(null);
+    try {
+      await onBurnSave(burnTask.id, burnTask.recipeId, entry);
+      await onUpdate(burnTask.id, { status: 'done', completedDate: todayISO() });
+      setBurnTask(null);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
   }
 
   const g = grouped();
   const totalDone = tasks.filter((t) => t.status === 'done').length;
-  const hiddenDone = tasks.filter((t) => t.status === 'done' && (t.completedDate ?? '') < SEVEN_DAYS_AGO).length;
+  const hiddenDone = tasks.filter((t) => t.status === 'done' && (t.completedDate ?? '') < sevenDaysAgo).length;
 
   return (
     <div className="max-w-content mx-auto px-4 pt-7 pb-20">

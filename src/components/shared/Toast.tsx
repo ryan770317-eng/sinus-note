@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 type ToastType = 'info' | 'success' | 'error';
 
@@ -58,12 +58,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     timersRef.current.set(id, timer);
   }, [dismiss]);
 
-  const api: ToastApi = {
+  // 穩定引用：讓 useToast() 的回傳值可以安全放進 effect deps
+  const api: ToastApi = useMemo(() => ({
     show,
     success: (m, o) => show(m, { ...o, type: 'success' }),
     error:   (m, o) => show(m, { ...o, type: 'error' }),
     info:    (m, o) => show(m, { ...o, type: 'info' }),
-  };
+  }), [show]);
 
   useEffect(() => {
     const timers = timersRef.current;

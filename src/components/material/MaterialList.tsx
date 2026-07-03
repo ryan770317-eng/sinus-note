@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import type { Material, IngredientCat, MaterialTestStatus } from '../../types';
 import { ING_CATS, ING_CAT_COLORS } from '../../utils/constants';
 import { SPECIES_GROUP_OPTIONS, speciesGroupLabel } from '../../utils/species';
+import { supplierShort } from '../../utils/format';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { useToast } from '../shared/Toast';
 import { SearchField } from '../shared/SearchField';
@@ -88,11 +89,6 @@ function displayName(m: Material): string {
   return firstSeg || m.name;
 }
 
-/** 供應商簡稱（前 2 字）*/
-function supplierShort(m: Material): string {
-  if (!m.supplier) return '';
-  return m.supplier.length <= 4 ? m.supplier : m.supplier.slice(0, 2);
-}
 
 // ── Component ─────────────────────────────────────────────────────
 
@@ -191,6 +187,8 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
       v3Warnings: mat.v3Warnings ?? [],
       hardCeiling: mat.hardCeiling,
       testStatus: mat.testStatus ?? 'pending',
+      // 帶回原值，否則儲存時會把首次入庫時間洗成 null
+      addedAt: mat.addedAt,
     });
     setAliasesText((mat.aliases ?? []).join('\n'));
     setWarningsText((mat.v3Warnings ?? []).join('\n'));
@@ -768,7 +766,7 @@ function MaterialCard({
   showCatLabel,
   groupKnown,
 }: CardProps) {
-  const supShort = supplierShort(mat);
+  const supShort = supplierShort(mat.supplier);
   const isPending = (mat.testStatus ?? 'pending') === 'pending';
   const hasWarnings = (mat.v3Warnings?.length ?? 0) > 0;
 

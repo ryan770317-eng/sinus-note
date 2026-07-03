@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import type { Recipe, Task, Ingredient, IngredientCat, Material } from '../../types';
 import { FRAG_CATS, ING_CATS, ING_CAT_COLORS, RECIPE_STATUS } from '../../utils/constants';
 import { speciesGroupLabel } from '../../utils/species';
+import { stars, supplierShort } from '../../utils/format';
 import { StatusBadge } from '../shared/StatusBadge';
 import { BurnLog } from './BurnLog';
 import { RelatedTasks } from './RelatedTasks';
@@ -68,17 +69,18 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
     const cw: CeilingWarning[] = [];
     const mw = new Map<string, string>();  // dedupe by warning text
     const pending: Material[] = [];
-    if (version && version.totalWeight > 0) {
-      for (const r of resolved) {
-        if (!r.material) continue;
+    // v3Warnings / 待測提醒不該被 totalWeight 擋掉 — 只有比例檢查需要總重
+    for (const r of resolved) {
+      if (!r.material) continue;
+      if (version && version.totalWeight > 0) {
         const ratioPct = (r.ing.amount / version.totalWeight) * 100;
         if (r.material.hardCeiling != null && ratioPct > r.material.hardCeiling) {
           cw.push({ material: r.material, ratioPct, ceilingPct: r.material.hardCeiling });
         }
-        for (const w of r.material.v3Warnings ?? []) mw.set(w, r.material.name);
-        if ((r.material.testStatus ?? 'pending') === 'pending') {
-          if (!pending.some((p) => p.id === r.material!.id)) pending.push(r.material);
-        }
+      }
+      for (const w of r.material.v3Warnings ?? []) mw.set(w, r.material.name);
+      if ((r.material.testStatus ?? 'pending') === 'pending') {
+        if (!pending.some((p) => p.id === r.material!.id)) pending.push(r.material);
       }
     }
     return {
@@ -345,7 +347,7 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
       )}
 
       {recipe.rating > 0 && (
-        <p className="text-sm text-ink-2 mb-5">{'★'.repeat(recipe.rating)}{'☆'.repeat(5 - recipe.rating)}</p>
+        <p className="text-sm text-ink-2 mb-5">{stars(recipe.rating)}</p>
       )}
 
       <BurnLog burnLog={recipe.burnLog ?? []} />
@@ -362,8 +364,4 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
       </div>
     </div>
   );
-}
-
-function supplierShort(s: string): string {
-  return s.length <= 4 ? s : s.slice(0, 2);
 }

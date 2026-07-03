@@ -37,6 +37,8 @@ export function VoiceInput({ onResult }: Props) {
         (_err) => {
           setRecording(false);
         },
+        // onend：靜音逾時 / 瀏覽器自行結束時也要還原按鈕狀態
+        () => setRecording(false),
       );
     }
   }

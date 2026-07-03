@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { BurnEntry } from '../../types';
+import { stars } from '../../utils/format';
 
 interface Props {
   burnLog: BurnEntry[];
@@ -31,7 +32,7 @@ export function BurnLog({ burnLog }: Props) {
                 <p className="type-meta">{entry.date}</p>
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-ink-3">煙 {SMOKE_LABEL[entry.smoke]}</span>
-                  <span className="text-xs text-ink-3">{'★'.repeat(entry.rating)}{'☆'.repeat(5 - entry.rating)}</span>
+                  <span className="text-xs text-ink-3">{stars(entry.rating)}</span>
                 </div>
               </div>
               {entry.front && <p className="type-meta text-ink mb-0.5"><span className="text-ink-2">前</span> {entry.front}</p>}

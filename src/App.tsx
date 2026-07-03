@@ -1,14 +1,18 @@
-import { useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { useAuth } from './hooks/supabase/useAuth';
 import { useRecipes } from './hooks/supabase/useRecipes';
 import { useMaterials } from './hooks/supabase/useMaterials';
-import { useTasks } from './hooks/supabase/useTasks';
+import { useTasks, isAlertTask } from './hooks/supabase/useTasks';
 import { useNotes } from './hooks/supabase/useNotes';
 
 import { LoginScreen } from './components/auth/LoginScreen';
 import { BottomNav, type TabId } from './components/nav/BottomNav';
 import { MenuOverlay } from './components/nav/MenuOverlay';
-import { MigratePage } from './components/admin/MigratePage';
+
+// 一次性遷移工具 — lazy load，不要進主 bundle
+const MigratePage = lazy(() =>
+  import('./components/admin/MigratePage').then((m) => ({ default: m.MigratePage })),
+);
 
 import { Dashboard } from './components/dashboard/Dashboard';
 import { RecipeHome } from './components/recipe/RecipeHome';
@@ -25,7 +29,6 @@ import { OfflineBanner } from './components/shared/OfflineBanner';
 
 import { exportBackup, readJsonFile, mergePatch, type BackupData } from './utils/export';
 import { MOCK_RECIPES, MOCK_TASKS, MOCK_MATERIALS, MOCK_NOTES } from './utils/mockData';
-import { TASK_TYPES } from './utils/constants';
 import type { Recipe, FragCat, BurnEntry, Material } from './types';
 
 type PendingImport =
@@ -58,6 +61,13 @@ export default function App() {
   const [pendingImport, setPendingImport] = useState<PendingImport | null>(null);
   const [pendingDeleteRecipe, setPendingDeleteRecipe] = useState<Recipe | null>(null);
 
+  // ── 讀取錯誤統一呈現（寫入錯誤由各呼叫端 catch + toast）──────────
+  const storeError = recipeStore.error ?? matStore.error ?? taskStore.error ?? noteStore.error;
+  useEffect(() => {
+    if (storeError) toast.error(storeError);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- toast api 為穩定 context
+  }, [storeError]);
+
   if (loading) {
     return (
       <div
@@ -81,37 +91,58 @@ export default function App() {
   // 跑完 Phase 2 Step 5 後此頁就用不到了，可直接移除。
   if (typeof window !== 'undefined' && window.location.pathname === '/admin/migrate') {
     return (
-      <MigratePage
-        onExit={() => {
-          window.history.replaceState(null, '', '/');
-          // 重新整理回到正常 app
-          window.location.reload();
-        }}
-      />
+      <Suspense fallback={<div className="min-h-screen bg-bg flex items-center justify-center"><p className="type-meta tracking-label">遷移工具載入中…</p></div>}>
+        <MigratePage
+          onExit={() => {
+            window.history.replaceState(null, '', '/');
+            // 重新整理回到正常 app
+            window.location.reload();
+          }}
+        />
+      </Suspense>
     );
   }
 
-  // ── Mock data fallback when store is empty ─────────────────────
+  // ── 資料載入中：先擋住，避免「空資料/示範資料」閃現誤導 ─────────
   const dataLoaded = !recipeStore.loading && !matStore.loading && !taskStore.loading && !noteStore.loading;
-  const isMock = dataLoaded &&
+  if (!dataLoaded) {
+    return (
+      <div
+        className="min-h-screen bg-bg flex flex-col items-center justify-center gap-3"
+        role="status"
+        aria-live="polite"
+        aria-label="資料載入中"
+      >
+        <p className="font-serif text-2xl text-ink tracking-wide">SINUS NOTE</p>
+        <p className="text-xs text-ink-3 font-light tracking-label">資料載入中…</p>
+      </div>
+    );
+  }
+
+  // ── Mock data fallback when store is completely empty ──────────
+  // 注意：四個 store（含 notes）都空才進 mock，
+  // 否則「只記過隨手記」的帳號會被假資料蓋掉真資料。
+  const isMock =
     recipeStore.recipes.length === 0 &&
     matStore.materials.length === 0 &&
-    taskStore.tasks.length === 0;
+    taskStore.tasks.length === 0 &&
+    noteStore.notes.length === 0;
 
   const recipes  = isMock ? MOCK_RECIPES  : recipeStore.recipes;
   const tasks    = isMock ? MOCK_TASKS    : taskStore.tasks;
   const materials = isMock ? MOCK_MATERIALS : matStore.materials;
   const notes    = isMock ? MOCK_NOTES    : noteStore.notes;
 
-  // alertTasks computed from effective tasks
-  const alertTasks = tasks.filter((t) => {
-    if (t.status === 'done') return false;
-    const tt = TASK_TYPES[t.taskType];
-    if (tt.defaultDays === 0) return true;
-    if (!t.dueDate) return false;
-    const days = Math.round((new Date(t.dueDate).getTime() - new Date(new Date().toDateString()).getTime()) / 86400000);
-    return days <= 3;
-  });
+  const alertTasks = tasks.filter(isAlertTask);
+
+  // 示範資料只能看不能改；新增操作維持可用（寫入第一筆真資料後自動退出示範模式）
+  const MOCK_BLOCK_MSG = '目前顯示的是示範資料，無法編輯或刪除 — 新增第一筆自己的資料後就會切換';
+  function mockGuard<A extends unknown[]>(fn: (...args: A) => void | Promise<void>) {
+    return async (...args: A) => {
+      if (isMock) { toast.info(MOCK_BLOCK_MSG); return; }
+      await fn(...args);
+    };
+  }
 
   // ── Recipe navigation helpers ─────────────────────────────────
   function goRecipeCat(cat: FragCat) {
@@ -127,6 +158,7 @@ export default function App() {
   }
 
   function goRecipeForm(recipe?: Recipe, forCat?: FragCat) {
+    if (recipe && isMock) { toast.info(MOCK_BLOCK_MSG); return; }
     setEditRecipe(recipe ?? null);
     setNewRecipeForCat(forCat);
     setRecipeScreen('form');
@@ -155,48 +187,53 @@ export default function App() {
 
   async function handleDeleteRecipe(id: number) {
     const recipe = recipeStore.recipes.find((r) => r.id === id);
+    if (!recipe) return;
     try {
       await recipeStore.deleteRecipe(id);
       setRecipeScreen('category');
-      if (recipe) {
-        toast.success('配方已刪除', {
-          action: {
-            label: '復原',
-            onClick: async () => {
-              try {
-                await recipeStore.restoreRecipe(recipe);
-                toast.info('配方已復原');
-              } catch (err) {
-                toast.error(`復原失敗：${err instanceof Error ? err.message : String(err)}`);
-              }
-            },
+      toast.success('配方已刪除', {
+        action: {
+          label: '復原',
+          onClick: async () => {
+            try {
+              await recipeStore.restoreRecipe(recipe);
+              toast.info('配方已復原');
+            } catch (err) {
+              toast.error(`復原失敗：${err instanceof Error ? err.message : String(err)}`);
+            }
           },
-        });
-      } else {
-        toast.success('配方已刪除');
-      }
+        },
+      });
     } catch (err) {
       toast.error(`刪除失敗：${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
-  async function handleBurnSave(_taskId: string, recipeId: number | null, entry: BurnEntry) {
-    if (recipeId) {
-      const recipe = recipeStore.recipes.find((r) => r.id === recipeId);
-      if (recipe) {
-        await recipeStore.updateRecipe(recipeId, { burnLog: [...(recipe.burnLog ?? []), entry] });
-      }
+  async function handleBurnSave(taskId: string, recipeId: number | null, entry: BurnEntry) {
+    const recipe = recipeId != null ? recipeStore.recipes.find((r) => r.id === recipeId) : undefined;
+    if (recipe) {
+      await recipeStore.updateRecipe(recipe.id, { burnLog: [...(recipe.burnLog ?? []), entry] });
+      return;
     }
+    // 沒有關聯配方（或配方已被刪除）→ 把結果寫進工序備註，不讓紀錄消失
+    const task = taskStore.tasks.find((t) => t.id === taskId);
+    if (!task) return;
+    const summary =
+      `[${entry.date} 試燒] 前:${entry.front || '—'}｜中:${entry.mid || '—'}｜後:${entry.tail || '—'}` +
+      `｜煙:${entry.smoke === 'good' ? '優' : entry.smoke === 'bad' ? '差' : '可'}｜評分:${entry.rating}/5` +
+      (entry.notes ? `｜${entry.notes}` : '');
+    await taskStore.updateTask(taskId, { notes: task.notes ? `${task.notes}\n${summary}` : summary });
   }
 
   async function handleUpdateStock(name: string, qty: number, unit: string) {
     const mat = matStore.materials.find((m) => m.name === name);
-    if (mat) await matStore.updateMaterial(mat.id, { stock: { ...mat.stock, qty, unit } });
+    if (!mat) throw new Error(`材料庫找不到「${name}」，請先新增材料`);
+    await matStore.updateMaterial(mat.id, { stock: { ...mat.stock, qty, unit } });
   }
 
   async function handleAddRecipeNote(recipeId: number, note: string) {
     const recipe = recipeStore.recipes.find((r) => r.id === recipeId);
-    if (!recipe) return;
+    if (!recipe) throw new Error('找不到對應配方，備註未寫入');
     await recipeStore.updateRecipe(recipeId, {
       versions: recipe.versions.map((ver, i) =>
         i === 0 ? { ...ver, notes: ver.notes ? `${ver.notes}\n\n${note}` : note } : ver,
@@ -251,7 +288,11 @@ export default function App() {
     try {
       if (req.kind === 'replace') {
         const data = req.data;
-        await recipeStore.saveRecipes(data.recipes ?? [], data.nextId, data.catOrder ?? null);
+        const importedRecipes = data.recipes ?? [];
+        // nextId 校正：舊備份可能缺 nextId 或小於資料內最大 id，會導致之後撞號
+        const maxId = importedRecipes.reduce((mx, r) => Math.max(mx, r.id), 0);
+        const nextId = Math.max(data.nextId ?? 200, maxId + 1);
+        await recipeStore.saveRecipes(importedRecipes, nextId, data.catOrder ?? null);
         if (data.catImages) await recipeStore.saveCatImages(data.catImages);
         if (data.materials) await matStore.saveMaterials(data.materials);
         if (data.tasks) await taskStore.saveTasks(data.tasks);
@@ -261,8 +302,9 @@ export default function App() {
         const merged = mergePatch(
           { recipes: recipeStore.recipes, materials: matStore.materials, tasks: taskStore.tasks },
           { recipes: patch.recipes, materials: patch.materials, tasks: patch.tasks },
+          recipeStore.nextId,
         );
-        await recipeStore.saveRecipes(merged.recipes);
+        await recipeStore.saveRecipes(merged.recipes, merged.nextId);
         await matStore.saveMaterials(merged.materials);
         await taskStore.saveTasks(merged.tasks);
         toast.success(`合併完成：配方 +${merged.added.recipes}、材料 +${merged.added.materials}、工序 +${merged.added.tasks}`);
@@ -332,7 +374,10 @@ export default function App() {
             materials={materials}
             onBack={goRecipeBack}
             onEdit={(r) => goRecipeForm(r)}
-            onDelete={() => setPendingDeleteRecipe(recipe)}
+            onDelete={() => {
+              if (isMock) { toast.info(MOCK_BLOCK_MSG); return; }
+              setPendingDeleteRecipe(recipe);
+            }}
             onTaskTab={() => setTab('task')}
           />
         );
@@ -354,16 +399,16 @@ export default function App() {
     if (tab === 'task') {
       return (
         <TaskDashboard
-          tasks={isMock ? MOCK_TASKS : taskStore.tasks}
+          tasks={tasks}
           alertTasks={alertTasks}
           recipes={recipes}
           materialNames={matStore.materialNames}
           onAdd={async (data) => { await taskStore.addTask(data); }}
-          onUpdate={taskStore.updateTask}
-          onDelete={taskStore.deleteTask}
+          onUpdate={mockGuard(taskStore.updateTask)}
+          onDelete={mockGuard(taskStore.deleteTask)}
           onRestore={taskStore.restoreTask}
           onRecipeClick={(id) => { goRecipeDetail(id); }}
-          onBurnSave={handleBurnSave}
+          onBurnSave={mockGuard(handleBurnSave)}
         />
       );
     }
@@ -371,10 +416,10 @@ export default function App() {
     if (tab === 'material') {
       return (
         <MaterialList
-          materials={isMock ? MOCK_MATERIALS : matStore.materials}
+          materials={materials}
           onAdd={handleAddMaterial}
-          onUpdate={matStore.updateMaterial}
-          onDelete={matStore.deleteMaterial}
+          onUpdate={mockGuard(matStore.updateMaterial)}
+          onDelete={mockGuard(matStore.deleteMaterial)}
           onRestore={matStore.restoreMaterial}
         />
       );
@@ -383,10 +428,10 @@ export default function App() {
     if (tab === 'notes') {
       return (
         <NotesList
-          notes={isMock ? MOCK_NOTES : noteStore.notes}
+          notes={notes}
           onAdd={async (text) => { await noteStore.addNote(text); }}
-          onUpdate={noteStore.updateNote}
-          onDelete={noteStore.deleteNote}
+          onUpdate={mockGuard(noteStore.updateNote)}
+          onDelete={mockGuard(noteStore.deleteNote)}
           onRestore={noteStore.restoreNote}
         />
       );
@@ -402,11 +447,20 @@ export default function App() {
         catImagesMap={recipeStore.catImagesMap}
         catOrder={recipeStore.catOrder}
         onCatClick={goRecipeCat}
+        onRecipeClick={goRecipeDetail}
         onSaveCatImage={async (catId, base64) => {
-          await recipeStore.saveCatImages({ ...recipeStore.catImagesMap, [catId]: base64 });
+          try {
+            await recipeStore.saveCatImages({ ...recipeStore.catImagesMap, [catId]: base64 });
+          } catch (err) {
+            toast.error(err instanceof Error ? err.message : String(err));
+          }
         }}
         onSaveCatOrder={async (order: FragCat[]) => {
-          await recipeStore.saveRecipes(recipeStore.recipes, undefined, order);
+          try {
+            await recipeStore.saveCatOrder(order);
+          } catch (err) {
+            toast.error(err instanceof Error ? err.message : String(err));
+          }
         }}
       />
     );

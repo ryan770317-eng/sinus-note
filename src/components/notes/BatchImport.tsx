@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { Recipe, Material, Task, IngredientCat, FragCat, TaskType, TaskStatus } from '../../types';
 import { callClaude, BATCH_SYSTEM_PROMPT } from '../../services/claude';
 import { todayISO } from '../../utils/date';
@@ -12,7 +12,7 @@ interface Props {
   recipes: Recipe[];
   materials: Material[];
   nextId: number;
-  onAddMaterial: (mat: Omit<Material, 'id'>) => Promise<void>;
+  onAddMaterial: (mat: Omit<Material, 'id'>) => Promise<Material>;
   onUpdateStock: (name: string, qty: number, unit: string) => Promise<void>;
   onAddRecipe: (recipe: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   onAddRecipeNote: (recipeId: number, note: string) => Promise<void>;
@@ -66,6 +66,9 @@ export function BatchImport({
   const [input, setInput] = useState('');
   const [parsing, setParsing] = useState(false);
   const [actions, setActions] = useState<ActionState[]>([]);
+  const [writingAll, setWritingAll] = useState(false);
+  // 同一批連續寫入多個配方時，讓 num（V-x）不重複：nextId prop 在迴圈中不會更新
+  const recipeSeqRef = useRef(0);
 
   const existingMatNames = new Set(materials.map((m) => m.name));
 
@@ -106,6 +109,7 @@ export function BatchImport({
       }
 
       setActions(results);
+      recipeSeqRef.current = 0;
       if (skippedCount > 0) {
         toast.info(`已自動跳過 ${skippedCount} 筆已存在的材料`);
       } else {
@@ -118,7 +122,55 @@ export function BatchImport({
     }
   }
 
+  /** 實際寫入單一 action（confirmAction / confirmAll 共用） */
+  async function writeAction(a: BatchAction): Promise<void> {
+    if (a.type === 'material_add') {
+      await onAddMaterial({ cat: a.cat, name: a.name, origin: a.origin ?? '', supplier: a.supplier ?? '', note: a.note ?? '', stock: { qty: a.qty ?? 0, unit: a.unit ?? 'g', note: '' } });
+    } else if (a.type === 'stock_update') {
+      await onUpdateStock(a.name, a.qty, a.unit);
+    } else if (a.type === 'recipe_add') {
+      const tw = a.totalWeight || (a.ingredients ?? []).reduce((s, i) => s + i.amount, 0);
+      const seq = recipeSeqRef.current;
+      recipeSeqRef.current += 1;
+      await onAddRecipe({
+        num: versionTag(nextId + seq),
+        name: a.name,
+        fragCat: a.fragCat || 'improve',
+        status: 'pending',
+        rating: 0,
+        tags: [],
+        process: { tincture: false, ferment: false, wine: false, notes: '' },
+        timeline: { makeDate: todayISO(), dryDays: 5, agingStart: '', agingNotes: '' },
+        versions: [{ label: '主版', totalWeight: tw, ingredients: a.ingredients ?? [], notes: a.notes ?? '', comments: [] }],
+        burnLog: [],
+      });
+    } else if (a.type === 'recipe_note') {
+      let recipeId = a.recipeId;
+      if (!recipeId && a.recipeName) {
+        const found = recipes.find((r) => r.name.includes(a.recipeName));
+        recipeId = found?.id;
+      }
+      // 找不到目標配方時要明確失敗，不能顯示「已寫入」但其實什麼都沒寫
+      if (!recipeId) throw new Error(`找不到配方「${a.recipeName || '?'}」，備註未寫入`);
+      await onAddRecipeNote(recipeId, a.note);
+    } else if (a.type === 'task_add') {
+      await onAddTask({
+        title: a.title,
+        material: a.material ?? '',
+        recipeId: null,
+        taskType: a.taskType,
+        status: a.status ?? 'waiting',
+        startDate: todayISO(),
+        dueDate: a.dueDate ?? null,
+        completedDate: null,
+        notes: a.notes ?? '',
+        checkpoints: [],
+      });
+    }
+  }
+
   async function confirmAction(idx: number) {
+    if (writingAll) return; // 全部寫入進行中，避免同一筆被寫兩次
     const item = actions[idx];
     if (!item || item.status !== 'pending') return;
 
@@ -126,46 +178,7 @@ export function BatchImport({
     suppressSync(2000);
 
     try {
-      const a = item.action;
-      if (a.type === 'material_add') {
-        await onAddMaterial({ cat: a.cat, name: a.name, origin: a.origin ?? '', supplier: a.supplier ?? '', note: a.note ?? '', stock: { qty: a.qty ?? 0, unit: a.unit ?? 'g', note: '' } });
-      } else if (a.type === 'stock_update') {
-        await onUpdateStock(a.name, a.qty, a.unit);
-      } else if (a.type === 'recipe_add') {
-        const tw = a.totalWeight || (a.ingredients ?? []).reduce((s, i) => s + i.amount, 0);
-        await onAddRecipe({
-          num: versionTag(nextId),
-          name: a.name,
-          fragCat: a.fragCat || 'improve',
-          status: 'pending',
-          rating: 0,
-          tags: [],
-          process: { tincture: false, ferment: false, wine: false, notes: '' },
-          timeline: { makeDate: todayISO(), dryDays: 5, agingStart: '', agingNotes: '' },
-          versions: [{ label: '主版', totalWeight: tw, ingredients: a.ingredients ?? [], notes: a.notes ?? '', comments: [] }],
-          burnLog: [],
-        });
-      } else if (a.type === 'recipe_note') {
-        let recipeId = a.recipeId;
-        if (!recipeId && a.recipeName) {
-          const found = recipes.find((r) => r.name.includes(a.recipeName));
-          recipeId = found?.id;
-        }
-        if (recipeId) await onAddRecipeNote(recipeId, a.note);
-      } else if (a.type === 'task_add') {
-        await onAddTask({
-          title: a.title,
-          material: a.material ?? '',
-          recipeId: null,
-          taskType: a.taskType,
-          status: a.status ?? 'waiting',
-          startDate: todayISO(),
-          dueDate: a.dueDate ?? null,
-          completedDate: null,
-          notes: a.notes ?? '',
-          checkpoints: [],
-        });
-      }
+      await writeAction(item.action);
       setActions((prev) => prev.map((aa, i) => i === idx ? { ...aa, status: 'done' } : aa));
       toast.success('寫入完成');
     } catch (err) {
@@ -174,9 +187,38 @@ export function BatchImport({
     }
   }
 
+  /** 一鍵寫入全部 pending（journal 除外），逐筆進行、失敗不中斷 */
+  async function confirmAll() {
+    if (writingAll) return;
+    const snapshot = actions;
+    setWritingAll(true);
+    suppressSync(5000);
+    let ok = 0;
+    let fail = 0;
+    for (let i = 0; i < snapshot.length; i++) {
+      const item = snapshot[i];
+      if (item.status !== 'pending' || item.action.type === 'journal') continue;
+      setActions((prev) => prev.map((a, idx) => idx === i ? { ...a, status: 'writing' } : a));
+      try {
+        await writeAction(item.action);
+        ok++;
+        setActions((prev) => prev.map((a, idx) => idx === i ? { ...a, status: 'done' } : a));
+      } catch (err) {
+        fail++;
+        setActions((prev) => prev.map((a, idx) => idx === i ? { ...a, status: 'pending' } : a));
+        toast.error(`第 ${i + 1} 筆寫入失敗：${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
+    setWritingAll(false);
+    if (fail === 0 && ok > 0) toast.success(`全部寫入完成，共 ${ok} 筆`);
+    else if (ok > 0) toast.info(`寫入完成：成功 ${ok} 筆、失敗 ${fail} 筆（失敗的保留為待確認）`);
+  }
+
   function skipAction(idx: number) {
     setActions((prev) => prev.map((a, i) => i === idx ? { ...a, status: 'skipped' } : a));
   }
+
+  const pendingCount = actions.filter((a) => a.status === 'pending' && a.action.type !== 'journal').length;
 
   return (
     <div className="mt-4">
@@ -216,6 +258,18 @@ export function BatchImport({
 
           {actions.length > 0 && (
             <div className="space-y-3">
+              {pendingCount > 1 && (
+                <div className="flex justify-end">
+                  <button
+                    onClick={confirmAll}
+                    disabled={writingAll}
+                    className="btn-primary text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label={`寫入全部 ${pendingCount} 筆待確認動作`}
+                  >
+                    {writingAll ? '寫入中…' : `全部寫入（${pendingCount} 筆）`}
+                  </button>
+                </div>
+              )}
               {actions.map((item, idx) => (
                 <div key={item.id} className="bg-card border border-border p-3">
                   <div className="flex items-start justify-between gap-2">

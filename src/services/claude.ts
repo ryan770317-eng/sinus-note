@@ -3,7 +3,7 @@ const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
 
 export async function callClaude(systemPrompt: string, userMessage: string): Promise<string> {
   const apiKey = localStorage.getItem('sinus_anthropic_key');
-  if (!apiKey) throw new Error('未設定 API key');
+  if (!apiKey) throw new Error('未設定 API key — 請點右下「設定」輸入 Anthropic API key');
 
   const res = await fetch(ANTHROPIC_API, {
     method: 'POST',
@@ -26,8 +26,17 @@ export async function callClaude(systemPrompt: string, userMessage: string): Pro
     throw new Error((err as { error?: { message?: string } }).error?.message ?? `API error ${res.status}`);
   }
 
-  const data = (await res.json()) as { content: Array<{ text: string }> };
-  return data.content[0].text;
+  const data = (await res.json()) as {
+    content: Array<{ type?: string; text?: string }>;
+    stop_reason?: string;
+  };
+  // content 可能為空（拒答等邊角情況）— 不做保護會直接 TypeError 白畫面
+  const text = data.content?.find((b) => typeof b.text === 'string')?.text;
+  if (!text) throw new Error('AI 回應為空，請再試一次');
+  if (data.stop_reason === 'max_tokens') {
+    throw new Error('AI 回應過長被截斷 — 請把內容分段、分次貼入');
+  }
+  return text;
 }
 
 export const NOTE_ANALYSIS_PROMPT = `你是 SINUS NOTE 的香方分析助手。用戶會分享一則筆記，你要用繁體中文簡短分析：

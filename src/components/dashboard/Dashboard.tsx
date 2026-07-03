@@ -1,6 +1,5 @@
 import type { Recipe, Material, Task, Note } from '../../types';
-import { TASK_TYPES } from '../../utils/constants';
-import { daysUntil } from '../../utils/date';
+import { isAlertTask } from '../../hooks/supabase/useTasks';
 import { BatchImport } from '../notes/BatchImport';
 import { StatsRow } from './StatsRow';
 import { AlertTasksSection } from './AlertTasksSection';
@@ -19,7 +18,7 @@ interface Props {
   onTabChange: (tab: 'recipe' | 'task' | 'material' | 'notes') => void;
   onRecipeClick: (id: number) => void;
   onTaskClick: () => void;
-  onAddMaterial: (mat: Omit<Material, 'id'>) => Promise<void>;
+  onAddMaterial: (mat: Omit<Material, 'id'>) => Promise<Material>;
   onUpdateStock: (name: string, qty: number, unit: string) => Promise<void>;
   onAddRecipe: (recipe: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   onAddRecipeNote: (recipeId: number, note: string) => Promise<void>;
@@ -46,13 +45,7 @@ export function Dashboard({
   const today = new Date().toLocaleDateString('zh-TW', { month: 'long', day: 'numeric', weekday: 'long' });
 
   // ── Alerts: overdue or due ≤ 3 days ─────────────────────────────
-  const alertTasks = tasks.filter((t) => {
-    if (t.status === 'done') return false;
-    const tt = TASK_TYPES[t.taskType] ?? TASK_TYPES['other'];
-    if (tt.defaultDays === 0) return true;
-    if (!t.dueDate) return false;
-    return daysUntil(t.dueDate) <= 3;
-  });
+  const alertTasks = tasks.filter(isAlertTask);
 
   // ── Active tasks (not done) ──────────────────────────────────────
   const activeTasks = tasks
