@@ -5,6 +5,7 @@ import { speciesGroupLabel } from '../../utils/species';
 import { todayISO } from '../../utils/date';
 import { versionTag } from '../../utils/id';
 import { useToast } from '../shared/Toast';
+import { ConfirmDialog } from '../shared/ConfirmDialog';
 
 interface Props {
   initial?: Recipe;
@@ -88,6 +89,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
   const [activeIngIdx, setActiveIngIdx] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [nameError, setNameError] = useState(false);
+  const [confirmDeleteVersion, setConfirmDeleteVersion] = useState(false);
   const blurTimerRef = useRef<number | null>(null);
 
   useEffect(() => () => {
@@ -146,6 +148,14 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
   function addVersion() {
     setF('versions', [...form.versions, { ...emptyVersion(), label: `版本 ${form.versions.length + 1}` }]);
     setVIdx(form.versions.length);
+  }
+
+  function deleteCurrentVersion() {
+    if (form.versions.length <= 1) return;
+    const next = form.versions.filter((_, i) => i !== vIdx);
+    setF('versions', next);
+    setVIdx(Math.min(vIdx, next.length - 1));
+    setConfirmDeleteVersion(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -268,6 +278,16 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
           <div className="flex items-center gap-3 mb-3">
             <p className="section-label">版本</p>
             <button type="button" onClick={addVersion} className="btn text-xs">+ 新版本</button>
+            {form.versions.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setConfirmDeleteVersion(true)}
+                className="btn text-xs text-error border-error"
+                aria-label={`刪除版本「${version.label}」`}
+              >
+                刪除此版本
+              </button>
+            )}
           </div>
 
           {form.versions.length > 1 && (
@@ -408,6 +428,16 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
           </button>
         </div>
       </form>
+
+      {confirmDeleteVersion && (
+        <ConfirmDialog
+          message={`確定要刪除版本「${version.label}」？\n（儲存後才會生效，取消編輯可反悔）`}
+          confirmLabel="刪除版本"
+          tone="danger"
+          onConfirm={deleteCurrentVersion}
+          onCancel={() => setConfirmDeleteVersion(false)}
+        />
+      )}
     </div>
   );
 }

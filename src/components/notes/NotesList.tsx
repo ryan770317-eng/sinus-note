@@ -114,7 +114,7 @@ export function NotesList({ notes, onAdd, onUpdate, onDelete, onRestore }: Props
             <div key={note.id} className="bg-card border border-border p-4">
               {/* Timestamp */}
               <p className="type-meta mb-2">
-                <span className="font-normal text-ink note-card-date">{date}</span>
+                <span className="font-normal text-ink">{date}</span>
                 {' '}{time}
               </p>
 

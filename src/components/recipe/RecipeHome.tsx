@@ -1,7 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import type { Recipe, FragCat } from '../../types';
 import { FRAG_CATS, FRAG_CAT_COLORS } from '../../utils/constants';
+import { fileToResizedDataUrl } from '../../utils/image';
 import { SearchField } from '../shared/SearchField';
+import { useToast } from '../shared/Toast';
 
 interface Props {
   recipes: Recipe[];
@@ -39,6 +41,7 @@ export function RecipeHome({
   onSaveCatImage,
   onSaveCatOrder,
 }: Props) {
+  const toast = useToast();
   const [search, setSearch] = useState('');
   const [dragging, setDragging] = useState<FragCat | null>(null);
   const [order, setOrder] = useState<FragCat[]>(catOrder ?? DEFAULT_ORDER);
@@ -93,14 +96,16 @@ export function RecipeHome({
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file || !uploadCat) return;
-    const reader = new FileReader();
-    reader.onload = async (ev) => {
-      const base64 = ev.target?.result as string;
-      await onSaveCatImage(uploadCat, base64);
-    };
-    reader.readAsDataURL(file);
     e.target.value = '';
+    if (!file || !uploadCat) return;
+    try {
+      // 縮圖後再存 — 原圖 base64 會塞爆 user_config，拖垮每次設定同步
+      const base64 = await fileToResizedDataUrl(file);
+      await onSaveCatImage(uploadCat, base64);
+      toast.success('封面已更新');
+    } catch (err) {
+      toast.error(`封面上傳失敗：${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 
   return (
