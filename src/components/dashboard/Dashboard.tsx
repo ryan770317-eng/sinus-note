@@ -84,7 +84,7 @@ export function Dashboard({
           className="mb-5 px-3 py-2 border border-dashed border-ink-4 type-micro"
           role="status"
         >
-          目前顯示示範資料（假），登入後將自動載入您的真實資料
+          目前顯示示範資料（僅供瀏覽）— 新增第一筆自己的配方、材料、工序或筆記後即會切換
         </div>
       )}
 
@@ -104,8 +104,10 @@ export function Dashboard({
       {/* ── Batch import ──────────────────────────────────────── */}
       <div className="mb-6">
         <BatchImport
-          recipes={recipes}
-          materials={materials}
+          // 批次匯入是「寫入真資料」的入口：示範模式下比對用的清單必須是空的，
+          // 否則同名材料會被誤判為已存在而跳過
+          recipes={isMock ? [] : recipes}
+          materials={isMock ? [] : materials}
           nextId={nextId}
           onAddMaterial={onAddMaterial}
           onUpdateStock={onUpdateStock}

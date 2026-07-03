@@ -137,9 +137,10 @@ export default function App() {
 
   // 示範資料只能看不能改；新增操作維持可用（寫入第一筆真資料後自動退出示範模式）
   const MOCK_BLOCK_MSG = '目前顯示的是示範資料，無法編輯或刪除 — 新增第一筆自己的資料後就會切換';
+  // 用 throw 而非靜默 return：呼叫端（刪除確認、表單）才不會接著顯示「已完成」的成功回饋
   function mockGuard<A extends unknown[]>(fn: (...args: A) => void | Promise<void>) {
     return async (...args: A) => {
-      if (isMock) { toast.info(MOCK_BLOCK_MSG); return; }
+      if (isMock) throw new Error(MOCK_BLOCK_MSG);
       await fn(...args);
     };
   }
