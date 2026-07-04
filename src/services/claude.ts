@@ -66,7 +66,7 @@ export const BATCH_SYSTEM_PROMPT = `你是 SINUS NOTE 的資料解析助手。�
    - ingredients 的 cat 對照：基底木/木粉 → "base"、花果藥草/草本 → "herb"、樹脂 → "resin"、酊劑 → "tincture"、發酵 → "ferment"、酒 → "wine"、黏粉 → "binder"
    - notes：含水率、線徑、香氣說明等補充資訊
 
-4. recipe_note — 為現有配方追加備注
+4. recipe_note — 為現有配方追加備註
    { type: "recipe_note", recipeId, recipeName, note }
 
 5. task_add — 新增工序追蹤

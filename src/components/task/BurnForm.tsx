@@ -84,7 +84,7 @@ export function BurnForm({ onSave, onCancel }: Props) {
           />
         </div>
         <div>
-          <label className="section-label block mb-1" htmlFor="burn-notes">備注</label>
+          <label className="section-label block mb-1" htmlFor="burn-notes">備註</label>
           <textarea id="burn-notes" value={form.notes} onChange={(e) => set('notes', e.target.value)} className="input-field h-20 resize-none" />
         </div>
       </div>

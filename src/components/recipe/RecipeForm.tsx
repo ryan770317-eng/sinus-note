@@ -253,7 +253,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
               <input type="date" value={form.timeline.agingStart} onChange={(e) => setF('timeline', { ...form.timeline, agingStart: e.target.value })} className="input-field" />
             </div>
             <div>
-              <label className="section-label block mb-1">陳化備注</label>
+              <label className="section-label block mb-1">陳化備註</label>
               <input value={form.timeline.agingNotes} onChange={(e) => setF('timeline', { ...form.timeline, agingNotes: e.target.value })} className="input-field" />
             </div>
           </div>
@@ -270,7 +270,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
               </label>
             ))}
           </div>
-          <textarea value={form.process.notes} onChange={(e) => setF('process', { ...form.process, notes: e.target.value })} className="input-field h-16 resize-none" placeholder="工序備注" />
+          <textarea value={form.process.notes} onChange={(e) => setF('process', { ...form.process, notes: e.target.value })} className="input-field h-16 resize-none" placeholder="工序備註" />
         </div>
 
         {/* Versions */}
@@ -405,7 +405,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
           <button type="button" onClick={addIngredient} className="btn text-xs mb-4">+ 新增材料</button>
 
           <div>
-            <label className="section-label block mb-1">版本備注</label>
+            <label className="section-label block mb-1">版本備註</label>
             <textarea value={version.notes} onChange={(e) => setVersion({ notes: e.target.value })} className="input-field h-20 resize-none" />
           </div>
         </div>

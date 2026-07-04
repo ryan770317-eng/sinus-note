@@ -429,7 +429,7 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
 
           {/* note */}
           <div>
-            <label className="section-label block mb-1">特性備注</label>
+            <label className="section-label block mb-1">特性備註</label>
             <textarea value={form.note} onChange={(e) => setF('note', e.target.value)} className="input-field h-16 resize-none" />
           </div>
 
@@ -504,7 +504,7 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
               <input value={form.stock.unit} onChange={(e) => setF('stock', { ...form.stock, unit: e.target.value })} className="input-field" />
             </div>
             <div>
-              <label className="section-label block mb-1">庫存備注</label>
+              <label className="section-label block mb-1">庫存備註</label>
               <input value={form.stock.note} onChange={(e) => setF('stock', { ...form.stock, note: e.target.value })} className="input-field" />
             </div>
           </div>
@@ -873,7 +873,7 @@ function MaterialCard({
           {/* note */}
           {mat.note && (
             <div>
-              <span className="type-micro tracking-label">特性備注</span>
+              <span className="type-micro tracking-label">特性備註</span>
               <p className="type-meta text-ink mt-0.5">{mat.note}</p>
             </div>
           )}

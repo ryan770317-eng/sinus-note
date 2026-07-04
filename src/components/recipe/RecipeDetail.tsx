@@ -325,7 +325,7 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
             )}
             {recipe.timeline.agingNotes && (
               <div className="col-span-2">
-                <p className="text-xs text-ink-3">陳化備注</p>
+                <p className="text-xs text-ink-3">陳化備註</p>
                 <p className="font-light text-ink">{recipe.timeline.agingNotes}</p>
               </div>
             )}

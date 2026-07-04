@@ -18,7 +18,7 @@ export const ACTION_LABELS: Record<string, string> = {
   material_add: '新增材料',
   stock_update: '更新庫存',
   recipe_add:   '新增配方',
-  recipe_note:  '追加配方備注',
+  recipe_note:  '追加配方備註',
   task_add:     '新增工序',
   journal:      '日誌（不寫入）',
 };
