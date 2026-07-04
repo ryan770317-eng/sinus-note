@@ -2,6 +2,7 @@ import type { Recipe, Material, Task, Note } from '../../types';
 import { isAlertTask } from '../../hooks/supabase/useTasks';
 import { BatchImport } from '../notes/BatchImport';
 import { GlobalSearch } from './GlobalSearch';
+import { BackupReminder } from './BackupReminder';
 import { StatsRow } from './StatsRow';
 import { AlertTasksSection } from './AlertTasksSection';
 import { ActiveTasksSection } from './ActiveTasksSection';
@@ -26,6 +27,7 @@ interface Props {
   onAddRecipe: (recipe: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   onAddRecipeNote: (recipeId: number, note: string) => Promise<void>;
   onAddTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  onExport: () => void;
 }
 
 export function Dashboard({
@@ -44,6 +46,7 @@ export function Dashboard({
   onAddRecipe,
   onAddRecipeNote,
   onAddTask,
+  onExport,
 }: Props) {
   const today = new Date().toLocaleDateString('zh-TW', { month: 'long', day: 'numeric', weekday: 'long' });
 
@@ -100,6 +103,9 @@ export function Dashboard({
           目前顯示示範資料（僅供瀏覽）— 新增第一筆自己的配方、材料、工序或筆記後即會切換
         </div>
       )}
+
+      {/* Backup reminder — mock 模式不顯示 */}
+      {!isMock && <BackupReminder onExport={onExport} />}
 
       <StatsRow recipes={recipes} tasks={tasks} />
 

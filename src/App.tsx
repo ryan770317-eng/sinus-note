@@ -28,6 +28,7 @@ import { useToast } from './components/shared/useToast';
 import { OfflineBanner } from './components/shared/OfflineBanner';
 
 import { exportBackup, readJsonFile, mergePatch, type BackupData } from './utils/export';
+import { BACKUP_KEY } from './utils/backup';
 import { MOCK_RECIPES, MOCK_TASKS, MOCK_MATERIALS, MOCK_NOTES } from './utils/mockData';
 import type { Recipe, FragCat, BurnEntry, Material } from './types';
 
@@ -260,6 +261,7 @@ export default function App() {
       materials: matStore.materials,
       tasks: taskStore.tasks,
     });
+    localStorage.setItem(BACKUP_KEY, new Date().toISOString());
     setMenuOpen(false);
   }
 
@@ -352,6 +354,7 @@ export default function App() {
           onAddRecipe={handleAddRecipe}
           onAddRecipeNote={handleAddRecipeNote}
           onAddTask={async (data) => { await taskStore.addTask(data); }}
+          onExport={handleExport}
         />
       );
     }
