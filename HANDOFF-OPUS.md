@@ -76,7 +76,7 @@
 
 ---
 
-## 項目 5：依賴小版本升級（低優先，可跳過）
+## 項目 5：依賴小版本升級（低優先，可跳過）✅
 
 **目標與動機**：依賴健康檢查。只做 patch/minor，**不做 major**。
 
@@ -89,6 +89,19 @@
 
 **禁區**：任何 major 升級；`typescript` 版本不動（`~5.7.2` 是 tsc -b 相容錨點）。
 
+**升級後 `npm outdated`（剩餘皆為清單外或僅有 major，依規不升）**：
+```
+Package               Current   Wanted   Latest
+@types/react          19.2.14  19.2.17  19.2.17   （清單外）
+@vitejs/plugin-react    4.7.0    4.7.0    6.0.3    （僅 major）
+autoprefixer          10.4.27   10.5.2   10.5.2    （清單外）
+postcss                 8.5.8   8.5.16   8.5.16    （清單外）
+tailwindcss            3.4.19   3.4.19    4.3.2    （僅 major）
+typescript              5.7.3    5.7.3    6.0.3    （禁區，不動）
+vite                    6.4.1    6.4.3    8.1.3    （清單外，且不升 major）
+vite-plugin-pwa        0.21.2   0.21.2    1.3.0    （僅 major，Wanted=Current）
+```
+
 ---
 
 ## 完成回報區
@@ -97,3 +110,4 @@
 - 項目 2 ✅：`grep -rn "suppressSync" src/components/` = 0 筆（hooks 內部保留）；build 綠、test 23 passed、lint 0 error。commit c76574e。
 - 項目 3 ✅：MaterialCard 根 div 加 role="button"/tabIndex=0/onKeyDown(Enter,Space,preventDefault)/aria-expanded，▲▼ 加 aria-hidden；build 綠、test 23 passed、lint 0 error。鍵盤行為經程式碼審視符合 TaskCard 範本，未於瀏覽器實測。commit 113de41。
 - 項目 4 ✅：採檔案拆分方案（非 eslint 豁免）。TAB_ICONS→nav/tabIcons.ts；Toast 拆為 shared/ToastContext.ts（context+型別）與 shared/useToast.ts（hook），Toast.tsx 僅剩 ToastProvider 元件；11 個 useToast import 路徑更新。`npm run lint` = 0 error 0 warning；build 綠、test 23 passed。commit 426c79f。備註：context 依 react-refresh 規則移至獨立檔（規則明示 "Move your React context(s) to a separate file"），非留在 Toast.tsx。
+- 項目 5 ✅：升 @supabase/supabase-js 2.101.1→2.110.0、react/react-dom 19.2.4→19.2.7、zod 4.3.6→4.4.3（各自逐一 build+test 驗證全綠）。vite-plugin-pwa 無非 major 更新（0.21.2 已為 Wanted）。全升完 build 綠、lint 0/0、test 23 passed。commit fa72a0e（升級）+ 本 commit（勾銷）。
