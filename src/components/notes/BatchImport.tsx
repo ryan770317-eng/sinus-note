@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import type { Recipe, Material, Task, IngredientCat, FragCat, TaskType, TaskStatus } from '../../types';
 import { callClaude, BATCH_SYSTEM_PROMPT } from '../../services/claude';
 import { todayISO } from '../../utils/date';
-import { useToast } from '../shared/Toast';
+import { useToast } from '../shared/useToast';
 import { versionTag, uid } from '../../utils/id';
 import type { BatchAction, ActionState } from './batch/types';
 import { ACTION_LABELS } from './batch/types';

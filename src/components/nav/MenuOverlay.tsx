@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useToast } from '../shared/Toast';
+import { useToast } from '../shared/useToast';
 
 interface Props {
   onClose: () => void;

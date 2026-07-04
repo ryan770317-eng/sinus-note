@@ -24,7 +24,7 @@ import { TaskDashboard } from './components/task/TaskDashboard';
 import { MaterialList } from './components/material/MaterialList';
 import { NotesList } from './components/notes/NotesList';
 import { ConfirmDialog } from './components/shared/ConfirmDialog';
-import { useToast } from './components/shared/Toast';
+import { useToast } from './components/shared/useToast';
 import { OfflineBanner } from './components/shared/OfflineBanner';
 
 import { exportBackup, readJsonFile, mergePatch, type BackupData } from './utils/export';

@@ -4,7 +4,7 @@ import { FRAG_CATS, ING_CATS, RECIPE_STATUS } from '../../utils/constants';
 import { speciesGroupLabel } from '../../utils/species';
 import { todayISO } from '../../utils/date';
 import { versionTag } from '../../utils/id';
-import { useToast } from '../shared/Toast';
+import { useToast } from '../shared/useToast';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 
 interface Props {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { Task, TaskType, TaskStatus, Recipe } from '../../types';
 import { TASK_TYPES, TASK_STATUS } from '../../utils/constants';
 import { todayISO, addDays } from '../../utils/date';
-import { useToast } from '../shared/Toast';
+import { useToast } from '../shared/useToast';
 
 interface Props {
   initial?: Task;

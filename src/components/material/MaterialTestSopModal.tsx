@@ -13,7 +13,7 @@
 
 import { useState } from 'react';
 import { Modal } from '../shared/Modal';
-import { useToast } from '../shared/Toast';
+import { useToast } from '../shared/useToast';
 import type { Material } from '../../types';
 import { todayISO } from '../../utils/date';
 

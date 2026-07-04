@@ -1,5 +1,6 @@
 import type { JSX } from 'react';
-import { TAB_ICONS, IconSettings } from './NavIcons';
+import { IconSettings } from './NavIcons';
+import { TAB_ICONS } from './tabIcons';
 
 export type TabId = 'overview' | 'recipe' | 'task' | 'material' | 'notes';
 

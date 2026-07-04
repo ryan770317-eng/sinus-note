@@ -4,7 +4,7 @@ import { formatNoteDate } from '../../utils/date';
 import { callClaude, NOTE_ANALYSIS_PROMPT } from '../../services/claude';
 import { VoiceInput } from './VoiceInput';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
-import { useToast } from '../shared/Toast';
+import { useToast } from '../shared/useToast';
 
 const COLLAPSE_THRESHOLD = 120; // chars
 

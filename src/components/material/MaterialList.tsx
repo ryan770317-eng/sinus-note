@@ -4,7 +4,7 @@ import { ING_CATS, ING_CAT_COLORS } from '../../utils/constants';
 import { SPECIES_GROUP_OPTIONS, speciesGroupLabel } from '../../utils/species';
 import { supplierShort } from '../../utils/format';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
-import { useToast } from '../shared/Toast';
+import { useToast } from '../shared/useToast';
 import { SearchField } from '../shared/SearchField';
 import { MaterialTestSopModal } from './MaterialTestSopModal';
 

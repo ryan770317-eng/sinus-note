@@ -3,7 +3,7 @@ import type { Recipe, FragCat } from '../../types';
 import { FRAG_CATS, FRAG_CAT_COLORS } from '../../utils/constants';
 import { fileToResizedDataUrl } from '../../utils/image';
 import { SearchField } from '../shared/SearchField';
-import { useToast } from '../shared/Toast';
+import { useToast } from '../shared/useToast';
 
 interface Props {
   recipes: Recipe[];

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Task, Recipe, BurnEntry } from '../../types';
 import type { TaskStatus } from '../../types';
 import { TASK_STATUS, TASK_STATUS_ORDER } from '../../utils/constants';
-import { useToast } from '../shared/Toast';
+import { useToast } from '../shared/useToast';
 import { TaskAlert } from './TaskAlert';
 import { TaskCard } from './TaskCard';
 import { TaskForm } from './TaskForm';

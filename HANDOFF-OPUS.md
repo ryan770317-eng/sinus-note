@@ -48,7 +48,7 @@
 
 ---
 
-## 項目 3：MaterialCard 鍵盤可及性（照 TaskCard 範本）
+## 項目 3：MaterialCard 鍵盤可及性（照 TaskCard 範本）✅
 
 **目標與動機**：材料卡片整張是 `<div onClick>` 展開，鍵盤使用者無法操作。TaskCard 已經做對了，照抄即可。
 
@@ -95,3 +95,4 @@
 
 - 項目 1 ✅：`grep -rn "備注" src/` = 0 筆；build 綠、test 23 passed、lint 0 error（2 warning 為項目 4 目標）。commit 3eb44e6。
 - 項目 2 ✅：`grep -rn "suppressSync" src/components/` = 0 筆（hooks 內部保留）；build 綠、test 23 passed、lint 0 error。commit c76574e。
+- 項目 3 ✅：MaterialCard 根 div 加 role="button"/tabIndex=0/onKeyDown(Enter,Space,preventDefault)/aria-expanded，▲▼ 加 aria-hidden；build 綠、test 23 passed、lint 0 error。鍵盤行為經程式碼審視符合 TaskCard 範本，未於瀏覽器實測。commit 113de41。
