@@ -33,7 +33,7 @@
 
 ---
 
-## 項目 2：移除 BatchImport 的冗餘 `suppressSync` prop
+## 項目 2：移除 BatchImport 的冗餘 `suppressSync` prop ✅
 
 **目標與動機**：四個 store hook 的每個寫入函式內部都已自行呼叫 `suppressSync()`。`BatchImport` 收到的 `suppressSync` prop 是從 `noteStore` 傳來的（suppress 錯 store），實際上完全冗餘且誤導後續維護者。
 
@@ -94,3 +94,4 @@
 ## 完成回報區
 
 - 項目 1 ✅：`grep -rn "備注" src/` = 0 筆；build 綠、test 23 passed、lint 0 error（2 warning 為項目 4 目標）。commit 3eb44e6。
+- 項目 2 ✅：`grep -rn "suppressSync" src/components/` = 0 筆（hooks 內部保留）；build 綠、test 23 passed、lint 0 error。commit c76574e。

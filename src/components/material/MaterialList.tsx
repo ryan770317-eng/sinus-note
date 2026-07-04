@@ -775,6 +775,10 @@ function MaterialCard({
       className="bg-card border border-border cursor-pointer transition-colors hover:border-ink-3"
       style={{ borderLeftWidth: 3, borderLeftColor: ING_CAT_COLORS[mat.cat] }}
       onClick={onExpand}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onExpand(); } }}
+      role="button"
+      tabIndex={0}
+      aria-expanded={isExpanded}
     >
       {/* Header */}
       <div className="p-4">
@@ -833,7 +837,7 @@ function MaterialCard({
               <p className="type-micro text-ink-3 mt-0.5 truncate" title={mat.name}>{mat.name}</p>
             )}
           </div>
-          <span className="text-ink-3 text-xs shrink-0">{isExpanded ? '▲' : '▼'}</span>
+          <span aria-hidden="true" className="text-ink-3 text-xs shrink-0">{isExpanded ? '▲' : '▼'}</span>
         </div>
       </div>
 
