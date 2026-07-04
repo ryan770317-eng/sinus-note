@@ -3,6 +3,7 @@ import type { Material, IngredientCat, MaterialTestStatus } from '../../types';
 import { ING_CATS, ING_CAT_COLORS } from '../../utils/constants';
 import { SPECIES_GROUP_OPTIONS, speciesGroupLabel } from '../../utils/species';
 import { supplierShort } from '../../utils/format';
+import { composeMaterialName, splitMaterialName } from '../../utils/materialName';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { useToast } from '../shared/useToast';
 import { SearchField } from '../shared/SearchField';
@@ -38,8 +39,6 @@ const emptyForm = (): Omit<Material, 'id'> => ({
   hardCeiling: undefined,
   testStatus: 'pending',
 });
-
-const THREE_SEG_RE = /^[^｜]+｜[^｜]+｜[^｜]+$/;
 
 // ── Legacy synonym fallback（v2.1 前的相容性）─────────────────────
 const SYNONYM_TABLE: [string, ...string[]][] = [
@@ -101,6 +100,7 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<Omit<Material, 'id'>>(emptyForm());
+  const [productName, setProductName] = useState('');     // 品名（三段式名稱由品名＋供應商＋品級/產地自動組合）
   const [aliasesText, setAliasesText] = useState('');     // 表單裡 aliases 用換行字串編輯
   const [warningsText, setWarningsText] = useState('');   // v3Warnings 同
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -190,6 +190,7 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
       // 帶回原值，否則儲存時會把首次入庫時間洗成 null
       addedAt: mat.addedAt,
     });
+    setProductName(splitMaterialName(mat.name).product);
     setAliasesText((mat.aliases ?? []).join('\n'));
     setWarningsText((mat.v3Warnings ?? []).join('\n'));
     setNameError('');
@@ -199,6 +200,7 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
   function startAdd() {
     setEditId(null);
     setForm({ ...emptyForm(), cat: activeCat });
+    setProductName('');
     setAliasesText('');
     setWarningsText('');
     setNameError('');
@@ -213,27 +215,29 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
     e.preventDefault();
     if (submitting) return;
 
-    // 驗證：name 不空
-    if (!form.name.trim()) {
-      setNameError('請填寫名稱');
-      toast.error('請填寫材料名稱');
+    // 驗證：品名不空
+    if (!productName.trim()) {
+      setNameError('請填寫品名');
+      toast.error('請填寫品名');
       return;
     }
 
-    // 驗證：name 三段式（編輯舊材料時，若原本就不合規則允許保留；新增強制）
-    const isThreeSeg = THREE_SEG_RE.test(form.name);
-    if (!editId && !isThreeSeg) {
-      setNameError('需要三段式格式：[品名]｜[供應商]｜[產地或品級]');
-      toast.error('名稱需符合三段式格式');
-      return;
-    }
+    // 三段式名稱自動組合（第三段：grade 優先，沒 grade 用 origin — 定案）
+    const composedName = composeMaterialName(productName, form.supplier, form.grade?.trim() || form.origin);
 
     // 整理 aliases / v3Warnings 從 textarea 拆行
     const aliases = aliasesText.split('\n').map((s) => s.trim()).filter(Boolean);
     const v3Warnings = warningsText.split('\n').map((s) => s.trim()).filter(Boolean);
 
+    // 編輯改名保護：舊 name 加進 aliases，否則配方鬼影靠 name/aliases 比對回連會斷鏈
+    // （見 RecipeDetail.resolveMaterial）
+    if (editId && composedName !== form.name && form.name.trim() && !aliases.includes(form.name)) {
+      aliases.push(form.name);
+    }
+
     const payload: Omit<Material, 'id'> = {
       ...form,
+      name: composedName,
       // 把空字串轉 undefined（清空時不要寫入空字串）
       displayShort: form.displayShort?.trim() || undefined,
       species:      form.species?.trim() || undefined,
@@ -353,15 +357,15 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
               </select>
             </div>
             <div>
-              <label htmlFor="mat-name" className="section-label block mb-1">名稱（三段式 *）</label>
+              <label htmlFor="mat-name" className="section-label block mb-1">品名 *</label>
               <input
                 id="mat-name"
                 required
                 aria-required="true"
                 aria-invalid={!!nameError}
-                value={form.name}
-                onChange={(e) => { setF('name', e.target.value); if (nameError) setNameError(''); }}
-                placeholder="[品名]｜[供應商]｜[產地或品級]"
+                value={productName}
+                onChange={(e) => { setProductName(e.target.value); if (nameError) setNameError(''); }}
+                placeholder="例：乳香"
                 className={`input-field ${nameError ? 'border-error' : ''}`}
               />
               {nameError && <p className="text-xs text-error font-light mt-1">{nameError}</p>}
@@ -414,7 +418,17 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
             </div>
             <div>
               <label className="section-label block mb-1">供應商</label>
-              <input value={form.supplier} onChange={(e) => setF('supplier', e.target.value)} className="input-field" />
+              <input
+                value={form.supplier}
+                onChange={(e) => setF('supplier', e.target.value)}
+                list="supplier-options"
+                className="input-field"
+              />
+              <datalist id="supplier-options">
+                {Array.from(new Set(materials.map((m) => m.supplier).filter(Boolean))).map((s) => (
+                  <option key={s} value={s} />
+                ))}
+              </datalist>
             </div>
             <div>
               <label className="section-label block mb-1">品級 grade</label>
