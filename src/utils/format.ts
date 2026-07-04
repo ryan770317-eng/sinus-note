@@ -16,3 +16,14 @@ export function supplierShort(supplier: string): string {
   if (!supplier) return '';
   return supplier.length <= 4 ? supplier : supplier.slice(0, 2);
 }
+
+/** 顯示用量：四捨五入到小數 2 位並去尾零 */
+export function fmtAmount(n: number): string {
+  return String(Math.round(n * 100) / 100);
+}
+
+/** 換算倍率；totalWeight<=0 或 target 無效時回 1（= 不換算） */
+export function scaleFactor(totalWeight: number, target: number | null): number {
+  if (!target || target <= 0 || !totalWeight || totalWeight <= 0) return 1;
+  return target / totalWeight;
+}

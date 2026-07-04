@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Recipe, Task, Ingredient, IngredientCat, Material } from '../../types';
 import { FRAG_CATS, ING_CATS, ING_CAT_COLORS, RECIPE_STATUS } from '../../utils/constants';
 import { speciesGroupLabel } from '../../utils/species';
-import { stars, supplierShort } from '../../utils/format';
+import { stars, supplierShort, fmtAmount, scaleFactor } from '../../utils/format';
 import { StatusBadge } from '../shared/StatusBadge';
 import { BurnLog } from './BurnLog';
 import { RelatedTasks } from './RelatedTasks';
@@ -50,6 +50,9 @@ function ingredientDisplay(ing: Ingredient, mat: Material | null): string {
 export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelete, onTaskTab }: Props) {
   const [vIdx, setVIdx] = useState(0);
   const [openSimilarFor, setOpenSimilarFor] = useState<string | null>(null);
+  const [targetWeight, setTargetWeight] = useState<number | null>(null);
+  // 版本切換時歸零換算
+  useEffect(() => { setTargetWeight(null); }, [vIdx]);
   const versions = recipe.versions ?? [];
   const version = versions[vIdx];
   const allTasksDone = tasks.filter((t) => t.recipeId === recipe.id).every((t) => t.status === 'done');
@@ -98,6 +101,9 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
   }
 
   if (!version) return null;
+
+  // U1 批次換算倍率（factor === 1 表示不換算）
+  const factor = scaleFactor(version.totalWeight, targetWeight);
 
   const catByIngCat: Record<string, ResolvedIngredient[]> = {};
   for (const r of resolved) {
@@ -188,9 +194,50 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
       {/* Ingredients */}
       {version && (
         <div className="mb-5">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
             <p className="section-label">配方組成</p>
-            <p className="type-meta">總重 {version.totalWeight}g</p>
+            <div className="flex items-center gap-2">
+              <p className="type-meta">
+                總重 {version.totalWeight}g
+                {factor !== 1 && (
+                  <span className="text-accent ml-1">
+                    → {fmtAmount(version.totalWeight * factor)}g（×{fmtAmount(factor)}）
+                  </span>
+                )}
+              </p>
+              {version.totalWeight > 0 && (
+                <div className="flex items-center gap-1">
+                  <label htmlFor="scale-input" className="type-micro text-ink-3">換算</label>
+                  <input
+                    id="scale-input"
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    step={1}
+                    value={targetWeight ?? ''}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v === '') { setTargetWeight(null); return; }
+                      const n = Number(v);
+                      setTargetWeight(Number.isNaN(n) || n <= 0 ? null : n);
+                    }}
+                    placeholder="g"
+                    aria-label="換算目標總重"
+                    className="input-field text-xs w-20"
+                  />
+                  {targetWeight != null && (
+                    <button
+                      type="button"
+                      onClick={() => setTargetWeight(null)}
+                      className="type-micro text-ink-3 hover:text-ink px-1"
+                      aria-label="清除換算"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Stacked proportion bar */}
@@ -250,7 +297,14 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
                               )}
                             </div>
                             <p className="type-body text-ink-2 shrink-0">
-                              {r.ing.amount}{r.ing.unit}
+                              {factor === 1 ? (
+                                <>{r.ing.amount}{r.ing.unit}</>
+                              ) : (
+                                <>
+                                  <span className="text-accent">{fmtAmount(r.ing.amount * factor)}{r.ing.unit}</span>
+                                  <span className="type-micro text-ink-3 ml-1">原 {r.ing.amount}</span>
+                                </>
+                              )}
                               {pct > 0 && (
                                 <span className={`text-xs opacity-60 ml-1 ${overCeiling ? 'text-error font-normal opacity-100' : 'text-ink-2'}`}>
                                   {pct.toFixed(1)}%
