@@ -49,6 +49,9 @@ export default function App() {
 
   const [tab, setTab] = useState<TabId>('overview');
   const [menuOpen, setMenuOpen] = useState(false);
+  // 全域搜尋跳轉：帶入目標分頁的初始搜尋詞
+  const [matSeed, setMatSeed] = useState<string | null>(null);
+  const [noteSeed, setNoteSeed] = useState<string | null>(null);
 
   // Recipe navigation
   const [recipeScreen, setRecipeScreen] = useState<RecipeScreen>('home');
@@ -341,6 +344,8 @@ export default function App() {
           nextId={recipeStore.nextId}
           onTabChange={(t) => { setTab(t); if (t === 'recipe') setRecipeScreen('home'); }}
           onRecipeClick={goRecipeDetail}
+          onMaterialClick={(q) => { setMatSeed(q); setTab('material'); }}
+          onNoteClick={(q) => { setNoteSeed(q); setTab('notes'); }}
           onTaskClick={() => setTab('task')}
           onAddMaterial={handleAddMaterial}
           onUpdateStock={handleUpdateStock}
@@ -417,6 +422,7 @@ export default function App() {
       return (
         <MaterialList
           materials={materials}
+          initialSearch={matSeed ?? undefined}
           onAdd={handleAddMaterial}
           onUpdate={mockGuard(matStore.updateMaterial)}
           onDelete={mockGuard(matStore.deleteMaterial)}
@@ -429,6 +435,7 @@ export default function App() {
       return (
         <NotesList
           notes={notes}
+          initialSearch={noteSeed ?? undefined}
           onAdd={async (text) => { await noteStore.addNote(text); }}
           onUpdate={mockGuard(noteStore.updateNote)}
           onDelete={mockGuard(noteStore.deleteNote)}
@@ -479,6 +486,9 @@ export default function App() {
         onChange={(t) => {
           setTab(t);
           if (t === 'recipe') setRecipeScreen('home');
+          // 手動切分頁時清除全域搜尋 seed，避免殘留搜尋詞
+          setMatSeed(null);
+          setNoteSeed(null);
         }}
         onMenuOpen={() => setMenuOpen(true)}
       />

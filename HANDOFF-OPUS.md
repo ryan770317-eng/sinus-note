@@ -414,4 +414,5 @@ eslint：`eslint.config.js` 加一段 `{ files: ['api/**/*.ts'], languageOptions
 
 （每項完成後：✅＋三件套結果＋專屬驗證證據＋commit hash。verify-u*.mjs 腳本保留於 scripts/。全部完成後 `git push`。）
 
+- U1 ✅：format.ts 新增 fmtAmount/scaleFactor ＋ 單測（21.749999→'21.75'、3→'3'、scaleFactor(20,50)→2.5、0/null/-5→1）。RecipeDetail 加換算控制（換算目標總重 input＋清除鈕，totalWeight<=0 不渲染），版本切換歸零，用量顯示換算值＋原量，總重列標倍率；百分比/硬上限不動。三件套：build 綠、lint 0/0、test 34 passed。`scripts/verify-u1.mjs` 實跑全 PASS：進沉木供香（假）詳情、填 40 → 「×2」「原 10」「20g」皆現、清除後回原量、無 pageerror。commit 188ccb2。
 - U2 ✅：新增 `src/utils/materialName.ts`（composeMaterialName/splitMaterialName）＋ 6 案例單測。MaterialList 移除三段式 input 與 THREE_SEG_RE，改「品名」單欄自動組合，供應商 datalist，編輯改名保護把舊 name 併入 aliases。三件套：build 綠、lint 0/0、test 34 passed。`grep -rn "THREE_SEG_RE" src/` = 0 筆。`scripts/verify-u2.mjs` 實跑全 PASS：表單出現「品名」label、無「三段式」字樣、送出後出現錯誤 toast（實際「儲存失敗：新增材料失敗: TypeError: Failed to fetch」＝寫入線路接通）、無 pageerror。commit de34e8f。

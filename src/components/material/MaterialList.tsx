@@ -11,6 +11,8 @@ import { MaterialTestSopModal } from './MaterialTestSopModal';
 
 interface Props {
   materials: Material[];
+  /** 全域搜尋跳轉帶入的初始搜尋詞（有值時跨類搜尋預設開啟） */
+  initialSearch?: string;
   /** 新增材料 — 必須回傳建立後的 Material 以便觸發 SOP modal */
   onAdd: (mat: Omit<Material, 'id'>) => Promise<Material>;
   onUpdate: (id: string, updates: Partial<Material>) => Promise<void>;
@@ -91,12 +93,12 @@ function displayName(m: Material): string {
 
 // ── Component ─────────────────────────────────────────────────────
 
-export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }: Props) {
+export function MaterialList({ materials, initialSearch, onAdd, onUpdate, onDelete, onRestore }: Props) {
   const toast = useToast();
   const [activeCat, setActiveCat] = useState<IngredientCat>('base');
   const [subTab, setSubTab] = useState<SubTab>('all');
-  const [search, setSearch] = useState('');
-  const [crossCat, setCrossCat] = useState(false);
+  const [search, setSearch] = useState(initialSearch ?? '');
+  const [crossCat, setCrossCat] = useState(!!initialSearch);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<Omit<Material, 'id'>>(emptyForm());

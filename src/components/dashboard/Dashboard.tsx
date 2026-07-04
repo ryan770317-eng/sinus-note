@@ -1,6 +1,7 @@
 import type { Recipe, Material, Task, Note } from '../../types';
 import { isAlertTask } from '../../hooks/supabase/useTasks';
 import { BatchImport } from '../notes/BatchImport';
+import { GlobalSearch } from './GlobalSearch';
 import { StatsRow } from './StatsRow';
 import { AlertTasksSection } from './AlertTasksSection';
 import { ActiveTasksSection } from './ActiveTasksSection';
@@ -17,6 +18,8 @@ interface Props {
   nextId: number;
   onTabChange: (tab: 'recipe' | 'task' | 'material' | 'notes') => void;
   onRecipeClick: (id: number) => void;
+  onMaterialClick: (query: string) => void;
+  onNoteClick: (query: string) => void;
   onTaskClick: () => void;
   onAddMaterial: (mat: Omit<Material, 'id'>) => Promise<Material>;
   onUpdateStock: (name: string, qty: number, unit: string) => Promise<void>;
@@ -34,6 +37,8 @@ export function Dashboard({
   nextId,
   onTabChange,
   onRecipeClick,
+  onMaterialClick,
+  onNoteClick,
   onAddMaterial,
   onUpdateStock,
   onAddRecipe,
@@ -75,6 +80,16 @@ export function Dashboard({
         <h1 className="type-display">SINUS NOTE</h1>
         <p className="type-meta mt-0.5">{today}</p>
       </div>
+
+      {/* Global search */}
+      <GlobalSearch
+        recipes={recipes}
+        materials={materials}
+        notes={notes}
+        onRecipeClick={onRecipeClick}
+        onMaterialClick={onMaterialClick}
+        onNoteClick={onNoteClick}
+      />
 
       {/* Mock data banner */}
       {isMock && (
