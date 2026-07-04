@@ -23,7 +23,6 @@ interface Props {
   onAddRecipe: (recipe: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   onAddRecipeNote: (recipeId: number, note: string) => Promise<void>;
   onAddTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  suppressSync: (ms?: number) => void;
 }
 
 export function Dashboard({
@@ -40,7 +39,6 @@ export function Dashboard({
   onAddRecipe,
   onAddRecipeNote,
   onAddTask,
-  suppressSync,
 }: Props) {
   const today = new Date().toLocaleDateString('zh-TW', { month: 'long', day: 'numeric', weekday: 'long' });
 
@@ -114,7 +112,6 @@ export function Dashboard({
           onAddRecipe={onAddRecipe}
           onAddRecipeNote={onAddRecipeNote}
           onAddTask={onAddTask}
-          suppressSync={suppressSync}
         />
       </div>
 

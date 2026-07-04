@@ -347,7 +347,6 @@ export default function App() {
           onAddRecipe={handleAddRecipe}
           onAddRecipeNote={handleAddRecipeNote}
           onAddTask={async (data) => { await taskStore.addTask(data); }}
-          suppressSync={noteStore.suppressSync}
         />
       );
     }

@@ -17,7 +17,6 @@ interface Props {
   onAddRecipe: (recipe: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   onAddRecipeNote: (recipeId: number, note: string) => Promise<void>;
   onAddTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  suppressSync: (ms?: number) => void;
 }
 
 /** Sanitize Claude's JSON output */
@@ -59,7 +58,6 @@ export function BatchImport({
   onAddRecipe,
   onAddRecipeNote,
   onAddTask,
-  suppressSync,
 }: Props) {
   const toast = useToast();
   const [open, setOpen] = useState(false);
@@ -175,7 +173,6 @@ export function BatchImport({
     if (!item || item.status !== 'pending') return;
 
     setActions((prev) => prev.map((a, i) => i === idx ? { ...a, status: 'writing' } : a));
-    suppressSync(2000);
 
     try {
       await writeAction(item.action);
@@ -192,7 +189,6 @@ export function BatchImport({
     if (writingAll) return;
     const snapshot = actions;
     setWritingAll(true);
-    suppressSync(5000);
     let ok = 0;
     let fail = 0;
     for (let i = 0; i < snapshot.length; i++) {
