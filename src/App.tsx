@@ -30,6 +30,7 @@ import { OfflineBanner } from './components/shared/OfflineBanner';
 
 import { exportBackup, readJsonFile, mergePatch, type BackupData } from './utils/export';
 import { BACKUP_KEY } from './utils/backup';
+import { todayISO } from './utils/date';
 import { MOCK_RECIPES, MOCK_TASKS, MOCK_MATERIALS, MOCK_NOTES } from './utils/mockData';
 import type { Recipe, FragCat, BurnEntry, Material } from './types';
 
@@ -399,6 +400,13 @@ export default function App() {
               setPendingDeleteRecipe(recipe);
             }}
             onTaskTab={() => setTab('task')}
+            onCreateWeighTask={async (r, batchWeight) => {
+              await taskStore.addTask({
+                title: `${r.name} — 稱量配粉`, material: '', recipeId: r.id,
+                taskType: 'weigh', status: 'ready', startDate: todayISO(), dueDate: null,
+                completedDate: null, notes: batchWeight ? `批次 ${batchWeight}g` : '', checkpoints: [],
+              });
+            }}
           />
         );
       }
