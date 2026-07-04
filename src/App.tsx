@@ -24,6 +24,7 @@ import { TaskDashboard } from './components/task/TaskDashboard';
 import { MaterialList } from './components/material/MaterialList';
 import { NotesList } from './components/notes/NotesList';
 import { ConfirmDialog } from './components/shared/ConfirmDialog';
+import { QuickNoteSheet } from './components/shared/QuickNoteSheet';
 import { useToast } from './components/shared/useToast';
 import { OfflineBanner } from './components/shared/OfflineBanner';
 
@@ -50,6 +51,7 @@ export default function App() {
 
   const [tab, setTab] = useState<TabId>('overview');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [quickNoteOpen, setQuickNoteOpen] = useState(false);
   // 全域搜尋跳轉：帶入目標分頁的初始搜尋詞
   const [matSeed, setMatSeed] = useState<string | null>(null);
   const [noteSeed, setNoteSeed] = useState<string | null>(null);
@@ -71,6 +73,16 @@ export default function App() {
     if (storeError) toast.error(storeError);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- toast api 為穩定 context
   }, [storeError]);
+
+  // ── PWA 捷徑深連結（?quick=note / ?quick=task）─────────────────
+  useEffect(() => {
+    if (!user) return;
+    const q = new URLSearchParams(window.location.search).get('quick');
+    if (!q) return;
+    if (q === 'note') setQuickNoteOpen(true);
+    if (q === 'task') setTab('task');
+    window.history.replaceState(null, '', window.location.pathname);
+  }, [user]);
 
   if (loading) {
     return (
@@ -494,7 +506,14 @@ export default function App() {
           setNoteSeed(null);
         }}
         onMenuOpen={() => setMenuOpen(true)}
+        onQuickNote={() => setQuickNoteOpen(true)}
       />
+      {quickNoteOpen && (
+        <QuickNoteSheet
+          onSave={async (t) => { await noteStore.addNote(t); }}
+          onClose={() => setQuickNoteOpen(false)}
+        />
+      )}
       {menuOpen && (
         <MenuOverlay
           onClose={() => setMenuOpen(false)}
