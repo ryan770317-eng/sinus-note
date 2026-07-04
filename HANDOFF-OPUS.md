@@ -63,7 +63,7 @@
 
 ---
 
-## 項目 4：fast-refresh lint 警告清理（2 個 warning）
+## 項目 4：fast-refresh lint 警告清理（2 個 warning）✅
 
 **目標與動機**：`npm run lint` 剩 2 個 warning，都是「檔案同時 export 元件與非元件」影響 HMR。
 
@@ -96,3 +96,4 @@
 - 項目 1 ✅：`grep -rn "備注" src/` = 0 筆；build 綠、test 23 passed、lint 0 error（2 warning 為項目 4 目標）。commit 3eb44e6。
 - 項目 2 ✅：`grep -rn "suppressSync" src/components/` = 0 筆（hooks 內部保留）；build 綠、test 23 passed、lint 0 error。commit c76574e。
 - 項目 3 ✅：MaterialCard 根 div 加 role="button"/tabIndex=0/onKeyDown(Enter,Space,preventDefault)/aria-expanded，▲▼ 加 aria-hidden；build 綠、test 23 passed、lint 0 error。鍵盤行為經程式碼審視符合 TaskCard 範本，未於瀏覽器實測。commit 113de41。
+- 項目 4 ✅：採檔案拆分方案（非 eslint 豁免）。TAB_ICONS→nav/tabIcons.ts；Toast 拆為 shared/ToastContext.ts（context+型別）與 shared/useToast.ts（hook），Toast.tsx 僅剩 ToastProvider 元件；11 個 useToast import 路徑更新。`npm run lint` = 0 error 0 warning；build 綠、test 23 passed。commit 426c79f。備註：context 依 react-refresh 規則移至獨立檔（規則明示 "Move your React context(s) to a separate file"），非留在 Toast.tsx。
