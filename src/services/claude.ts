@@ -1,7 +1,26 @@
+import { sb } from '../lib/supabase';
+
 const CLAUDE_MODEL = 'claude-haiku-4-5-20251001';
 const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
 
-export async function callClaude(systemPrompt: string, userMessage: string): Promise<string> {
+interface ClaudeResponse {
+  content?: Array<{ type?: string; text?: string }>;
+  stop_reason?: string;
+}
+
+/** 解析 Claude 回應內容（代理與直呼共用）。錯誤訊息字串保持不變。 */
+function parseClaudeResponse(data: ClaudeResponse): string {
+  // content 可能為空（拒答等邊角情況）— 不做保護會直接 TypeError 白畫面
+  const text = data.content?.find((b) => typeof b.text === 'string')?.text;
+  if (!text) throw new Error('AI 回應為空，請再試一次');
+  if (data.stop_reason === 'max_tokens') {
+    throw new Error('AI 回應過長被截斷 — 請把內容分段、分次貼入');
+  }
+  return text;
+}
+
+/** 舊直呼路徑（fallback）：瀏覽器直接帶 localStorage key 呼叫 Anthropic。 */
+async function callClaudeDirect(systemPrompt: string, userMessage: string): Promise<string> {
   const apiKey = localStorage.getItem('sinus_anthropic_key');
   if (!apiKey) throw new Error('未設定 API key — 請點右下「設定」輸入 Anthropic API key');
 
@@ -26,17 +45,74 @@ export async function callClaude(systemPrompt: string, userMessage: string): Pro
     throw new Error((err as { error?: { message?: string } }).error?.message ?? `API error ${res.status}`);
   }
 
-  const data = (await res.json()) as {
-    content: Array<{ type?: string; text?: string }>;
-    stop_reason?: string;
-  };
-  // content 可能為空（拒答等邊角情況）— 不做保護會直接 TypeError 白畫面
-  const text = data.content?.find((b) => typeof b.text === 'string')?.text;
-  if (!text) throw new Error('AI 回應為空，請再試一次');
-  if (data.stop_reason === 'max_tokens') {
-    throw new Error('AI 回應過長被截斷 — 請把內容分段、分次貼入');
+  const data = (await res.json()) as ClaudeResponse;
+  return parseClaudeResponse(data);
+}
+
+type ProxyOutcome =
+  | { ok: true; text: string }
+  | { ok: false; reason: 'unavailable' }
+  | { ok: false; reason: 'error'; message: string };
+
+/**
+ * 嘗試雲端代理。回傳 discriminated union：
+ *  - 網路錯誤 / 無 session / status 404 / 501 / 非 JSON（dev 回 HTML）→ unavailable（走 fallback）
+ *  - 2xx → 解析內容（parseClaudeResponse 的空/截斷錯誤會往外拋，屬真錯誤，不 fallback）
+ *  - 其他狀態（401/4xx/5xx）→ error（真錯誤，不 fallback，避免遮蔽登入過期等問題）
+ */
+async function tryProxy(systemPrompt: string, userMessage: string): Promise<ProxyOutcome> {
+  let token: string | undefined;
+  try {
+    const { data } = await sb.auth.getSession();
+    token = data.session?.access_token;
+  } catch {
+    return { ok: false, reason: 'unavailable' };
   }
-  return text;
+  if (!token) return { ok: false, reason: 'unavailable' };
+
+  let res: Response;
+  try {
+    res = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }],
+        max_tokens: 8000,
+      }),
+    });
+  } catch {
+    return { ok: false, reason: 'unavailable' };
+  }
+
+  // 代理未部署：404（無此路由）或 501（未設環境變數）
+  if (res.status === 404 || res.status === 501) return { ok: false, reason: 'unavailable' };
+
+  if (!res.ok) {
+    let message = `代理錯誤 ${res.status}`;
+    try {
+      const err = await res.json();
+      message = (err as { error?: { message?: string } }).error?.message ?? message;
+    } catch { /* 保留預設訊息 */ }
+    return { ok: false, reason: 'error', message };
+  }
+
+  let data: ClaudeResponse;
+  try {
+    data = (await res.json()) as ClaudeResponse;
+  } catch {
+    // dev 環境沒有 /api 可能回 404 HTML / 非 JSON → 視同代理不可用
+    return { ok: false, reason: 'unavailable' };
+  }
+  return { ok: true, text: parseClaudeResponse(data) };
+}
+
+export async function callClaude(systemPrompt: string, userMessage: string): Promise<string> {
+  const proxy = await tryProxy(systemPrompt, userMessage);
+  if (proxy.ok) return proxy.text;
+  if (proxy.reason === 'error') throw new Error(proxy.message);
+  // 代理不可用 → 走舊直呼路徑
+  return callClaudeDirect(systemPrompt, userMessage);
 }
 
 export const NOTE_ANALYSIS_PROMPT = `你是 SINUS NOTE 的香方分析助手。用戶會分享一則筆記，你要用繁體中文簡短分析：

@@ -26,4 +26,9 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     },
   },
+  // Vercel serverless functions 跑在 Node 環境（用 process 等 node globals）
+  {
+    files: ['api/**/*.ts'],
+    languageOptions: { globals: globals.node },
+  },
 );
