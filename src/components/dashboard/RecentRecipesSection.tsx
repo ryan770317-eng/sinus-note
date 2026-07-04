@@ -6,6 +6,7 @@ import {
   RECIPE_STATUS_BORDER,
 } from '../../utils/constants';
 import { SectionHeader } from '../shared/SectionHeader';
+import { stars } from '../../utils/format';
 
 interface Props {
   recipes: Recipe[];
@@ -54,7 +55,7 @@ export function RecentRecipesSection({ recipes, totalCount, onOpen, onRecipeClic
               </div>
               {r.rating > 0 && (
                 <p className="type-micro text-accent mt-1">
-                  {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
+                  {stars(r.rating)}
                 </p>
               )}
             </button>

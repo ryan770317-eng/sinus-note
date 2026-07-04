@@ -47,6 +47,8 @@ export function calcProgress(startDate: string, dueDate: string | null): number 
   if (!dueDate) return 0;
   const start = new Date(startDate).getTime();
   const end = new Date(dueDate).getTime();
+  // 舊資料 startDate 可能為空字串 → NaN；避免渲染出 width: NaN%
+  if (Number.isNaN(start) || Number.isNaN(end)) return 0;
   const now = Date.now();
   if (end <= start) return 100;
   return Math.min(100, Math.max(0, Math.round(((now - start) / (end - start)) * 100)));
@@ -59,9 +61,13 @@ export function fmtDate(isoDate: string | null): string {
   return `${d.getMonth() + 1}/${d.getDate()}`;
 }
 
-/** Today as "YYYY-MM-DD" */
+/** Today as "YYYY-MM-DD" — 用「本地」日期。
+ *  不能用 toISOString()：它回傳 UTC 日期，在 UTC+8 的台灣，
+ *  每天 00:00–07:59 之間會拿到「昨天」，工序起訖日全部歪一天。 */
 export function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 /** Add N days to ISO date string */

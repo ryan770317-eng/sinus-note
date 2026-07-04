@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { Task, TaskType, TaskStatus, Recipe } from '../../types';
 import { TASK_TYPES, TASK_STATUS } from '../../utils/constants';
 import { todayISO, addDays } from '../../utils/date';
-import { useToast } from '../shared/Toast';
+import { useToast } from '../shared/useToast';
 
 interface Props {
   initial?: Task;
@@ -176,7 +176,7 @@ export function TaskForm({ initial, recipes, materialNames, onSave, onCancel }: 
           </div>
 
           <div>
-            <label className="section-label block mb-1">備注</label>
+            <label className="section-label block mb-1">備註</label>
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="input-field h-16 resize-none" />
           </div>
         </>

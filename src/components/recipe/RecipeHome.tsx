@@ -1,13 +1,17 @@
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import type { Recipe, FragCat } from '../../types';
 import { FRAG_CATS, FRAG_CAT_COLORS } from '../../utils/constants';
+import { fileToResizedDataUrl } from '../../utils/image';
 import { SearchField } from '../shared/SearchField';
+import { useToast } from '../shared/useToast';
 
 interface Props {
   recipes: Recipe[];
   catImagesMap: Record<string, string>;
   catOrder: FragCat[] | null;
   onCatClick: (cat: FragCat) => void;
+  /** 搜尋結果點擊 → 直接進配方詳情 */
+  onRecipeClick: (id: number) => void;
   onSaveCatImage: (catId: string, base64: string) => Promise<void>;
   onSaveCatOrder: (order: FragCat[]) => Promise<void>;
 }
@@ -33,14 +37,23 @@ export function RecipeHome({
   catImagesMap,
   catOrder,
   onCatClick,
+  onRecipeClick,
   onSaveCatImage,
   onSaveCatOrder,
 }: Props) {
+  const toast = useToast();
   const [search, setSearch] = useState('');
   const [dragging, setDragging] = useState<FragCat | null>(null);
   const [order, setOrder] = useState<FragCat[]>(catOrder ?? DEFAULT_ORDER);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadCat, setUploadCat] = useState<FragCat | null>(null);
+
+  // catOrder 是非同步載入（也可能被其他裝置改動）；
+  // 非拖曳中時跟隨最新的伺服器值，否則首次載入會停在預設排序
+  useEffect(() => {
+    if (!dragging) setOrder(catOrder ?? DEFAULT_ORDER);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 只跟 catOrder 同步
+  }, [catOrder]);
 
   const countByCat = (cat: FragCat) => recipes.filter((r) => r.fragCat === cat).length;
 
@@ -83,14 +96,16 @@ export function RecipeHome({
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file || !uploadCat) return;
-    const reader = new FileReader();
-    reader.onload = async (ev) => {
-      const base64 = ev.target?.result as string;
-      await onSaveCatImage(uploadCat, base64);
-    };
-    reader.readAsDataURL(file);
     e.target.value = '';
+    if (!file || !uploadCat) return;
+    try {
+      // 縮圖後再存 — 原圖 base64 會塞爆 user_config，拖垮每次設定同步
+      const base64 = await fileToResizedDataUrl(file);
+      await onSaveCatImage(uploadCat, base64);
+      toast.success('封面已更新');
+    } catch (err) {
+      toast.error(`封面上傳失敗：${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 
   return (
@@ -121,7 +136,7 @@ export function RecipeHome({
           {filtered.map((r) => (
             <button
               key={r.id}
-              onClick={() => onCatClick(r.fragCat)}
+              onClick={() => onRecipeClick(r.id)}
               className="w-full text-left bg-card border border-border px-4 py-3 hover:border-ink-2 transition-colors"
             >
               <p className="type-name">{r.name}</p>

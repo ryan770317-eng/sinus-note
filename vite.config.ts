@@ -23,6 +23,10 @@ export default defineConfig({
           { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
         ],
+        shortcuts: [
+          { name: '快速記錄', short_name: '記錄', url: '/?quick=note', icons: [{ src: '/icon-192.png', sizes: '192x192' }] },
+          { name: '新增工序', short_name: '工序', url: '/?quick=task', icons: [{ src: '/icon-192.png', sizes: '192x192' }] },
+        ],
       },
     }),
   ],

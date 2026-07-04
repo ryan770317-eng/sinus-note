@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useToast } from '../shared/Toast';
+import { useToast } from '../shared/useToast';
 
 interface Props {
   onClose: () => void;
@@ -68,6 +68,7 @@ export function MenuOverlay({ onClose, onExport, onImport, onMergeImport, onLogo
           <button onClick={saveApiKey} className="btn w-full mt-2 text-xs">
             儲存
           </button>
+          <p className="type-micro text-ink-3 mt-2">已部署雲端代理時此欄可留空</p>
         </div>
 
         <div className="divide-y divide-border">

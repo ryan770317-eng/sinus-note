@@ -1,8 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Recipe, Task, Ingredient, IngredientCat, Material } from '../../types';
 import { FRAG_CATS, ING_CATS, ING_CAT_COLORS, RECIPE_STATUS } from '../../utils/constants';
 import { speciesGroupLabel } from '../../utils/species';
+import { stars, supplierShort, fmtAmount, scaleFactor } from '../../utils/format';
 import { StatusBadge } from '../shared/StatusBadge';
+import { ProgressBar } from '../shared/ProgressBar';
+import { useToast } from '../shared/useToast';
 import { BurnLog } from './BurnLog';
 import { RelatedTasks } from './RelatedTasks';
 
@@ -14,6 +17,7 @@ interface Props {
   onEdit: (recipe: Recipe) => void;
   onDelete: (id: number) => void;
   onTaskTab: () => void;
+  onCreateWeighTask: (recipe: Recipe, batchWeight: number | null) => Promise<void>;
 }
 
 interface ResolvedIngredient {
@@ -46,9 +50,25 @@ function ingredientDisplay(ing: Ingredient, mat: Material | null): string {
   return ing.name;
 }
 
-export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelete, onTaskTab }: Props) {
+export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelete, onTaskTab, onCreateWeighTask }: Props) {
+  const toast = useToast();
   const [vIdx, setVIdx] = useState(0);
   const [openSimilarFor, setOpenSimilarFor] = useState<string | null>(null);
+  const [targetWeight, setTargetWeight] = useState<number | null>(null);
+  // U5 製作核對模式
+  const [makeMode, setMakeMode] = useState(false);
+  const [checked, setChecked] = useState<Set<string>>(new Set());
+  const storageKey = `sinus_make_${recipe.id}_${vIdx}`;
+  // 版本切換時歸零換算，並退出製作模式（不清 storage — 那是別的版本的 key）
+  useEffect(() => {
+    setTargetWeight(null);
+    setMakeMode(false);
+    setChecked(new Set());
+  }, [vIdx]);
+  // makeMode 期間把勾選狀態續存 sessionStorage
+  useEffect(() => {
+    if (makeMode) sessionStorage.setItem(storageKey, JSON.stringify([...checked]));
+  }, [checked, makeMode, storageKey]);
   const versions = recipe.versions ?? [];
   const version = versions[vIdx];
   const allTasksDone = tasks.filter((t) => t.recipeId === recipe.id).every((t) => t.status === 'done');
@@ -68,17 +88,18 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
     const cw: CeilingWarning[] = [];
     const mw = new Map<string, string>();  // dedupe by warning text
     const pending: Material[] = [];
-    if (version && version.totalWeight > 0) {
-      for (const r of resolved) {
-        if (!r.material) continue;
+    // v3Warnings / 待測提醒不該被 totalWeight 擋掉 — 只有比例檢查需要總重
+    for (const r of resolved) {
+      if (!r.material) continue;
+      if (version && version.totalWeight > 0) {
         const ratioPct = (r.ing.amount / version.totalWeight) * 100;
         if (r.material.hardCeiling != null && ratioPct > r.material.hardCeiling) {
           cw.push({ material: r.material, ratioPct, ceilingPct: r.material.hardCeiling });
         }
-        for (const w of r.material.v3Warnings ?? []) mw.set(w, r.material.name);
-        if ((r.material.testStatus ?? 'pending') === 'pending') {
-          if (!pending.some((p) => p.id === r.material!.id)) pending.push(r.material);
-        }
+      }
+      for (const w of r.material.v3Warnings ?? []) mw.set(w, r.material.name);
+      if ((r.material.testStatus ?? 'pending') === 'pending') {
+        if (!pending.some((p) => p.id === r.material!.id)) pending.push(r.material);
       }
     }
     return {
@@ -96,6 +117,50 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
   }
 
   if (!version) return null;
+
+  // U1 批次換算倍率（factor === 1 表示不換算）
+  const factor = scaleFactor(version.totalWeight, targetWeight);
+
+  // U5 製作核對進度（勾選狀態與換算獨立）
+  const totalItems = resolved.length;
+  const allChecked = totalItems > 0 && checked.size === totalItems;
+  const makePct = totalItems > 0 ? Math.round((checked.size / totalItems) * 100) : 0;
+
+  function toggleMakeMode() {
+    if (makeMode) {
+      setMakeMode(false);
+      setChecked(new Set());
+      sessionStorage.removeItem(storageKey);
+    } else {
+      const saved = sessionStorage.getItem(storageKey);
+      let restored = new Set<string>();
+      if (saved) {
+        try { restored = new Set(JSON.parse(saved) as string[]); } catch { restored = new Set(); }
+      }
+      setChecked(restored);
+      setMakeMode(true);
+    }
+  }
+
+  function toggleChecked(key: string) {
+    setChecked((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  }
+
+  async function handleCompleteMake() {
+    try {
+      await onCreateWeighTask(recipe, targetWeight);
+      toast.success('已建立稱量工序');
+      setMakeMode(false);
+      setChecked(new Set());
+      sessionStorage.removeItem(storageKey);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+  }
 
   const catByIngCat: Record<string, ResolvedIngredient[]> = {};
   for (const r of resolved) {
@@ -186,9 +251,59 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
       {/* Ingredients */}
       {version && (
         <div className="mb-5">
-          <div className="flex items-center justify-between mb-3">
-            <p className="section-label">配方組成</p>
-            <p className="type-meta">總重 {version.totalWeight}g</p>
+          <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <p className="section-label">配方組成</p>
+              <button
+                type="button"
+                onClick={toggleMakeMode}
+                className="btn text-xs"
+              >
+                {makeMode ? '結束' : '開始製作'}
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="type-meta">
+                總重 {version.totalWeight}g
+                {factor !== 1 && (
+                  <span className="text-accent ml-1">
+                    → {fmtAmount(version.totalWeight * factor)}g（×{fmtAmount(factor)}）
+                  </span>
+                )}
+              </p>
+              {version.totalWeight > 0 && (
+                <div className="flex items-center gap-1">
+                  <label htmlFor="scale-input" className="type-micro text-ink-3">換算</label>
+                  <input
+                    id="scale-input"
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    step={1}
+                    value={targetWeight ?? ''}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v === '') { setTargetWeight(null); return; }
+                      const n = Number(v);
+                      setTargetWeight(Number.isNaN(n) || n <= 0 ? null : n);
+                    }}
+                    placeholder="g"
+                    aria-label="換算目標總重"
+                    className="input-field text-xs w-20"
+                  />
+                  {targetWeight != null && (
+                    <button
+                      type="button"
+                      onClick={() => setTargetWeight(null)}
+                      className="type-micro text-ink-3 hover:text-ink px-1"
+                      aria-label="清除換算"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Stacked proportion bar */}
@@ -213,6 +328,13 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
             );
           })()}
 
+          {makeMode && (
+            <div className="mb-3">
+              <p className="type-meta mb-1">已稱 {checked.size}/{totalItems}</p>
+              <ProgressBar value={makePct} />
+            </div>
+          )}
+
           <div className="space-y-4">
             {(Object.keys(ING_CATS) as (keyof typeof ING_CATS)[]).map((cat) => {
               const items = catByIngCat[cat];
@@ -225,12 +347,33 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
                       const pct = version.totalWeight ? (r.ing.amount / version.totalWeight) * 100 : 0;
                       const overCeiling = r.material?.hardCeiling != null && pct > r.material.hardCeiling;
                       const sims = r.material ? similarFor(r.material) : [];
-                      const showSims = openSimilarFor === `${cat}-${i}`;
+                      const rowKey = `${cat}-${i}`;
+                      const showSims = openSimilarFor === rowKey;
+                      const isChecked = checked.has(rowKey);
                       return (
                         <div key={i} className="border-b border-border/50 py-1.5">
-                          <div className="flex items-center justify-between gap-2">
+                          <div className={`flex items-center justify-between gap-2 ${makeMode && isChecked ? 'opacity-50' : ''}`}>
+                            {makeMode && (
+                              <button
+                                type="button"
+                                onClick={() => toggleChecked(rowKey)}
+                                aria-pressed={isChecked}
+                                aria-label={`已稱 ${ingredientDisplay(r.ing, r.material)}`}
+                                className="shrink-0 flex items-center justify-center"
+                              >
+                                {isChecked ? (
+                                  <span className="w-5 h-5 flex items-center justify-center" style={{ background: '#1A1A18' }}>
+                                    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+                                      <path d="M2 6 L5 9 L10 3" stroke="#F5F1EB" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                  </span>
+                                ) : (
+                                  <span className="w-5 h-5 border-2" style={{ borderColor: ING_CAT_COLORS[cat] }} />
+                                )}
+                              </button>
+                            )}
                             <div className="flex-1 min-w-0">
-                              <p className="type-body">
+                              <p className={`type-body ${makeMode && isChecked ? 'line-through' : ''}`}>
                                 {ingredientDisplay(r.ing, r.material)}
                                 {r.material?.supplier && (
                                   <span className="type-micro text-ink-3 ml-2">· {supplierShort(r.material.supplier)}</span>
@@ -248,7 +391,14 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
                               )}
                             </div>
                             <p className="type-body text-ink-2 shrink-0">
-                              {r.ing.amount}{r.ing.unit}
+                              {factor === 1 ? (
+                                <>{r.ing.amount}{r.ing.unit}</>
+                              ) : (
+                                <>
+                                  <span className="text-accent">{fmtAmount(r.ing.amount * factor)}{r.ing.unit}</span>
+                                  <span className="type-micro text-ink-3 ml-1">原 {r.ing.amount}</span>
+                                </>
+                              )}
                               {pct > 0 && (
                                 <span className={`text-xs opacity-60 ml-1 ${overCeiling ? 'text-error font-normal opacity-100' : 'text-ink-2'}`}>
                                   {pct.toFixed(1)}%
@@ -285,6 +435,17 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
               );
             })}
           </div>
+          {makeMode && allChecked && (
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={handleCompleteMake}
+                className="btn-primary text-xs"
+              >
+                完成稱料 → 建立工序
+              </button>
+            </div>
+          )}
           {version.notes && (
             <p className="type-body text-ink-2 mt-4 whitespace-pre-wrap">{version.notes}</p>
           )}
@@ -323,7 +484,7 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
             )}
             {recipe.timeline.agingNotes && (
               <div className="col-span-2">
-                <p className="text-xs text-ink-3">陳化備注</p>
+                <p className="text-xs text-ink-3">陳化備註</p>
                 <p className="font-light text-ink">{recipe.timeline.agingNotes}</p>
               </div>
             )}
@@ -345,7 +506,7 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
       )}
 
       {recipe.rating > 0 && (
-        <p className="text-sm text-ink-2 mb-5">{'★'.repeat(recipe.rating)}{'☆'.repeat(5 - recipe.rating)}</p>
+        <p className="text-sm text-ink-2 mb-5">{stars(recipe.rating)}</p>
       )}
 
       <BurnLog burnLog={recipe.burnLog ?? []} />
@@ -362,8 +523,4 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
       </div>
     </div>
   );
-}
-
-function supplierShort(s: string): string {
-  return s.length <= 4 ? s : s.slice(0, 2);
 }

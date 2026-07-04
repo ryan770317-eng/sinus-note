@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { Recipe, FragCat, RecipeStatus, IngredientCat, Ingredient, Version, Material } from '../../types';
 import { FRAG_CATS, ING_CATS, RECIPE_STATUS } from '../../utils/constants';
 import { speciesGroupLabel } from '../../utils/species';
 import { todayISO } from '../../utils/date';
 import { versionTag } from '../../utils/id';
-import { useToast } from '../shared/Toast';
+import { useToast } from '../shared/useToast';
+import { ConfirmDialog } from '../shared/ConfirmDialog';
 
 interface Props {
   initial?: Recipe;
@@ -28,7 +29,7 @@ function scoreSuggestion(query: string, mat: Material): Suggestion | null {
   const lo = q.toLowerCase();
 
   // 完全相符 / startsWith / 子字串 三層分數
-  function compare(field: string, src: string | undefined, tag: Suggestion['hitField']): Suggestion | null {
+  function compare(src: string | undefined, tag: Suggestion['hitField']): Suggestion | null {
     if (!src) return null;
     const s = src.toLowerCase();
     if (s === lo) return { material: mat, score: 100, hitField: tag };
@@ -39,10 +40,10 @@ function scoreSuggestion(query: string, mat: Material): Suggestion | null {
 
   // 試各欄位，取最高分
   const candidates = [
-    compare('name', mat.name, 'name'),
-    compare('displayShort', mat.displayShort, 'displayShort'),
-    compare('species', mat.species, 'species'),
-    ...(mat.aliases ?? []).map((a) => compare('alias', a, 'alias')),
+    compare(mat.name, 'name'),
+    compare(mat.displayShort, 'displayShort'),
+    compare(mat.species, 'species'),
+    ...(mat.aliases ?? []).map((a) => compare(a, 'alias')),
   ].filter((c): c is Suggestion => c !== null);
   if (!candidates.length) return null;
 
@@ -86,9 +87,9 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
   const [tagInput, setTagInput] = useState((init.tags ?? []).join(', '));
   const [matSuggestions, setMatSuggestions] = useState<Suggestion[]>([]);
   const [activeIngIdx, setActiveIngIdx] = useState<number | null>(null);
-  const [activeQuery, setActiveQuery] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [nameError, setNameError] = useState(false);
+  const [confirmDeleteVersion, setConfirmDeleteVersion] = useState(false);
   const blurTimerRef = useRef<number | null>(null);
 
   useEffect(() => () => {
@@ -126,7 +127,6 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
     // 用戶手打名稱 → 清掉舊 materialId（除非選到候選才設回）
     updateIngredient(i, { name: val, materialId: undefined });
     setActiveIngIdx(i);
-    setActiveQuery(val);
     if (val.trim().length < 1) { setMatSuggestions([]); return; }
     const list = materials
       .map((m) => scoreSuggestion(val, m))
@@ -143,12 +143,19 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
       cat: sug.material.cat,             // 自動同步 cat
     });
     setMatSuggestions([]);
-    setActiveQuery('');
   }
 
   function addVersion() {
     setF('versions', [...form.versions, { ...emptyVersion(), label: `版本 ${form.versions.length + 1}` }]);
     setVIdx(form.versions.length);
+  }
+
+  function deleteCurrentVersion() {
+    if (form.versions.length <= 1) return;
+    const next = form.versions.filter((_, i) => i !== vIdx);
+    setF('versions', next);
+    setVIdx(Math.min(vIdx, next.length - 1));
+    setConfirmDeleteVersion(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -246,7 +253,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
               <input type="date" value={form.timeline.agingStart} onChange={(e) => setF('timeline', { ...form.timeline, agingStart: e.target.value })} className="input-field" />
             </div>
             <div>
-              <label className="section-label block mb-1">陳化備注</label>
+              <label className="section-label block mb-1">陳化備註</label>
               <input value={form.timeline.agingNotes} onChange={(e) => setF('timeline', { ...form.timeline, agingNotes: e.target.value })} className="input-field" />
             </div>
           </div>
@@ -263,7 +270,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
               </label>
             ))}
           </div>
-          <textarea value={form.process.notes} onChange={(e) => setF('process', { ...form.process, notes: e.target.value })} className="input-field h-16 resize-none" placeholder="工序備注" />
+          <textarea value={form.process.notes} onChange={(e) => setF('process', { ...form.process, notes: e.target.value })} className="input-field h-16 resize-none" placeholder="工序備註" />
         </div>
 
         {/* Versions */}
@@ -271,6 +278,16 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
           <div className="flex items-center gap-3 mb-3">
             <p className="section-label">版本</p>
             <button type="button" onClick={addVersion} className="btn text-xs">+ 新版本</button>
+            {form.versions.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setConfirmDeleteVersion(true)}
+                className="btn text-xs text-error border-error"
+                aria-label={`刪除版本「${version.label}」`}
+              >
+                刪除此版本
+              </button>
+            )}
           </div>
 
           {form.versions.length > 1 && (
@@ -388,7 +405,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
           <button type="button" onClick={addIngredient} className="btn text-xs mb-4">+ 新增材料</button>
 
           <div>
-            <label className="section-label block mb-1">版本備注</label>
+            <label className="section-label block mb-1">版本備註</label>
             <textarea value={version.notes} onChange={(e) => setVersion({ notes: e.target.value })} className="input-field h-20 resize-none" />
           </div>
         </div>
@@ -411,6 +428,16 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
           </button>
         </div>
       </form>
+
+      {confirmDeleteVersion && (
+        <ConfirmDialog
+          message={`確定要刪除版本「${version.label}」？\n（儲存後才會生效，取消編輯可反悔）`}
+          confirmLabel="刪除版本"
+          tone="danger"
+          onConfirm={deleteCurrentVersion}
+          onCancel={() => setConfirmDeleteVersion(false)}
+        />
+      )}
     </div>
   );
 }

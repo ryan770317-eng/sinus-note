@@ -9,7 +9,7 @@ import {
 import { calcProgress, daysUntil, fmtDate } from '../../utils/date';
 import { ProgressBar } from '../shared/ProgressBar';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
-import { useToast } from '../shared/Toast';
+import { useToast } from '../shared/useToast';
 import { ActionMenu } from '../shared/ActionMenu';
 
 interface Props {

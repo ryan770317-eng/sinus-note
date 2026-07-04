@@ -4,21 +4,25 @@ import { formatNoteDate } from '../../utils/date';
 import { callClaude, NOTE_ANALYSIS_PROMPT } from '../../services/claude';
 import { VoiceInput } from './VoiceInput';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
-import { useToast } from '../shared/Toast';
+import { SearchField } from '../shared/SearchField';
+import { useToast } from '../shared/useToast';
 
 const COLLAPSE_THRESHOLD = 120; // chars
 
 interface Props {
   notes: Note[];
+  /** 全域搜尋跳轉帶入的初始搜尋詞 */
+  initialSearch?: string;
   onAdd: (text: string) => Promise<void>;
   onUpdate: (id: string, updates: Partial<Note>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
   onRestore?: (note: Note) => Promise<void>;
 }
 
-export function NotesList({ notes, onAdd, onUpdate, onDelete, onRestore }: Props) {
+export function NotesList({ notes, initialSearch, onAdd, onUpdate, onDelete, onRestore }: Props) {
   const toast = useToast();
   const [input, setInput] = useState('');
+  const [search, setSearch] = useState(initialSearch ?? '');
   const [submitting, setSubmitting] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [analyzing, setAnalyzing] = useState<Set<string>>(new Set());
@@ -43,7 +47,8 @@ export function NotesList({ notes, onAdd, onUpdate, onDelete, onRestore }: Props
   function toggleExpand(id: string) {
     setExpanded((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   }
@@ -65,9 +70,21 @@ export function NotesList({ notes, onAdd, onUpdate, onDelete, onRestore }: Props
     return note.text.length > COLLAPSE_THRESHOLD || note.text.split('\n').length > 3;
   }
 
+  const q = search.trim().toLowerCase();
+  const filteredNotes = q ? notes.filter((n) => n.text.toLowerCase().includes(q)) : notes;
+
   return (
     <div className="max-w-content mx-auto px-4 pt-7 pb-20">
-      <h1 className="type-title mb-5">隨手記</h1>
+      <div className="flex items-baseline justify-between gap-3 mb-5">
+        <h1 className="type-title shrink-0">隨手記</h1>
+        <SearchField
+          value={search}
+          onChange={setSearch}
+          placeholder="搜尋筆記內容"
+          resultCount={filteredNotes.length}
+          className="w-full sm:w-[320px]"
+        />
+      </div>
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="mb-6">
@@ -104,7 +121,10 @@ export function NotesList({ notes, onAdd, onUpdate, onDelete, onRestore }: Props
         {notes.length === 0 && (
           <p className="type-body text-ink-3 text-center py-8">尚無筆記</p>
         )}
-        {notes.map((note) => {
+        {notes.length > 0 && filteredNotes.length === 0 && (
+          <p className="type-body text-ink-3 text-center py-8">無符合的筆記</p>
+        )}
+        {filteredNotes.map((note) => {
           const { date, time } = formatNoteDate(note.ts);
           const collapsible = shouldCollapse(note);
           const isExpanded = expanded.has(note.id);
@@ -113,7 +133,7 @@ export function NotesList({ notes, onAdd, onUpdate, onDelete, onRestore }: Props
             <div key={note.id} className="bg-card border border-border p-4">
               {/* Timestamp */}
               <p className="type-meta mb-2">
-                <span className="font-normal text-ink note-card-date">{date}</span>
+                <span className="font-normal text-ink">{date}</span>
                 {' '}{time}
               </p>
 

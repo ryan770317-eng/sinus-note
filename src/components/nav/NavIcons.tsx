@@ -1,5 +1,3 @@
-import type { TabId } from './BottomNav';
-
 type IconProps = {
   className?: string;
   size?: number;
@@ -83,11 +81,3 @@ export function IconSettings({ className = '', size = 20 }: IconProps) {
     </svg>
   );
 }
-
-export const TAB_ICONS: Record<TabId, (p: IconProps) => React.JSX.Element> = {
-  overview: IconOverview,
-  recipe:   IconRecipe,
-  task:     IconTask,
-  material: IconMaterial,
-  notes:    IconNotes,
-};

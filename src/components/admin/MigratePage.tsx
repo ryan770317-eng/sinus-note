@@ -247,6 +247,7 @@ export function MigratePage({ onExit }: { onExit: () => void }) {
       setPickedMid(candidates[0]?.material.id ?? '');
       setAddAlias(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 僅在切換鬼影時重置選擇，candidates 隨 current 派生
   }, [cursor, current?.recipeId, current?.versionIdx, current?.ingredientIdx]);
 
   async function applyMatched() {
@@ -385,7 +386,7 @@ export function MigratePage({ onExit }: { onExit: () => void }) {
         <p className="type-meta tracking-label">Phase 2 Step 5 — 鬼影對應</p>
         <h1 className="type-title">{cursor + 1} / {ghosts.length}</h1>
         <p className="type-meta mt-1">
-          已對應 {counts.matched}　略過 {counts.skipped}　未決 {counts.unresolved}
+          已對應 {counts.matched} · 略過 {counts.skipped} · 未決 {counts.unresolved}
         </p>
       </div>
 
@@ -397,7 +398,7 @@ export function MigratePage({ onExit }: { onExit: () => void }) {
         <p className="type-meta">中發現未對應的材料：</p>
         <p className="type-name mt-2 text-accent">「{current.ingredientName}」</p>
         <p className="type-meta mt-1">
-          類別：{current.ingredientCat}　份量：{current.amount}{current.unit}
+          類別：{current.ingredientCat} · 份量：{current.amount}{current.unit}
         </p>
       </div>
 

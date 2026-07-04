@@ -13,8 +13,9 @@
 
 import { useState } from 'react';
 import { Modal } from '../shared/Modal';
-import { useToast } from '../shared/Toast';
+import { useToast } from '../shared/useToast';
 import type { Material } from '../../types';
+import { todayISO } from '../../utils/date';
 
 interface Props {
   material: Material;
@@ -37,7 +38,7 @@ export function MaterialTestSopModal({ material, onSave, onClose }: Props) {
     }
     setSubmitting(true);
     try {
-      const date = new Date().toISOString().slice(0, 10);
+      const date = todayISO();
       const lines: string[] = [];
       lines.push(`[${date} 入庫測試]`);
       if (hotPlate.trim()) lines.push(`熱板：${hotPlate.trim()}°C`);

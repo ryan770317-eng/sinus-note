@@ -1,7 +1,8 @@
 import type { Recipe, Material, Task, Note } from '../../types';
-import { TASK_TYPES } from '../../utils/constants';
-import { daysUntil } from '../../utils/date';
+import { isAlertTask } from '../../hooks/supabase/useTasks';
 import { BatchImport } from '../notes/BatchImport';
+import { GlobalSearch } from './GlobalSearch';
+import { BackupReminder } from './BackupReminder';
 import { StatsRow } from './StatsRow';
 import { AlertTasksSection } from './AlertTasksSection';
 import { ActiveTasksSection } from './ActiveTasksSection';
@@ -18,13 +19,15 @@ interface Props {
   nextId: number;
   onTabChange: (tab: 'recipe' | 'task' | 'material' | 'notes') => void;
   onRecipeClick: (id: number) => void;
+  onMaterialClick: (query: string) => void;
+  onNoteClick: (query: string) => void;
   onTaskClick: () => void;
-  onAddMaterial: (mat: Omit<Material, 'id'>) => Promise<void>;
+  onAddMaterial: (mat: Omit<Material, 'id'>) => Promise<Material>;
   onUpdateStock: (name: string, qty: number, unit: string) => Promise<void>;
   onAddRecipe: (recipe: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   onAddRecipeNote: (recipeId: number, note: string) => Promise<void>;
   onAddTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  suppressSync: (ms?: number) => void;
+  onExport: () => void;
 }
 
 export function Dashboard({
@@ -36,23 +39,19 @@ export function Dashboard({
   nextId,
   onTabChange,
   onRecipeClick,
+  onMaterialClick,
+  onNoteClick,
   onAddMaterial,
   onUpdateStock,
   onAddRecipe,
   onAddRecipeNote,
   onAddTask,
-  suppressSync,
+  onExport,
 }: Props) {
   const today = new Date().toLocaleDateString('zh-TW', { month: 'long', day: 'numeric', weekday: 'long' });
 
   // ── Alerts: overdue or due ≤ 3 days ─────────────────────────────
-  const alertTasks = tasks.filter((t) => {
-    if (t.status === 'done') return false;
-    const tt = TASK_TYPES[t.taskType] ?? TASK_TYPES['other'];
-    if (tt.defaultDays === 0) return true;
-    if (!t.dueDate) return false;
-    return daysUntil(t.dueDate) <= 3;
-  });
+  const alertTasks = tasks.filter(isAlertTask);
 
   // ── Active tasks (not done) ──────────────────────────────────────
   const activeTasks = tasks
@@ -85,15 +84,28 @@ export function Dashboard({
         <p className="type-meta mt-0.5">{today}</p>
       </div>
 
+      {/* Global search */}
+      <GlobalSearch
+        recipes={recipes}
+        materials={materials}
+        notes={notes}
+        onRecipeClick={onRecipeClick}
+        onMaterialClick={onMaterialClick}
+        onNoteClick={onNoteClick}
+      />
+
       {/* Mock data banner */}
       {isMock && (
         <div
           className="mb-5 px-3 py-2 border border-dashed border-ink-4 type-micro"
           role="status"
         >
-          目前顯示示範資料（假），登入後將自動載入您的真實資料
+          目前顯示示範資料（僅供瀏覽）— 新增第一筆自己的配方、材料、工序或筆記後即會切換
         </div>
       )}
+
+      {/* Backup reminder — mock 模式不顯示 */}
+      {!isMock && <BackupReminder onExport={onExport} />}
 
       <StatsRow recipes={recipes} tasks={tasks} />
 
@@ -111,15 +123,16 @@ export function Dashboard({
       {/* ── Batch import ──────────────────────────────────────── */}
       <div className="mb-6">
         <BatchImport
-          recipes={recipes}
-          materials={materials}
+          // 批次匯入是「寫入真資料」的入口：示範模式下比對用的清單必須是空的，
+          // 否則同名材料會被誤判為已存在而跳過
+          recipes={isMock ? [] : recipes}
+          materials={isMock ? [] : materials}
           nextId={nextId}
           onAddMaterial={onAddMaterial}
           onUpdateStock={onUpdateStock}
           onAddRecipe={onAddRecipe}
           onAddRecipeNote={onAddRecipeNote}
           onAddTask={onAddTask}
-          suppressSync={suppressSync}
         />
       </div>
 

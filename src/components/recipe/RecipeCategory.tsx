@@ -5,6 +5,7 @@ import {
   RECIPE_STATUS_BG,
   RECIPE_STATUS_BORDER,
 } from '../../utils/constants';
+import { starsFilled } from '../../utils/format';
 
 interface Props {
   cat: FragCat;
@@ -79,7 +80,7 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
                     </div>
                     <div className="text-right shrink-0">
                       {r.rating > 0 && (
-                        <p className="type-micro text-accent">{'★'.repeat(r.rating)}</p>
+                        <p className="type-micro text-accent">{starsFilled(r.rating)}</p>
                       )}
                       {(r.burnLog?.length ?? 0) > 0 && (
                         <p className="type-micro opacity-60">試燒 {r.burnLog!.length}</p>

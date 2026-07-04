@@ -31,7 +31,7 @@ export function ActionDetail({ item, existingMatNames, onPatch }: Props) {
             <Field label="供應商:" value={a.supplier || ''} missing={!a.supplier} />
           )}
         </div>
-        {a.note && <Field label="備注:" value={a.note} />}
+        {a.note && <Field label="備註:" value={a.note} />}
         {(a.qty > 0) && <Field label="庫存:" value={`${a.qty}${a.unit ?? 'g'}`} />}
         {item.status === 'skipped' && existingMatNames.has(a.name) && (
           <p className="type-micro text-ink-2">材料庫已有此品項</p>
@@ -84,7 +84,7 @@ export function ActionDetail({ item, existingMatNames, onPatch }: Props) {
         <Field label="標題:" value={a.title} />
         <Field label="工序:" value={ttLabel} />
         <Field label="狀態:" value={a.status ?? 'waiting'} />
-        {a.notes && <Field label="備注:" value={a.notes} />}
+        {a.notes && <Field label="備註:" value={a.notes} />}
       </div>
     );
   }

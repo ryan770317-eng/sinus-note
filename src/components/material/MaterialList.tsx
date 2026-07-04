@@ -2,13 +2,17 @@ import { useState, useMemo } from 'react';
 import type { Material, IngredientCat, MaterialTestStatus } from '../../types';
 import { ING_CATS, ING_CAT_COLORS } from '../../utils/constants';
 import { SPECIES_GROUP_OPTIONS, speciesGroupLabel } from '../../utils/species';
+import { supplierShort } from '../../utils/format';
+import { composeMaterialName, splitMaterialName } from '../../utils/materialName';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
-import { useToast } from '../shared/Toast';
+import { useToast } from '../shared/useToast';
 import { SearchField } from '../shared/SearchField';
 import { MaterialTestSopModal } from './MaterialTestSopModal';
 
 interface Props {
   materials: Material[];
+  /** 全域搜尋跳轉帶入的初始搜尋詞（有值時跨類搜尋預設開啟） */
+  initialSearch?: string;
   /** 新增材料 — 必須回傳建立後的 Material 以便觸發 SOP modal */
   onAdd: (mat: Omit<Material, 'id'>) => Promise<Material>;
   onUpdate: (id: string, updates: Partial<Material>) => Promise<void>;
@@ -37,8 +41,6 @@ const emptyForm = (): Omit<Material, 'id'> => ({
   hardCeiling: undefined,
   testStatus: 'pending',
 });
-
-const THREE_SEG_RE = /^[^｜]+｜[^｜]+｜[^｜]+$/;
 
 // ── Legacy synonym fallback（v2.1 前的相容性）─────────────────────
 const SYNONYM_TABLE: [string, ...string[]][] = [
@@ -88,23 +90,19 @@ function displayName(m: Material): string {
   return firstSeg || m.name;
 }
 
-/** 供應商簡稱（前 2 字）*/
-function supplierShort(m: Material): string {
-  if (!m.supplier) return '';
-  return m.supplier.length <= 4 ? m.supplier : m.supplier.slice(0, 2);
-}
 
 // ── Component ─────────────────────────────────────────────────────
 
-export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }: Props) {
+export function MaterialList({ materials, initialSearch, onAdd, onUpdate, onDelete, onRestore }: Props) {
   const toast = useToast();
   const [activeCat, setActiveCat] = useState<IngredientCat>('base');
   const [subTab, setSubTab] = useState<SubTab>('all');
-  const [search, setSearch] = useState('');
-  const [crossCat, setCrossCat] = useState(false);
+  const [search, setSearch] = useState(initialSearch ?? '');
+  const [crossCat, setCrossCat] = useState(!!initialSearch);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<Omit<Material, 'id'>>(emptyForm());
+  const [productName, setProductName] = useState('');     // 品名（三段式名稱由品名＋供應商＋品級/產地自動組合）
   const [aliasesText, setAliasesText] = useState('');     // 表單裡 aliases 用換行字串編輯
   const [warningsText, setWarningsText] = useState('');   // v3Warnings 同
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -191,7 +189,10 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
       v3Warnings: mat.v3Warnings ?? [],
       hardCeiling: mat.hardCeiling,
       testStatus: mat.testStatus ?? 'pending',
+      // 帶回原值，否則儲存時會把首次入庫時間洗成 null
+      addedAt: mat.addedAt,
     });
+    setProductName(splitMaterialName(mat.name).product);
     setAliasesText((mat.aliases ?? []).join('\n'));
     setWarningsText((mat.v3Warnings ?? []).join('\n'));
     setNameError('');
@@ -201,6 +202,7 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
   function startAdd() {
     setEditId(null);
     setForm({ ...emptyForm(), cat: activeCat });
+    setProductName('');
     setAliasesText('');
     setWarningsText('');
     setNameError('');
@@ -215,27 +217,29 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
     e.preventDefault();
     if (submitting) return;
 
-    // 驗證：name 不空
-    if (!form.name.trim()) {
-      setNameError('請填寫名稱');
-      toast.error('請填寫材料名稱');
+    // 驗證：品名不空
+    if (!productName.trim()) {
+      setNameError('請填寫品名');
+      toast.error('請填寫品名');
       return;
     }
 
-    // 驗證：name 三段式（編輯舊材料時，若原本就不合規則允許保留；新增強制）
-    const isThreeSeg = THREE_SEG_RE.test(form.name);
-    if (!editId && !isThreeSeg) {
-      setNameError('需要三段式格式：[品名]｜[供應商]｜[產地或品級]');
-      toast.error('名稱需符合三段式格式');
-      return;
-    }
+    // 三段式名稱自動組合（第三段：grade 優先，沒 grade 用 origin — 定案）
+    const composedName = composeMaterialName(productName, form.supplier, form.grade?.trim() || form.origin);
 
     // 整理 aliases / v3Warnings 從 textarea 拆行
     const aliases = aliasesText.split('\n').map((s) => s.trim()).filter(Boolean);
     const v3Warnings = warningsText.split('\n').map((s) => s.trim()).filter(Boolean);
 
+    // 編輯改名保護：舊 name 加進 aliases，否則配方鬼影靠 name/aliases 比對回連會斷鏈
+    // （見 RecipeDetail.resolveMaterial）
+    if (editId && composedName !== form.name && form.name.trim() && !aliases.includes(form.name)) {
+      aliases.push(form.name);
+    }
+
     const payload: Omit<Material, 'id'> = {
       ...form,
+      name: composedName,
       // 把空字串轉 undefined（清空時不要寫入空字串）
       displayShort: form.displayShort?.trim() || undefined,
       species:      form.species?.trim() || undefined,
@@ -355,15 +359,15 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
               </select>
             </div>
             <div>
-              <label htmlFor="mat-name" className="section-label block mb-1">名稱（三段式 *）</label>
+              <label htmlFor="mat-name" className="section-label block mb-1">品名 *</label>
               <input
                 id="mat-name"
                 required
                 aria-required="true"
                 aria-invalid={!!nameError}
-                value={form.name}
-                onChange={(e) => { setF('name', e.target.value); if (nameError) setNameError(''); }}
-                placeholder="[品名]｜[供應商]｜[產地或品級]"
+                value={productName}
+                onChange={(e) => { setProductName(e.target.value); if (nameError) setNameError(''); }}
+                placeholder="例：乳香"
                 className={`input-field ${nameError ? 'border-error' : ''}`}
               />
               {nameError && <p className="text-xs text-error font-light mt-1">{nameError}</p>}
@@ -416,7 +420,17 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
             </div>
             <div>
               <label className="section-label block mb-1">供應商</label>
-              <input value={form.supplier} onChange={(e) => setF('supplier', e.target.value)} className="input-field" />
+              <input
+                value={form.supplier}
+                onChange={(e) => setF('supplier', e.target.value)}
+                list="supplier-options"
+                className="input-field"
+              />
+              <datalist id="supplier-options">
+                {Array.from(new Set(materials.map((m) => m.supplier).filter(Boolean))).map((s) => (
+                  <option key={s} value={s} />
+                ))}
+              </datalist>
             </div>
             <div>
               <label className="section-label block mb-1">品級 grade</label>
@@ -431,7 +445,7 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
 
           {/* note */}
           <div>
-            <label className="section-label block mb-1">特性備注</label>
+            <label className="section-label block mb-1">特性備註</label>
             <textarea value={form.note} onChange={(e) => setF('note', e.target.value)} className="input-field h-16 resize-none" />
           </div>
 
@@ -506,7 +520,7 @@ export function MaterialList({ materials, onAdd, onUpdate, onDelete, onRestore }
               <input value={form.stock.unit} onChange={(e) => setF('stock', { ...form.stock, unit: e.target.value })} className="input-field" />
             </div>
             <div>
-              <label className="section-label block mb-1">庫存備注</label>
+              <label className="section-label block mb-1">庫存備註</label>
               <input value={form.stock.note} onChange={(e) => setF('stock', { ...form.stock, note: e.target.value })} className="input-field" />
             </div>
           </div>
@@ -768,7 +782,7 @@ function MaterialCard({
   showCatLabel,
   groupKnown,
 }: CardProps) {
-  const supShort = supplierShort(mat);
+  const supShort = supplierShort(mat.supplier);
   const isPending = (mat.testStatus ?? 'pending') === 'pending';
   const hasWarnings = (mat.v3Warnings?.length ?? 0) > 0;
 
@@ -777,6 +791,10 @@ function MaterialCard({
       className="bg-card border border-border cursor-pointer transition-colors hover:border-ink-3"
       style={{ borderLeftWidth: 3, borderLeftColor: ING_CAT_COLORS[mat.cat] }}
       onClick={onExpand}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onExpand(); } }}
+      role="button"
+      tabIndex={0}
+      aria-expanded={isExpanded}
     >
       {/* Header */}
       <div className="p-4">
@@ -835,7 +853,7 @@ function MaterialCard({
               <p className="type-micro text-ink-3 mt-0.5 truncate" title={mat.name}>{mat.name}</p>
             )}
           </div>
-          <span className="text-ink-3 text-xs shrink-0">{isExpanded ? '▲' : '▼'}</span>
+          <span aria-hidden="true" className="text-ink-3 text-xs shrink-0">{isExpanded ? '▲' : '▼'}</span>
         </div>
       </div>
 
@@ -875,7 +893,7 @@ function MaterialCard({
           {/* note */}
           {mat.note && (
             <div>
-              <span className="type-micro tracking-label">特性備注</span>
+              <span className="type-micro tracking-label">特性備註</span>
               <p className="type-meta text-ink mt-0.5">{mat.note}</p>
             </div>
           )}

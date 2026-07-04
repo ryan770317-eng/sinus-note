@@ -1,39 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-
-type ToastType = 'info' | 'success' | 'error';
-
-interface ToastAction {
-  label: string;
-  onClick: () => void;
-}
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { ToastContext, type ToastType, type ToastOptions, type ToastApi } from './ToastContext';
 
 interface Toast {
   id: string;
   message: string;
   type: ToastType;
   duration: number;
-  action?: ToastAction;
-}
-
-export interface ToastOptions {
-  type?: ToastType;
-  duration?: number;
-  action?: ToastAction;
-}
-
-interface ToastApi {
-  show: (message: string, opts?: ToastOptions) => void;
-  success: (message: string, opts?: Omit<ToastOptions, 'type'>) => void;
-  error: (message: string, opts?: Omit<ToastOptions, 'type'>) => void;
-  info: (message: string, opts?: Omit<ToastOptions, 'type'>) => void;
-}
-
-const ToastContext = createContext<ToastApi | null>(null);
-
-export function useToast(): ToastApi {
-  const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error('useToast must be used inside <ToastProvider>');
-  return ctx;
+  action?: ToastOptions['action'];
 }
 
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -58,12 +31,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     timersRef.current.set(id, timer);
   }, [dismiss]);
 
-  const api: ToastApi = {
+  // 穩定引用：讓 useToast() 的回傳值可以安全放進 effect deps
+  const api: ToastApi = useMemo(() => ({
     show,
     success: (m, o) => show(m, { ...o, type: 'success' }),
     error:   (m, o) => show(m, { ...o, type: 'error' }),
     info:    (m, o) => show(m, { ...o, type: 'info' }),
-  };
+  }), [show]);
 
   useEffect(() => {
     const timers = timersRef.current;
