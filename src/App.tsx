@@ -368,6 +368,7 @@ export default function App() {
           onAddRecipeNote={handleAddRecipeNote}
           onAddTask={async (data) => { await taskStore.addTask(data); }}
           onExport={handleExport}
+          onMenuOpen={() => setMenuOpen(true)}
         />
       );
     }

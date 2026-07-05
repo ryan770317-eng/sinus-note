@@ -103,23 +103,15 @@ export function BottomNav({ current, onChange, onMenuOpen, onQuickNote }: Props)
               </button>
             );
           })}
-          {/* Quick note — 記錄按鈕（5 個 tab 之後、設定之前） */}
+          {/* Quick note — 手機列最後一格。
+              設定使用頻率低，已移到總覽頁右上角齒輪，讓列上維持 6 格不擁擠 */}
           <button
             onClick={onQuickNote}
-            className="flex-1 max-w-[56px] flex flex-col items-center justify-center gap-0.5 py-2 min-h-[56px] text-bg bg-ink border-l border-border"
+            className="flex-1 max-w-[64px] flex flex-col items-center justify-center gap-0.5 py-2 min-h-[56px] text-bg bg-ink border-l border-border"
             aria-label="快速記錄"
           >
-            <IconPencil size={16} className="shrink-0" />
+            <IconPencil size={18} className="shrink-0" />
             <span className="type-micro tracking-wider mt-0.5">記錄</span>
-          </button>
-          {/* Settings — last slot, visually separated by left border */}
-          <button
-            onClick={onMenuOpen}
-            className="flex-1 max-w-[64px] flex flex-col items-center justify-center gap-0.5 py-2 min-h-[56px] text-ink-2 border-l border-border transition-colors hover:text-ink"
-            aria-label="開啟設定選單"
-          >
-            <IconSettings size={20} className="shrink-0" />
-            <span className="type-micro tracking-wider mt-0.5">設定</span>
           </button>
         </div>
       </nav>

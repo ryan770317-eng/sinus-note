@@ -3,6 +3,7 @@ import { isAlertTask } from '../../hooks/supabase/useTasks';
 import { BatchImport } from '../notes/BatchImport';
 import { GlobalSearch } from './GlobalSearch';
 import { BackupReminder } from './BackupReminder';
+import { IconSettings } from '../nav/NavIcons';
 import { StatsRow } from './StatsRow';
 import { AlertTasksSection } from './AlertTasksSection';
 import { ActiveTasksSection } from './ActiveTasksSection';
@@ -28,6 +29,8 @@ interface Props {
   onAddRecipeNote: (recipeId: number, note: string) => Promise<void>;
   onAddTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   onExport: () => void;
+  /** 手機版設定入口（底部導航已移除設定格） */
+  onMenuOpen: () => void;
 }
 
 export function Dashboard({
@@ -47,6 +50,7 @@ export function Dashboard({
   onAddRecipeNote,
   onAddTask,
   onExport,
+  onMenuOpen,
 }: Props) {
   const today = new Date().toLocaleDateString('zh-TW', { month: 'long', day: 'numeric', weekday: 'long' });
 
@@ -79,9 +83,19 @@ export function Dashboard({
   return (
     <div className="max-w-content mx-auto px-4 pt-7 pb-20">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="type-display">SINUS NOTE</h1>
-        <p className="type-meta mt-0.5">{today}</p>
+      <div className="mb-6 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="type-display">SINUS NOTE</h1>
+          <p className="type-meta mt-0.5">{today}</p>
+        </div>
+        {/* 手機版設定入口；桌面版頂列已有設定鈕，這裡隱藏 */}
+        <button
+          onClick={onMenuOpen}
+          className="md:hidden min-w-[44px] min-h-[44px] flex items-center justify-center text-ink-2 hover:text-ink transition-colors -mr-2"
+          aria-label="開啟設定選單"
+        >
+          <IconSettings size={20} />
+        </button>
       </div>
 
       {/* Global search */}
