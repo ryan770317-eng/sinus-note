@@ -515,8 +515,8 @@ export default function App() {
           setNoteSeed(null);
         }}
         onMenuOpen={() => setMenuOpen(true)}
-        onQuickNote={() => setQuickNoteOpen(true)}
       />
+      {/* 快速記錄浮層：僅由 PWA 捷徑（?quick=note）觸發 — app 內請直接用隨手記分頁 */}
       {quickNoteOpen && (
         <QuickNoteSheet
           onSave={async (t) => { await noteStore.addNote(t); }}
