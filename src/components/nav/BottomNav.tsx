@@ -16,20 +16,9 @@ interface Props {
   current: TabId;
   onChange: (tab: TabId) => void;
   onMenuOpen: () => void;
-  onQuickNote: () => void;
 }
 
-/** 快速記錄鉛筆 icon（比照 NavIcons line-icon 風格） */
-function IconPencil({ className = '', size = 16 }: { className?: string; size?: number }): JSX.Element {
-  return (
-    <svg width={size} height={size} viewBox="0 0 22 22" fill="none" className={className} aria-hidden="true">
-      <path d="M14.5 3.5 L18.5 7.5 L8 18 L4 19 L5 15 Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-      <path d="M13 5 L17 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-export function BottomNav({ current, onChange, onMenuOpen, onQuickNote }: Props): JSX.Element {
+export function BottomNav({ current, onChange, onMenuOpen }: Props): JSX.Element {
   return (
     <>
       {/* ───────────────────────── Tablet / Desktop: top bar ───────────────────────── */}
@@ -59,14 +48,6 @@ export function BottomNav({ current, onChange, onMenuOpen, onQuickNote }: Props)
             );
           })}
         </div>
-        <button
-          onClick={onQuickNote}
-          className="px-4 flex items-center gap-2 type-label text-ink bg-card hover:text-ink border-l border-border transition-colors"
-          aria-label="快速記錄"
-        >
-          <IconPencil size={18} className="shrink-0" />
-          <span>記錄</span>
-        </button>
         <button
           onClick={onMenuOpen}
           className="px-4 flex items-center justify-center text-ink-2 hover:text-ink border-l border-border transition-colors"
@@ -103,16 +84,9 @@ export function BottomNav({ current, onChange, onMenuOpen, onQuickNote }: Props)
               </button>
             );
           })}
-          {/* Quick note — 手機列最後一格。
-              設定使用頻率低，已移到總覽頁右上角齒輪，讓列上維持 6 格不擁擠 */}
-          <button
-            onClick={onQuickNote}
-            className="flex-1 max-w-[64px] flex flex-col items-center justify-center gap-0.5 py-2 min-h-[56px] text-bg bg-ink border-l border-border"
-            aria-label="快速記錄"
-          >
-            <IconPencil size={18} className="shrink-0" />
-            <span className="type-micro tracking-wider mt-0.5">記錄</span>
-          </button>
+          {/* 手機列只放 5 個分頁：
+              「快速記錄」與隨手記分頁功能重複，已移除（PWA 捷徑 ?quick=note 仍會開快速記錄浮層）；
+              設定使用頻率低，走總覽頁右上角齒輪 */}
         </div>
       </nav>
     </>
