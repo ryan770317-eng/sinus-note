@@ -7,9 +7,20 @@ interface Props {
   onImport: (file: File) => Promise<void>;
   onMergeImport: (file: File) => Promise<void>;
   onLogout: () => void;
+  /** 目前是示範資料模式 */
+  isMock: boolean;
+  /** 距上次備份天數；null = 從未備份 */
+  backupDaysSince: number | null;
+  /** 需要提醒備份 */
+  backupDue: boolean;
+  /** 7 天後再提醒（寫 SNOOZE_KEY） */
+  onSnoozeBackup: () => void;
 }
 
-export function MenuOverlay({ onClose, onExport, onImport, onMergeImport, onLogout }: Props) {
+export function MenuOverlay({
+  onClose, onExport, onImport, onMergeImport, onLogout,
+  isMock, backupDaysSince, backupDue, onSnoozeBackup,
+}: Props) {
   const toast = useToast();
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('sinus_anthropic_key') ?? '');
   const [showApiKey, setShowApiKey] = useState(false);
@@ -48,6 +59,26 @@ export function MenuOverlay({ onClose, onExport, onImport, onMergeImport, onLogo
         ref={overlayRef}
         className="relative bg-bg border border-border w-64 mb-12 mr-0 shadow-none"
       >
+        {(isMock || backupDue) && (
+          <div className="p-4 border-b border-border space-y-3" role="status">
+            <p className="section-label">狀態</p>
+            {isMock && (
+              <p className="text-[13px] text-ink">目前顯示示範資料，新增第一筆資料後自動切換</p>
+            )}
+            {backupDue && (
+              <div>
+                <p className="text-[13px] text-ink tabular-nums">
+                  {backupDaysSince == null ? '尚未備份' : `距上次備份已 ${backupDaysSince} 天`}
+                </p>
+                <div className="flex gap-2 mt-2">
+                  <button type="button" onClick={onExport} className="btn text-xs">立即備份</button>
+                  <button type="button" onClick={onSnoozeBackup} className="btn text-xs">7 天後提醒</button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="p-4 border-b border-border">
           <p className="type-meta tracking-label mb-2">Anthropic API Key</p>
           <div className="flex gap-2">

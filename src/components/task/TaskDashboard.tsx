@@ -20,6 +20,8 @@ interface Props {
   onRestore?: (task: Task) => Promise<void>;
   onRecipeClick: (recipeId: number) => void;
   onBurnSave: (taskId: string, recipeId: number | null, entry: BurnEntry) => Promise<void>;
+  /** 掛載時直接打開此工序的編輯（總覽「處理」跳轉） */
+  initialEditTaskId?: string;
 }
 
 export function TaskDashboard({
@@ -33,10 +35,13 @@ export function TaskDashboard({
   onRestore,
   onRecipeClick,
   onBurnSave,
+  initialEditTaskId,
 }: Props) {
   const toast = useToast();
   const [showForm, setShowForm] = useState(false);
-  const [editTask, setEditTask] = useState<Task | null>(null);
+  const [editTask, setEditTask] = useState<Task | null>(
+    () => (initialEditTaskId ? tasks.find((t) => t.id === initialEditTaskId) ?? null : null),
+  );
   const [burnTask, setBurnTask] = useState<Task | null>(null);
   const [showAllDone, setShowAllDone] = useState(false);
 

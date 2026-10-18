@@ -76,3 +76,11 @@ export function addDays(isoDate: string, days: number): string {
   d.setDate(d.getDate() + days);
   return d.toISOString().slice(0, 10);
 }
+
+const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
+
+/** 總覽日期列：「2026.10.17＋全形空格＋星期六」（兩位補零、全形空格） */
+export function formatDashboardDate(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}\u3000星期${WEEKDAYS[d.getDay()]}`;
+}

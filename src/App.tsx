@@ -29,7 +29,7 @@ import { useToast } from './components/shared/useToast';
 import { OfflineBanner } from './components/shared/OfflineBanner';
 
 import { exportBackup, readJsonFile, mergePatch, type BackupData } from './utils/export';
-import { BACKUP_KEY } from './utils/backup';
+import { BACKUP_KEY, SNOOZE_KEY, shouldRemindBackup } from './utils/backup';
 import { todayISO } from './utils/date';
 import { MOCK_RECIPES, MOCK_TASKS, MOCK_MATERIALS, MOCK_NOTES } from './utils/mockData';
 import type { Recipe, FragCat, BurnEntry, Material } from './types';
@@ -56,6 +56,10 @@ export default function App() {
   // 全域搜尋跳轉：帶入目標分頁的初始搜尋詞
   const [matSeed, setMatSeed] = useState<string | null>(null);
   const [noteSeed, setNoteSeed] = useState<string | null>(null);
+  // 總覽「處理」跳轉：工序分頁掛載時直接打開這筆的編輯
+  const [taskSeed, setTaskSeed] = useState<string | null>(null);
+  // 匯出／延後提醒後重算 backupDue
+  const [backupTick, setBackupTick] = useState(0);
 
   // Recipe navigation
   const [recipeScreen, setRecipeScreen] = useState<RecipeScreen>('home');
@@ -151,6 +155,25 @@ export default function App() {
   const notes    = isMock ? MOCK_NOTES    : noteStore.notes;
 
   const alertTasks = tasks.filter(isAlertTask);
+
+  // 備份提醒（mock 模式不算 due）；backupTick 讓匯出／延後後重新讀 localStorage
+  void backupTick;
+  const backupState = shouldRemindBackup(
+    Date.now(),
+    localStorage.getItem(BACKUP_KEY),
+    localStorage.getItem(SNOOZE_KEY),
+  );
+  const backupDue = !isMock && backupState.remind;
+
+  function handleSnoozeBackup() {
+    localStorage.setItem(SNOOZE_KEY, new Date(Date.now() + 7 * 86400000).toISOString());
+    setBackupTick((n) => n + 1);
+  }
+
+  function openTask(id: string) {
+    setTaskSeed(id);
+    setTab('task');
+  }
 
   // 示範資料只能看不能改；新增操作維持可用（寫入第一筆真資料後自動退出示範模式）
   const MOCK_BLOCK_MSG = '目前顯示的是示範資料，無法編輯或刪除 — 新增第一筆自己的資料後就會切換';
@@ -275,6 +298,7 @@ export default function App() {
       tasks: taskStore.tasks,
     });
     localStorage.setItem(BACKUP_KEY, new Date().toISOString());
+    setBackupTick((n) => n + 1);
     setMenuOpen(false);
   }
 
@@ -357,17 +381,17 @@ export default function App() {
           notes={notes}
           isMock={isMock}
           nextId={recipeStore.nextId}
+          backupDue={backupDue}
           onTabChange={(t) => { setTab(t); if (t === 'recipe') setRecipeScreen('home'); }}
           onRecipeClick={goRecipeDetail}
           onMaterialClick={(q) => { setMatSeed(q); setTab('material'); }}
           onNoteClick={(q) => { setNoteSeed(q); setTab('notes'); }}
-          onTaskClick={() => setTab('task')}
+          onTaskOpen={openTask}
           onAddMaterial={handleAddMaterial}
           onUpdateStock={handleUpdateStock}
           onAddRecipe={handleAddRecipe}
           onAddRecipeNote={handleAddRecipeNote}
           onAddTask={async (data) => { await taskStore.addTask(data); }}
-          onExport={handleExport}
           onMenuOpen={() => setMenuOpen(true)}
         />
       );
@@ -438,6 +462,7 @@ export default function App() {
           onRestore={taskStore.restoreTask}
           onRecipeClick={(id) => { goRecipeDetail(id); }}
           onBurnSave={mockGuard(handleBurnSave)}
+          initialEditTaskId={taskSeed ?? undefined}
         />
       );
     }
@@ -513,6 +538,7 @@ export default function App() {
           // 手動切分頁時清除全域搜尋 seed，避免殘留搜尋詞
           setMatSeed(null);
           setNoteSeed(null);
+          setTaskSeed(null);
         }}
         onMenuOpen={() => setMenuOpen(true)}
       />
@@ -530,6 +556,10 @@ export default function App() {
           onImport={handleImport}
           onMergeImport={handleMergeImport}
           onLogout={async () => { await logout(); setMenuOpen(false); }}
+          isMock={isMock}
+          backupDaysSince={backupState.daysSince}
+          backupDue={backupDue}
+          onSnoozeBackup={handleSnoozeBackup}
         />
       )}
 

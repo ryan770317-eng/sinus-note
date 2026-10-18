@@ -15,7 +15,7 @@ function assert(cond, msg) {
 const { browser, page, pageErrors } = await launchApp();
 try {
   // 先在設定選單存一個假 API key（fallback 直呼會用到）
-  await page.locator('button[aria-label="開啟設定選單"]:visible').first().click();
+  await page.locator('button[aria-label="開啟設定選單"]:visible, button[aria-label^="設定（"]:visible').first().click();
   await page.waitForTimeout(300);
   await page.getByPlaceholder('sk-ant-...').fill('sk-ant-fake-key-for-verify');
   await page.getByRole('button', { name: '儲存', exact: true }).click();

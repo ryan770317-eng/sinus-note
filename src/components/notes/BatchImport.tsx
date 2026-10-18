@@ -60,7 +60,6 @@ export function BatchImport({
   onAddTask,
 }: Props) {
   const toast = useToast();
-  const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [parsing, setParsing] = useState(false);
   const [actions, setActions] = useState<ActionState[]>([]);
@@ -217,24 +216,9 @@ export function BatchImport({
   const pendingCount = actions.filter((a) => a.status === 'pending' && a.action.type !== 'journal').length;
 
   return (
-    <div className="mt-4">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        aria-controls="batch-import-panel"
-        aria-label={`批次解析工具（${open ? '已展開' : '已收合'}）`}
-        className="flex items-center justify-between w-full px-4 py-3 border border-border bg-card hover:border-ink-2 transition-colors"
-        style={{ borderLeftWidth: 3, borderLeftColor: '#8B6F52' }}
-      >
-        <div className="flex items-center gap-2">
-          <span className="type-meta text-ink">貼上對話 → 批次解析</span>
-          <span className="type-micro tracking-label text-ink-2 px-1.5 py-0.5" style={{ background: 'rgba(139,111,82,0.12)' }}>AI</span>
-        </div>
-        <span className="text-ink-2 text-xs" aria-hidden="true">{open ? '▲' : '▼'}</span>
-      </button>
-
-      {open && (
-        <div id="batch-import-panel">
+    <div>
+      {/* 開合由外層 DrawerRow 控制（總覽 D2） */}
+      <div id="batch-import-panel">
           <label htmlFor="batch-input" className="sr-only">貼入內容</label>
           <textarea
             id="batch-input"
@@ -304,8 +288,7 @@ export function BatchImport({
               ))}
             </div>
           )}
-        </div>
-      )}
+      </div>
     </div>
   );
 }
