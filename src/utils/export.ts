@@ -1,4 +1,4 @@
-import type { Recipe, Material, Task, FragCat } from '../types';
+import type { Recipe, Material, Task, FragCat, Note } from '../types';
 import { uid } from './id';
 
 export interface BackupData {
@@ -9,6 +9,8 @@ export interface BackupData {
   catOrder: FragCat[] | null;
   materials: Material[];
   tasks: Task[];
+  /** 隨手記（D8 新增；舊備份檔沒有此欄位） */
+  notes?: Note[];
 }
 
 export function exportBackup(data: BackupData): void {
@@ -44,17 +46,19 @@ export function readJsonFile(file: File): Promise<unknown> {
  * 追加的配方一律重新編號（從 max(nextId, 現有最大 id + 1) 起跳），
  * 材料/工序若 id 已存在則重生 uid —— 否則後續 upsert 會靜默蓋掉現有資料，
  * 違反「只追加不覆蓋」的承諾。
+ * 隨手記以 id 去重：同 id 視為同一則（來自同一帳號的舊匯出），不重複追加。
  */
 export function mergePatch(
-  existing: { recipes: Recipe[]; materials: Material[]; tasks: Task[] },
-  patch: Partial<{ recipes: Recipe[]; materials: Material[]; tasks: Task[] }>,
+  existing: { recipes: Recipe[]; materials: Material[]; tasks: Task[]; notes?: Note[] },
+  patch: Partial<{ recipes: Recipe[]; materials: Material[]; tasks: Task[]; notes: Note[] }>,
   nextId: number,
 ): {
   recipes: Recipe[];
   materials: Material[];
   tasks: Task[];
+  notes: Note[];
   nextId: number;
-  added: { recipes: number; materials: number; tasks: number };
+  added: { recipes: number; materials: number; tasks: number; notes: number };
 } {
   const existingNames = new Set(existing.recipes.map((r) => r.name));
   const maxExistingId = existing.recipes.reduce((mx, r) => Math.max(mx, r.id), 0);
@@ -75,11 +79,21 @@ export function mergePatch(
     .filter((t) => !existingTaskKeys.has(`${t.title}:${t.startDate}`))
     .map((t) => (existingTaskIds.has(t.id) ? { ...t, id: uid('tk') } : t));
 
+  const existingNotes = existing.notes ?? [];
+  const existingNoteIds = new Set(existingNotes.map((n) => n.id));
+  const newNotes: Note[] = [];
+  for (const n of patch.notes ?? []) {
+    if (existingNoteIds.has(n.id)) continue;
+    existingNoteIds.add(n.id); // patch 內自己重複的 id 也只收一次
+    newNotes.push(n);
+  }
+
   return {
     recipes: [...existing.recipes, ...newRecipes],
     materials: [...existing.materials, ...newMats],
     tasks: [...existing.tasks, ...newTasks],
+    notes: [...existingNotes, ...newNotes],
     nextId: idCursor,
-    added: { recipes: newRecipes.length, materials: newMats.length, tasks: newTasks.length },
+    added: { recipes: newRecipes.length, materials: newMats.length, tasks: newTasks.length, notes: newNotes.length },
   };
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Recipe, Task, Ingredient, IngredientCat, Material, BurnEntry } from '../../types';
 import { FRAG_CATS, ING_CATS, ING_CAT_COLORS, TASK_TYPES, TASK_STATUS } from '../../utils/constants';
 import { starsFilled, supplierShort, fmtAmount, scaleFactor } from '../../utils/format';
@@ -68,13 +68,17 @@ export function RecipeDetail({
   const [makeMode, setMakeMode] = useState(false);
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const storageKey = `sinus_make_${recipe.id}_${vIdx}`;
+  // 進入製作模式時記下當下版本的 key；切版本後 storageKey 變了也不會把勾選寫到別的版本
+  const storageKeyRef = useRef<string | null>(null);
   // 版本切換時只歸零換算；退出製作模式與清勾選在 tab onClick 裡做（D8-5）
   useEffect(() => {
     setTargetText('');
   }, [vIdx]);
   // makeMode 期間把勾選狀態續存 sessionStorage
   useEffect(() => {
-    if (makeMode) sessionStorage.setItem(storageKey, JSON.stringify([...checked]));
+    if (makeMode && storageKeyRef.current === storageKey) {
+      sessionStorage.setItem(storageKey, JSON.stringify([...checked]));
+    }
   }, [checked, makeMode, storageKey]);
   const versions = recipe.versions ?? [];
   const version = versions[vIdx];
@@ -155,11 +159,13 @@ export function RecipeDetail({
         }
       } catch { restored = new Set(); }
     }
+    storageKeyRef.current = storageKey;
     setChecked(restored);
     setMakeMode(true);
   }
 
   function exitMake() {
+    storageKeyRef.current = null;
     setMakeMode(false);
     setChecked(new Set());
     sessionStorage.removeItem(storageKey);

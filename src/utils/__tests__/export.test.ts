@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { mergePatch } from '../export';
-import type { Recipe, Material, Task } from '../../types';
+import type { Recipe, Material, Task, Note } from '../../types';
 
 function recipe(id: number, name: string): Recipe {
   return {
@@ -61,6 +61,20 @@ describe('mergePatch', () => {
     const existing = { recipes: [recipe(201, 'A')], materials: [], tasks: [] };
     const merged = mergePatch(existing, {}, 202);
     expect(merged.recipes).toHaveLength(1);
-    expect(merged.added).toEqual({ recipes: 0, materials: 0, tasks: 0 });
+    expect(merged.added).toEqual({ recipes: 0, materials: 0, tasks: 0, notes: 0 });
+  });
+
+  it('隨手記以 id 去重追加；舊呼叫端沒給 notes 也不會壞', () => {
+    const note = (id: string, text: string): Note => ({ id, text, ts: 0 });
+    const existing = { recipes: [], materials: [], tasks: [], notes: [note('n1', '既有')] };
+    const patch = { notes: [note('n1', '同 id 不同字'), note('n2', '新的'), note('n2', '重複的新的')] };
+    const merged = mergePatch(existing, patch, 200);
+
+    expect(merged.added.notes).toBe(1);
+    expect(merged.notes.map((n) => n.id)).toEqual(['n1', 'n2']);
+    expect(merged.notes[0].text).toBe('既有'); // 不覆蓋既有
+
+    const legacy = mergePatch({ recipes: [], materials: [], tasks: [] }, { notes: [note('x', 'a')] }, 200);
+    expect(legacy.notes).toHaveLength(1);
   });
 });

@@ -304,6 +304,7 @@ export default function App() {
       catOrder: recipeStore.catOrder,
       materials: matStore.materials,
       tasks: taskStore.tasks,
+      notes: noteStore.notes,
     });
     localStorage.setItem(BACKUP_KEY, new Date().toISOString());
     setBackupTick((n) => n + 1);
@@ -347,18 +348,20 @@ export default function App() {
         if (data.catImages) await recipeStore.saveCatImages(data.catImages);
         if (data.materials) await matStore.saveMaterials(data.materials);
         if (data.tasks) await taskStore.saveTasks(data.tasks);
+        if (data.notes) await noteStore.saveNotes(data.notes);
         toast.success('匯入完成');
       } else {
         const patch = req.patch;
         const merged = mergePatch(
-          { recipes: recipeStore.recipes, materials: matStore.materials, tasks: taskStore.tasks },
-          { recipes: patch.recipes, materials: patch.materials, tasks: patch.tasks },
+          { recipes: recipeStore.recipes, materials: matStore.materials, tasks: taskStore.tasks, notes: noteStore.notes },
+          { recipes: patch.recipes, materials: patch.materials, tasks: patch.tasks, notes: patch.notes },
           recipeStore.nextId,
         );
         await recipeStore.saveRecipes(merged.recipes, merged.nextId);
         await matStore.saveMaterials(merged.materials);
         await taskStore.saveTasks(merged.tasks);
-        toast.success(`合併完成：配方 +${merged.added.recipes}、材料 +${merged.added.materials}、工序 +${merged.added.tasks}`);
+        if (merged.added.notes > 0) await noteStore.saveNotes(merged.notes);
+        toast.success(`合併完成：配方 +${merged.added.recipes}、材料 +${merged.added.materials}、工序 +${merged.added.tasks}、隨手記 +${merged.added.notes}`);
       }
     } catch (err) {
       toast.error(`${req.kind === 'replace' ? '匯入' : '合併'}失敗：${err instanceof Error ? err.message : String(err)}`);
@@ -370,12 +373,14 @@ export default function App() {
       const r = req.data.recipes?.length ?? 0;
       const m = req.data.materials?.length ?? 0;
       const t = req.data.tasks?.length ?? 0;
-      return `匯入將覆蓋全部資料，無法復原。\n即將匯入：配方 ${r}、材料 ${m}、工序 ${t}。\n確定執行嗎？`;
+      const n = req.data.notes?.length ?? 0;
+      return `匯入將覆蓋全部資料，無法復原。\n即將匯入：配方 ${r}、材料 ${m}、工序 ${t}、隨手記 ${n}。\n確定執行嗎？`;
     }
     const r = req.patch.recipes?.length ?? 0;
     const m = req.patch.materials?.length ?? 0;
     const t = req.patch.tasks?.length ?? 0;
-    return `合併匯入將保留既有資料並追加差異項。\n檔案內容：配方 ${r}、材料 ${m}、工序 ${t}。\n確定執行嗎？`;
+    const n = req.patch.notes?.length ?? 0;
+    return `合併匯入將保留既有資料並追加差異項。\n檔案內容：配方 ${r}、材料 ${m}、工序 ${t}、隨手記 ${n}。\n確定執行嗎？`;
   }
 
   // ── Render ────────────────────────────────────────────────────
