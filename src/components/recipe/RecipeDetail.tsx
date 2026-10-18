@@ -3,7 +3,8 @@ import type { Recipe, Task, Ingredient, IngredientCat, Material } from '../../ty
 import { FRAG_CATS, ING_CATS, ING_CAT_COLORS, RECIPE_STATUS } from '../../utils/constants';
 import { speciesGroupLabel } from '../../utils/species';
 import { stars, supplierShort, fmtAmount, scaleFactor } from '../../utils/format';
-import { StatusBadge } from '../shared/StatusBadge';
+import { StatusDot } from '../shared/StatusDot';
+import { recipeStatusDot } from '../../utils/status';
 import { ProgressBar } from '../shared/ProgressBar';
 import { useToast } from '../shared/useToast';
 import { BurnLog } from './BurnLog';
@@ -182,7 +183,7 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
             <p className="type-micro">{recipe.num} · {FRAG_CATS[recipe.fragCat]?.label ?? recipe.fragCat}</p>
             <h1 className="type-title">{recipe.name}</h1>
           </div>
-          <StatusBadge status={recipe.status} />
+          <StatusDot {...recipeStatusDot(recipe.status)} />
         </div>
         {(recipe.tags?.length ?? 0) > 0 && (
           <p className="type-meta">{recipe.tags.join(' · ')}</p>

@@ -1,33 +1,26 @@
 interface Props {
+  /** 中文標題 */
   title: string;
-  count: number;
-  color?: string;
+  /** 英文大寫 kicker（例：NEXT、ATTENTION、FORMULA） */
+  kicker?: string;
+  /** 跟在標題後的計數（ink tabular-nums） */
+  count?: number;
+  /** 右側「全部 →」 */
   onMore?: () => void;
   moreLabel?: string;
 }
 
-export function SectionHeader({ title, count, color, onMore, moreLabel = '全部 →' }: Props) {
+/** Section 標題：「英文大寫 kicker＋中文」12/500 ink-2。 */
+export function SectionHeader({ title, kicker, count, onMore, moreLabel = '全部 →' }: Props) {
   return (
-    <div className="flex items-center justify-between mb-3">
-      <div className="flex items-center gap-2">
-        <p className="section-label" style={color ? { color } : undefined}>{title}</p>
-        <span
-          className="type-micro px-1.5 leading-5"
-          style={{
-            background: color ? `${color}18` : 'rgba(107,100,89,0.1)',
-            color: color ?? '#6B6459',
-          }}
-          aria-label={`${count} 項`}
-        >
-          {count}
-        </span>
-      </div>
+    <div className="flex items-center justify-between gap-3 min-h-[44px]">
+      <h2 className="kicker">
+        {kicker}
+        <span className={`${kicker ? 'ml-2.5 ' : ''}tracking-[0.1em]`}>{title}</span>
+        {count != null && <span className="ml-1.5 text-ink tabular-nums">{count}</span>}
+      </h2>
       {onMore && (
-        <button
-          onClick={onMore}
-          className="type-meta hover:text-ink px-2 min-w-[44px] min-h-[44px] text-right"
-          aria-label={`${title} — ${moreLabel}`}
-        >
+        <button type="button" onClick={onMore} className="btn-text -mr-3" aria-label={`${title} — ${moreLabel}`}>
           {moreLabel}
         </button>
       )}

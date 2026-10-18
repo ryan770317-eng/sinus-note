@@ -78,9 +78,9 @@ export function BottomNav({ current, onChange, onMenuOpen }: Props): JSX.Element
                   active ? 'text-ink' : 'text-ink-2'
                 }`}
               >
-                {active && <span className="absolute top-0 left-3 right-3 h-[2px] bg-ink" />}
+                {active && <span className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-[2px] bg-ink" />}
                 <Icon size={22} className="shrink-0" />
-                <span className="type-micro tracking-wider mt-0.5">{tab.label}</span>
+                <span className={`text-xs tracking-[0.1em] mt-0.5 ${active ? 'text-ink font-medium' : 'text-ink-2'}`}>{tab.label}</span>
               </button>
             );
           })}

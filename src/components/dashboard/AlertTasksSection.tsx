@@ -14,7 +14,7 @@ export function AlertTasksSection({ tasks, recipes, onOpen }: Props) {
 
   return (
     <div className="mb-6">
-      <SectionHeader title="需要注意" count={tasks.length} color="#a06050" onMore={onOpen} />
+      <SectionHeader title="需要注意" count={tasks.length} onMore={onOpen} />
       <div className="space-y-2">
         {tasks.map((t) => {
           const tt = TASK_TYPES[t.taskType] ?? TASK_TYPES['other'];

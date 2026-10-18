@@ -98,7 +98,6 @@ export function MaterialList({ materials, initialSearch, onAdd, onUpdate, onDele
   const [activeCat, setActiveCat] = useState<IngredientCat>('base');
   const [subTab, setSubTab] = useState<SubTab>('all');
   const [search, setSearch] = useState(initialSearch ?? '');
-  const [crossCat, setCrossCat] = useState(!!initialSearch);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<Omit<Material, 'id'>>(emptyForm());
@@ -155,8 +154,8 @@ export function MaterialList({ materials, initialSearch, onAdd, onUpdate, onDele
       });
     }
 
-    // 跨類：搜尋詞下才生效
-    if (!(search && crossCat)) {
+    // 搜尋詞非空時忽略分類篩選（等同舊版的跨類搜尋）
+    if (!search) {
       list = list.filter((m) => m.cat === activeCat);
     }
 
@@ -168,7 +167,7 @@ export function MaterialList({ materials, initialSearch, onAdd, onUpdate, onDele
     }
 
     return list;
-  }, [materials, search, crossCat, activeCat, subTab]);
+  }, [materials, search, activeCat, subTab]);
 
   // ── Form handlers ─────────────────────────────────────────────
   function startEdit(mat: Material) {
@@ -294,8 +293,6 @@ export function MaterialList({ materials, initialSearch, onAdd, onUpdate, onDele
           onChange={setSearch}
           placeholder="名稱、學名、別名、產地、供應商"
           resultCount={filtered.length}
-          crossCategory={crossCat}
-          onCrossCategoryChange={setCrossCat}
           className="w-full sm:w-[320px]"
         />
       </div>
@@ -565,7 +562,7 @@ export function MaterialList({ materials, initialSearch, onAdd, onUpdate, onDele
           onEdit={startEdit}
           onDelete={(id) => setDeleteId(id)}
           onRunSop={(m) => setSopMaterial(m)}
-          showCatLabel={!!(search && crossCat)}
+          showCatLabel={!!search}
         />
       )}
 

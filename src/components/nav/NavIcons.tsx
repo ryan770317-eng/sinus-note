@@ -3,7 +3,7 @@ type IconProps = {
   size?: number;
 };
 
-const STROKE = 1.2;
+const STROKE = 1.25;
 
 export function IconOverview({ className = '', size = 22 }: IconProps) {
   // 總覽：九宮格小方塊

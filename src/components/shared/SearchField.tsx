@@ -6,49 +6,47 @@ type Props = {
   placeholder?: string;
   /** 結果數（顯示於輸入框下方）。undefined = 不顯示計數 */
   resultCount?: number;
-  /** 跨類模式：undefined = 不顯示 toggle；true/false = 顯示可切換的 toggle */
-  crossCategory?: boolean;
-  onCrossCategoryChange?: (v: boolean) => void;
-  /** 預設是否展開（電腦版可傳 true） */
+  /** 常駐模式：永遠展開、不渲染收起鈕、高 48、bg-card 無邊框（手機設計稿規格） */
+  persistent?: boolean;
+  /** 非常駐模式：預設是否展開 */
   defaultOpen?: boolean;
   className?: string;
 };
 
 /**
  * 共用搜尋欄位：
- *  - 預設收合成 ⌕ 圖示按鈕
- *  - 點擊展開輸入框，auto focus
- *  - 輸入框右側有 ✕ clear button
- *  - 有內容時顯示「N 筆結果」計數
- *  - 桌機 `/` 快捷鍵展開
- *  - 可選：跨類搜尋 toggle
+ *  - persistent：常駐輸入框（總覽、配方、材料、隨手記）
+ *  - 非 persistent：預設收合成 ⌕ 圖示按鈕，點擊展開並 auto focus
+ *  - 有內容時顯示清除 ×（44×44）與「N 筆結果」
+ *  - 桌機 `/` 快捷鍵聚焦／展開
  */
 export function SearchField({
   value,
   onChange,
   placeholder = '搜尋...',
   resultCount,
-  crossCategory,
-  onCrossCategoryChange,
+  persistent = false,
   defaultOpen = false,
   className = '',
 }: Props) {
-  const [open, setOpen] = useState(defaultOpen || !!value);
+  const [open, setOpen] = useState(persistent || defaultOpen || !!value);
   const inputRef = useRef<HTMLInputElement>(null);
+  const expanded = persistent || open;
 
-  // `/` 快捷鍵展開（desktop 獨享；避免輸入中觸發）
+  // `/` 快捷鍵（desktop 獨享；避免輸入中觸發）
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === '/' && !open) {
-        const t = e.target as HTMLElement;
-        if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA') return;
+      const t = e.target as HTMLElement;
+      const typing = t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT';
+      if (e.key === '/' && !typing) {
         e.preventDefault();
-        setOpen(true);
+        if (persistent) inputRef.current?.focus();
+        else setOpen(true);
       }
-      if (e.key === 'Escape' && open) {
+      if (e.key === 'Escape' && t === inputRef.current) {
         if (value) {
           onChange('');
-        } else {
+        } else if (!persistent) {
           setOpen(false);
           inputRef.current?.blur();
         }
@@ -56,17 +54,14 @@ export function SearchField({
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [open, value, onChange]);
+  }, [persistent, value, onChange]);
 
-  // 展開時 auto focus
+  // 非常駐：展開時 auto focus（常駐不自動聚焦，避免手機一進頁就跳鍵盤）
   useEffect(() => {
-    if (open) inputRef.current?.focus();
-  }, [open]);
+    if (open && !persistent) inputRef.current?.focus();
+  }, [open, persistent]);
 
-  const showCrossToggle = onCrossCategoryChange && typeof crossCategory === 'boolean';
-
-  if (!open) {
-    // 收合狀態：只顯示 ⌕ icon 按鈕
+  if (!expanded) {
     return (
       <div className={`flex items-center justify-end ${className}`}>
         <button
@@ -76,7 +71,7 @@ export function SearchField({
           aria-label="展開搜尋"
           title="搜尋 ( / )"
         >
-          <SearchIcon />
+          <SearchIcon size={16} />
         </button>
       </div>
     );
@@ -84,83 +79,62 @@ export function SearchField({
 
   return (
     <div className={className}>
-      {/* 輸入框 + clear + cross-toggle 列 */}
-      <div className="flex items-stretch gap-0 border border-ink-4 focus-within:border-ink-2 bg-card transition-colors">
-        <div className="flex items-center px-3 text-ink-3">
-          <SearchIcon />
-        </div>
+      <div
+        className={
+          persistent
+            ? 'flex items-center h-12 bg-card'
+            : 'flex items-stretch border-[1.5px] border-ink-2 focus-within:border-ink bg-card transition-colors'
+        }
+      >
+        <span className={`flex items-center text-ink-2 ${persistent ? 'pl-3.5 pr-2.5' : 'px-3'}`}>
+          <SearchIcon size={persistent ? 18 : 16} />
+        </span>
         <input
           ref={inputRef}
+          type="search"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="flex-1 bg-transparent py-2 pr-2 text-sm text-ink placeholder:text-ink-3 focus:outline-none"
+          aria-label={placeholder}
+          className="flex-1 min-w-0 bg-transparent h-11 text-base text-ink placeholder:text-ink-2 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
         />
         {value && (
           <button
             type="button"
             onClick={() => { onChange(''); inputRef.current?.focus(); }}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-ink-3 hover:text-ink transition-colors"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-ink-2 hover:text-ink transition-colors"
             aria-label="清除搜尋"
           >
             <ClearIcon />
           </button>
         )}
-        <button
-          type="button"
-          onClick={() => { onChange(''); setOpen(false); }}
-          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-ink-3 hover:text-ink border-l border-ink-4 transition-colors"
-          aria-label="收起搜尋"
-          title="收起 (Esc)"
-        >
-          <CollapseIcon />
-        </button>
+        {!persistent && (
+          <button
+            type="button"
+            onClick={() => { onChange(''); setOpen(false); }}
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-ink-2 hover:text-ink border-l border-border transition-colors"
+            aria-label="收起搜尋"
+            title="收起 (Esc)"
+          >
+            <CollapseIcon />
+          </button>
+        )}
       </div>
 
-      {/* 副資訊列：結果計數 + 跨類 toggle */}
-      {(value || showCrossToggle) && (
-        <div className="flex items-center justify-between mt-1.5 px-1">
-          <div className="type-micro">
-            {value && typeof resultCount === 'number' && (
-              <span>
-                {resultCount === 0 ? '無結果' : `${resultCount} 筆結果`}
-              </span>
-            )}
-          </div>
-          {showCrossToggle && (
-            <button
-              type="button"
-              onClick={() => onCrossCategoryChange!(!crossCategory)}
-              className="type-micro tracking-label uppercase flex items-center gap-1.5 py-1 hover:text-ink transition-colors"
-              aria-pressed={crossCategory}
-            >
-              <span
-                className="inline-block w-3.5 h-3.5 border border-ink-4 relative"
-                style={{ background: crossCategory ? '#1A1A18' : 'transparent' }}
-              >
-                {crossCategory && (
-                  <span
-                    className="absolute inset-0 flex items-center justify-center text-bg"
-                    style={{ fontSize: 10, lineHeight: 1 }}
-                  >
-                    ✓
-                  </span>
-                )}
-              </span>
-              <span>跨類搜尋</span>
-            </button>
-          )}
-        </div>
+      {value && typeof resultCount === 'number' && (
+        <p className="type-micro mt-1.5 px-1 tabular-nums" aria-live="polite">
+          {resultCount === 0 ? '無結果' : `${resultCount} 筆結果`}
+        </p>
       )}
     </div>
   );
 }
 
-function SearchIcon() {
+function SearchIcon({ size }: { size: number }) {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.2" />
-      <path d="M11 11L14 14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.25" />
+      <path d="M11 11L14 14" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
     </svg>
   );
 }
@@ -168,7 +142,7 @@ function SearchIcon() {
 function ClearIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-      <path d="M2 2L10 10M10 2L2 10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M2 2L10 10M10 2L2 10" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
     </svg>
   );
 }
@@ -176,7 +150,7 @@ function ClearIcon() {
 function CollapseIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-      <path d="M3 7H11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M3 7H11" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
     </svg>
   );
 }
