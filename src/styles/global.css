@@ -86,12 +86,14 @@
 
   /* 頁面主標（品牌、各分頁 h1） 24/300 */
   .type-display {
-    @apply font-serif text-2xl font-light tracking-[0.08em] text-ink;
+    @apply font-serif text-2xl tracking-[0.08em] text-ink;
+    font-weight: 300;
   }
 
   /* 頁內 h1 24/300 */
   .type-title {
-    @apply font-serif text-2xl font-light tracking-[0.06em] text-ink;
+    @apply font-serif text-2xl tracking-[0.06em] text-ink;
+    font-weight: 300;
   }
 
   /* Section / 卡片標題 18/400 */

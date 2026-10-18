@@ -267,7 +267,7 @@ export function RecipeDetail({
           </p>
           <StatusDot {...recipeStatusDot(recipe.status)} />
         </div>
-        <h1 className="font-serif text-3xl font-light tracking-[0.08em] text-ink mt-2">{recipe.name}</h1>
+        <h1 className="font-serif text-3xl font-[300] tracking-[0.08em] text-ink mt-2">{recipe.name}</h1>
         {(tagsLine || ratingStars) && (
           <p className="text-[13px] text-ink-2 mt-1.5">
             {tagsLine}

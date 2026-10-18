@@ -127,7 +127,7 @@ vite-plugin-pwa        0.21.2   0.21.2    1.3.0    （僅 major，Wanted=Current
 - **每項驗證三件套**：`npm run build && npm run lint && npm test` 全綠 ＋ 該項「驗收條件」列出的專屬驗證。
 - **瀏覽器實測工具**：`scripts/smoke.mjs` 已就緒（playwright-core 已在 devDependencies）。用法見該檔案頂部註解。各項的 UI 驗證都基於它的 `launchApp()`——寫臨時驗證腳本放 `scripts/` 下、命名 `verify-u<n>.mjs`，驗完**保留在 repo**（當回歸資產）。臨時腳本內對假 Supabase 的網路錯誤是預期行為，只有 `pageerror`（JS 例外）與該項驗收斷言算數。
 - **示範資料模式**：smoke 環境永遠處於 mock 模式。凡「寫入」操作在 smoke 下會得到錯誤 toast（mock guard 或網路失敗）——這**正是驗證線路接通的證據**，各項驗收條件會明說預期哪個 toast。
-- **設計系統鐵律**：零圓角、無陰影（`shadow-sm` 既有用例除外，不新增）、`font-light` 為預設、色票只用 `src/utils/constants.ts` 的 PALETTE 與 Tailwind token、不用 emoji（幾何符號 ✎ ⌕ ＋ × 可以）。新 UI 一律沿用既有 class：`btn`、`btn-primary`、`input-field`、`section-label`、`type-*`。
+- **設計系統鐵律**：零圓角、無陰影（`shadow-sm` 既有用例除外，不新增）、`font-light` 為預設、色票只用 `src/utils/constants.ts` 的 PALETTE 與 Tailwind token、不用 emoji（幾何符號 ✎ ⌕ ＋ × 可以）。新 UI 一律沿用既有 class：`btn`、`btn-primary`、`input-field`、`section-label`、`type-*`。**（已由 HANDOFF-OPUS-DESIGN.md §0.1 取代）**
 - **新增的純函式一律放 utils 並附單元測試**；元件內不寫可測邏輯的第二份副本。
 
 ---
