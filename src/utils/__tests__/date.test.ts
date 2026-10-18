@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { todayISO, addDays, daysUntil, calcProgress, formatNoteDate } from '../date';
+import { todayISO, addDays, daysUntil, calcProgress, formatNoteDate, formatDashboardDate } from '../date';
 
 afterEach(() => vi.useRealTimers());
 
@@ -61,5 +61,17 @@ describe('formatNoteDate', () => {
     expect(formatNoteDate(new Date(2026, 6, 2, 9, 15).getTime()).date).toBe('昨天');
     expect(formatNoteDate(new Date(2026, 2, 25).getTime()).date).toBe('3/25');
     expect(formatNoteDate(new Date(2025, 11, 1).getTime()).date).toBe('2025/12/1');
+  });
+});
+
+describe('formatDashboardDate', () => {
+  it('年.月.日 補零＋全形空格＋星期', () => {
+    expect(formatDashboardDate(new Date(2026, 9, 17))).toBe('2026.10.17\u3000星期六');
+  });
+  it('個位數月日補零', () => {
+    expect(formatDashboardDate(new Date(2026, 0, 5))).toBe('2026.01.05\u3000星期一');
+  });
+  it('星期日', () => {
+    expect(formatDashboardDate(new Date(2026, 9, 18))).toBe('2026.10.18\u3000星期日');
   });
 });

@@ -1,13 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
-import type { Recipe, Task, Ingredient, IngredientCat, Material } from '../../types';
-import { FRAG_CATS, ING_CATS, ING_CAT_COLORS, RECIPE_STATUS } from '../../utils/constants';
-import { speciesGroupLabel } from '../../utils/species';
-import { stars, supplierShort, fmtAmount, scaleFactor } from '../../utils/format';
-import { StatusBadge } from '../shared/StatusBadge';
-import { ProgressBar } from '../shared/ProgressBar';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { Recipe, Task, Ingredient, IngredientCat, Material, BurnEntry } from '../../types';
+import { FRAG_CATS, ING_CATS, ING_CAT_COLORS, TASK_TYPES, TASK_STATUS } from '../../utils/constants';
+import { starsFilled, supplierShort, fmtAmount, scaleFactor } from '../../utils/format';
+import { recipeStatusDot } from '../../utils/status';
+import { ingredientDisplay } from '../../utils/ingredient';
+import { StatusDot } from '../shared/StatusDot';
+import { SectionHeader } from '../shared/SectionHeader';
+import { DrawerRow } from '../shared/DrawerRow';
+import { ActionMenu } from '../shared/ActionMenu';
 import { useToast } from '../shared/useToast';
+import { BurnForm } from '../task/BurnForm';
 import { BurnLog } from './BurnLog';
 import { RelatedTasks } from './RelatedTasks';
+import { ProductionMode } from './ProductionMode';
 
 interface Props {
   recipe: Recipe;
@@ -18,9 +23,11 @@ interface Props {
   onDelete: (id: number) => void;
   onTaskTab: () => void;
   onCreateWeighTask: (recipe: Recipe, batchWeight: number | null) => Promise<void>;
+  /** 「記一筆試燒」：把試燒紀錄追加到這個配方 */
+  onBurnSaveForRecipe: (recipeId: number, entry: BurnEntry) => Promise<void>;
 }
 
-interface ResolvedIngredient {
+export interface ResolvedIngredient {
   ing: Ingredient;
   material: Material | null;
 }
@@ -44,35 +51,40 @@ function resolveMaterial(ing: Ingredient, materials: Material[]): Material | nul
   return materials.find((m) => (m.aliases ?? []).includes(ing.name)) ?? null;
 }
 
-/** 取顯示名稱：優先 displayShort，回落 ing.name */
-function ingredientDisplay(ing: Ingredient, mat: Material | null): string {
-  if (mat?.displayShort) return mat.displayShort;
-  return ing.name;
-}
+const ingCatOf = (cat: IngredientCat): IngredientCat => (cat in ING_CATS ? cat : 'herb');
 
-export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelete, onTaskTab, onCreateWeighTask }: Props) {
+type DrawerKey = 'tests' | 'notes' | 'process' | 'timeline' | 'burn' | 'tasks';
+
+export function RecipeDetail({
+  recipe, tasks, materials, onBack, onEdit, onDelete, onTaskTab, onCreateWeighTask, onBurnSaveForRecipe,
+}: Props) {
   const toast = useToast();
   const [vIdx, setVIdx] = useState(0);
-  const [openSimilarFor, setOpenSimilarFor] = useState<string | null>(null);
-  const [targetWeight, setTargetWeight] = useState<number | null>(null);
+  const [openSimilarFor, setOpenSimilarFor] = useState<number | null>(null);
+  const [targetText, setTargetText] = useState('');
+  const [openDrawers, setOpenDrawers] = useState<Set<DrawerKey>>(() => new Set<DrawerKey>(['notes']));
+  const [burnOpen, setBurnOpen] = useState(false);
   // U5 製作核對模式
   const [makeMode, setMakeMode] = useState(false);
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const storageKey = `sinus_make_${recipe.id}_${vIdx}`;
-  // 版本切換時歸零換算，並退出製作模式（不清 storage — 那是別的版本的 key）
+  // 進入製作模式時記下當下版本的 key；切版本後 storageKey 變了也不會把勾選寫到別的版本
+  const storageKeyRef = useRef<string | null>(null);
+  // 版本切換時只歸零換算；退出製作模式與清勾選在 tab onClick 裡做（D8-5）
   useEffect(() => {
-    setTargetWeight(null);
-    setMakeMode(false);
-    setChecked(new Set());
+    setTargetText('');
   }, [vIdx]);
   // makeMode 期間把勾選狀態續存 sessionStorage
   useEffect(() => {
-    if (makeMode) sessionStorage.setItem(storageKey, JSON.stringify([...checked]));
+    if (makeMode && storageKeyRef.current === storageKey) {
+      sessionStorage.setItem(storageKey, JSON.stringify([...checked]));
+    }
   }, [checked, makeMode, storageKey]);
   const versions = recipe.versions ?? [];
   const version = versions[vIdx];
-  const allTasksDone = tasks.filter((t) => t.recipeId === recipe.id).every((t) => t.status === 'done');
-  const hasTasks = tasks.some((t) => t.recipeId === recipe.id);
+  const relatedTasks = tasks.filter((t) => t.recipeId === recipe.id);
+  const allTasksDone = relatedTasks.every((t) => t.status === 'done');
+  const hasTasks = relatedTasks.length > 0;
 
   // ── 解析 ingredients → 對應材料 ──────────────────────────────
   const resolved: ResolvedIngredient[] = useMemo(() => {
@@ -118,28 +130,45 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
 
   if (!version) return null;
 
+  const isOpen = (k: DrawerKey) => openDrawers.has(k);
+  const toggleDrawer = (k: DrawerKey) =>
+    setOpenDrawers((prev) => {
+      const next = new Set(prev);
+      if (next.has(k)) next.delete(k); else next.add(k);
+      return next;
+    });
+
   // U1 批次換算倍率（factor === 1 表示不換算）
+  const parsedTarget = Number(targetText.replace(',', '.'));
+  const targetWeight = targetText.trim() && Number.isFinite(parsedTarget) && parsedTarget > 0 ? parsedTarget : null;
   const factor = scaleFactor(version.totalWeight, targetWeight);
 
-  // U5 製作核對進度（勾選狀態與換算獨立）
+  // U5 製作核對進度
   const totalItems = resolved.length;
-  const allChecked = totalItems > 0 && checked.size === totalItems;
-  const makePct = totalItems > 0 ? Math.round((checked.size / totalItems) * 100) : 0;
+  const canMake = totalItems > 0 && version.totalWeight > 0;
 
-  function toggleMakeMode() {
-    if (makeMode) {
-      setMakeMode(false);
-      setChecked(new Set());
-      sessionStorage.removeItem(storageKey);
-    } else {
-      const saved = sessionStorage.getItem(storageKey);
-      let restored = new Set<string>();
-      if (saved) {
-        try { restored = new Set(JSON.parse(saved) as string[]); } catch { restored = new Set(); }
-      }
-      setChecked(restored);
-      setMakeMode(true);
+  function startMake() {
+    const saved = sessionStorage.getItem(storageKey);
+    let restored = new Set<string>();
+    if (saved) {
+      try {
+        const arr = JSON.parse(saved) as unknown;
+        // 舊格式 key（`${cat}-${i}`）直接忽略；新 key 為材料原始索引
+        if (Array.isArray(arr)) {
+          restored = new Set(arr.filter((k): k is string => typeof k === 'string' && /^\d+$/.test(k) && Number(k) < totalItems));
+        }
+      } catch { restored = new Set(); }
     }
+    storageKeyRef.current = storageKey;
+    setChecked(restored);
+    setMakeMode(true);
+  }
+
+  function exitMake() {
+    storageKeyRef.current = null;
+    setMakeMode(false);
+    setChecked(new Set());
+    sessionStorage.removeItem(storageKey);
   }
 
   function toggleChecked(key: string) {
@@ -154,53 +183,120 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
     try {
       await onCreateWeighTask(recipe, targetWeight);
       toast.success('已建立稱量工序');
-      setMakeMode(false);
-      setChecked(new Set());
-      sessionStorage.removeItem(storageKey);
+      exitMake();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err));
     }
   }
 
-  const catByIngCat: Record<string, ResolvedIngredient[]> = {};
-  for (const r of resolved) {
-    const key = r.ing.cat in ING_CATS ? r.ing.cat : 'herb';
-    if (!catByIngCat[key]) catByIngCat[key] = [];
-    catByIngCat[key].push(r);
+  async function handleBurnSave(entry: BurnEntry) {
+    try {
+      await onBurnSaveForRecipe(recipe.id, entry);
+      toast.success('試燒紀錄已儲存');
+      setBurnOpen(false);
+    } catch (err) {
+      toast.error(`儲存失敗：${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 
+  // 比例條：依材料分類加總
+  const segs = (Object.keys(ING_CATS) as IngredientCat[])
+    .map((cat) => ({
+      cat,
+      weight: resolved.filter((r) => ingCatOf(r.ing.cat) === cat).reduce((s, r) => s + (r.ing.amount || 0), 0),
+    }))
+    .filter((s) => s.weight > 0);
+
+  // ── 抽屜摘要 ────────────────────────────────────────────────
+  const processFlags = [
+    recipe.process?.tincture && '酊劑',
+    recipe.process?.ferment && '發酵',
+    recipe.process?.wine && '酒媒',
+  ].filter(Boolean) as string[];
+  const hasProcess = processFlags.length > 0 || !!recipe.process?.notes;
+
+  const tl = recipe.timeline;
+  const timelineItems = [
+    tl?.makeDate && '製作',
+    (tl?.dryDays ?? 0) > 0 && '乾燥',
+    (tl?.agingStart || tl?.agingNotes) && '陳化',
+  ].filter(Boolean) as string[];
+
+  const burnLog = recipe.burnLog ?? [];
+  const lastBurn = burnLog[burnLog.length - 1];
+  const burnSummary = lastBurn
+    ? (lastBurn.notes ? lastBurn.notes.slice(0, 20) : `${lastBurn.date} · 評分 ${lastBurn.rating}/5`)
+    : '';
+
+  const firstTask = relatedTasks[0];
+  const taskSummary = firstTask
+    ? `${(TASK_TYPES[firstTask.taskType] ?? TASK_TYPES.other).label} · ${TASK_STATUS[firstTask.status].label}`
+    : '';
+
+  const hasRuleWarnings = ceilingWarnings.length > 0 || materialWarnings.length > 0;
+  const ruleSummary = ceilingWarnings.length > 0
+    ? `${ceilingWarnings.length} 項超過硬上限`
+    : `${materialWarnings.length} 項規則提醒`;
+
+  const tagsLine = (recipe.tags ?? []).join(' · ');
+  const ratingStars = starsFilled(recipe.rating);
+
   return (
-    <div className="max-w-content mx-auto px-4 pt-7 pb-20">
-      <div className="flex items-center gap-3 mb-2">
-        <button onClick={onBack} className="type-meta py-2 -ml-2 px-2" aria-label="返回上一頁">← 返回</button>
+    <div className="max-w-content mx-auto px-5 pt-4 pb-24">
+      {/* 頂列 */}
+      <div className="flex items-center justify-between">
+        <button type="button" onClick={onBack} className="btn-text text-base -ml-3" aria-label="返回上一頁">← 返回</button>
+        <div className="relative -mr-3">
+          <ActionMenu
+            triggerLabel="配方動作"
+            title={recipe.name}
+            subtitle="配方操作"
+            items={[
+              { label: '編輯', icon: '✎', onClick: () => onEdit(recipe) },
+              { label: '刪除', icon: '×', danger: true, onClick: () => onDelete(recipe.id) },
+            ]}
+          />
+        </div>
       </div>
 
       {/* Header */}
-      <div className="mb-5">
-        <div className="flex items-start justify-between gap-3 mb-1">
-          <div>
-            <p className="type-micro">{recipe.num} · {FRAG_CATS[recipe.fragCat]?.label ?? recipe.fragCat}</p>
-            <h1 className="type-title">{recipe.name}</h1>
-          </div>
-          <StatusBadge status={recipe.status} />
+      <div className="pt-4">
+        <div className="flex items-center justify-between gap-3">
+          <p className="font-serif text-[13px] text-ink-2 tracking-[0.08em]">
+            {recipe.num}{'　'}{FRAG_CATS[recipe.fragCat]?.label ?? recipe.fragCat}
+          </p>
+          <StatusDot {...recipeStatusDot(recipe.status)} />
         </div>
-        {(recipe.tags?.length ?? 0) > 0 && (
-          <p className="type-meta">{recipe.tags.join(' · ')}</p>
+        <h1 className="font-serif text-3xl font-[300] tracking-[0.08em] text-ink mt-2">{recipe.name}</h1>
+        {(tagsLine || ratingStars) && (
+          <p className="text-[13px] text-ink-2 mt-1.5">
+            {tagsLine}
+            {ratingStars && <span className={`text-accent ${tagsLine ? 'ml-2' : ''}`}>{ratingStars}</span>}
+          </p>
         )}
         {hasTasks && allTasksDone && recipe.status !== 'success' && (
-          <p className="text-xs text-accent mt-2">所有關聯工序已完成，可考慮更新狀態</p>
+          <p className="text-[13px] text-accent mt-2">所有關聯工序已完成，可考慮更新狀態</p>
         )}
       </div>
 
       {/* Version tabs */}
       {versions.length > 1 && (
-        <div className="flex gap-0 mb-4 border-b border-border">
+        <div className="flex mt-5 border-b border-border overflow-x-auto no-scrollbar" role="tablist" aria-label="版本">
           {versions.map((v, i) => (
             <button
               key={i}
-              onClick={() => setVIdx(i)}
-              className={`px-4 py-2 text-xs font-light tracking-label transition-colors ${
-                i === vIdx ? 'border-b-2 border-ink text-ink -mb-px' : 'text-ink-2 hover:text-ink'
+              type="button"
+              role="tab"
+              aria-selected={i === vIdx}
+              onClick={() => {
+                if (i === vIdx) return;
+                // 切版本同時退出製作模式並清勾選（不清 storage — 那是別的版本的 key）
+                setMakeMode(false);
+                setChecked(new Set());
+                setVIdx(i);
+              }}
+              className={`h-11 px-4 text-[13px] whitespace-nowrap -mb-px ${
+                i === vIdx ? 'border-b-2 border-ink text-ink' : 'text-ink-2 hover:text-ink'
               }`}
             >
               {v.label}
@@ -209,318 +305,298 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
         </div>
       )}
 
-      {/* v3Warnings panel — 只在有警告時顯示 */}
-      {(ceilingWarnings.length > 0 || materialWarnings.length > 0 || pendingMaterials.length > 0) && (
-        <div className="border border-error bg-error/5 p-3 mb-5">
-          <p className="section-label text-error mb-2">v3.0 規則檢查</p>
-
-          {ceilingWarnings.length > 0 && (
-            <div className="mb-2">
-              {ceilingWarnings.map((w, i) => (
-                <p key={i} className="type-meta text-error">
-                  · <span className="font-normal">{w.material.displayShort ?? w.material.name}</span>{' '}
-                  比例 {w.ratioPct.toFixed(1)}% 超過硬上限 {w.ceilingPct}%
-                </p>
-              ))}
-            </div>
-          )}
-
-          {materialWarnings.length > 0 && (
-            <div className="mb-2">
-              {materialWarnings.map((w, i) => (
-                <p key={i} className="type-meta text-error">
-                  · {w.text} <span className="text-ink-3">（{w.source}）</span>
-                </p>
-              ))}
-            </div>
-          )}
-
-          {pendingMaterials.length > 0 && (
-            <div>
-              <p className="type-meta text-ink-2">下列材料尚未跑入庫測試 SOP（不影響配方建立，建議先測）：</p>
-              {pendingMaterials.map((m) => (
-                <p key={m.id} className="type-meta text-ink-2">
-                  · {m.displayShort ?? m.name}
-                </p>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Ingredients */}
-      {version && (
-        <div className="mb-5">
-          <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
-            <div className="flex items-center gap-2">
-              <p className="section-label">配方組成</p>
-              <button
-                type="button"
-                onClick={toggleMakeMode}
-                className="btn text-xs"
-              >
-                {makeMode ? '結束' : '開始製作'}
-              </button>
-            </div>
-            <div className="flex items-center gap-2">
-              <p className="type-meta">
-                總重 {version.totalWeight}g
-                {factor !== 1 && (
-                  <span className="text-accent ml-1">
-                    → {fmtAmount(version.totalWeight * factor)}g（×{fmtAmount(factor)}）
-                  </span>
+      {/* 入庫測試／規則警告抽屜 */}
+      {(hasRuleWarnings || pendingMaterials.length > 0) && (
+        <div className="mt-6 border-b border-border">
+          {hasRuleWarnings ? (
+            <DrawerRow
+              tone="error"
+              label="規則警告"
+              summary={ruleSummary}
+              open={isOpen('tests')}
+              onToggle={() => toggleDrawer('tests')}
+            >
+              <div className="space-y-1.5">
+                {ceilingWarnings.map((w, i) => (
+                  <p key={i} className="text-[13px] text-error tabular-nums">
+                    {w.material.displayShort ?? w.material.name} 比例 {w.ratioPct.toFixed(1)}% 超過硬上限 {w.ceilingPct}%
+                  </p>
+                ))}
+                {materialWarnings.map((w, i) => (
+                  <p key={i} className="text-[13px] text-error">
+                    {w.text}<span className="text-ink-2">（{w.source}）</span>
+                  </p>
+                ))}
+                {pendingMaterials.length > 0 && (
+                  <p className="text-[13px] text-ink-2 pt-1">
+                    另有 {pendingMaterials.length} 項材料尚未測試：{pendingMaterials.map((m) => m.displayShort ?? m.name).join('、')}
+                  </p>
                 )}
-              </p>
-              {version.totalWeight > 0 && (
-                <div className="flex items-center gap-1">
-                  <label htmlFor="scale-input" className="type-micro text-ink-3">換算</label>
-                  <input
-                    id="scale-input"
-                    type="number"
-                    inputMode="decimal"
-                    min={0}
-                    step={1}
-                    value={targetWeight ?? ''}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      if (v === '') { setTargetWeight(null); return; }
-                      const n = Number(v);
-                      setTargetWeight(Number.isNaN(n) || n <= 0 ? null : n);
-                    }}
-                    placeholder="g"
-                    aria-label="換算目標總重"
-                    className="input-field text-xs w-20"
-                  />
-                  {targetWeight != null && (
-                    <button
-                      type="button"
-                      onClick={() => setTargetWeight(null)}
-                      className="type-micro text-ink-3 hover:text-ink px-1"
-                      aria-label="清除換算"
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Stacked proportion bar */}
-          {(version.totalWeight ?? 0) > 0 && (() => {
-            const segs = (Object.keys(ING_CATS) as IngredientCat[])
-              .map((cat) => ({
-                cat,
-                weight: (catByIngCat[cat] ?? []).reduce((s, r) => s + (r.ing.amount || 0), 0),
-              }))
-              .filter((s) => s.weight > 0);
-            if (!segs.length) return null;
-            return (
-              <div className="flex h-2 w-full mb-4 gap-px overflow-hidden">
-                {segs.map(({ cat, weight }) => (
-                  <div
-                    key={cat}
-                    style={{ width: `${(weight / version.totalWeight) * 100}%`, background: ING_CAT_COLORS[cat] }}
-                    title={`${ING_CATS[cat].label} ${((weight / version.totalWeight) * 100).toFixed(0)}%`}
-                  />
+              </div>
+            </DrawerRow>
+          ) : (
+            <DrawerRow
+              label="入庫測試"
+              summary={`${pendingMaterials.length} 項材料尚未測試`}
+              open={isOpen('tests')}
+              onToggle={() => toggleDrawer('tests')}
+            >
+              <div className="border-t border-border">
+                {pendingMaterials.map((m) => (
+                  <div key={m.id} className="h-11 border-b border-border last:border-b-0 flex items-center justify-between gap-3">
+                    <span className="text-base text-ink truncate">{m.displayShort ?? m.name}</span>
+                    <span className="text-[13px] text-ink-2 shrink-0">未做</span>
+                  </div>
                 ))}
               </div>
-            );
-          })()}
+            </DrawerRow>
+          )}
+        </div>
+      )}
 
-          {makeMode && (
-            <div className="mb-3">
-              <p className="type-meta mb-1">已稱 {checked.size}/{totalItems}</p>
-              <ProgressBar value={makePct} />
+      {/* FORMULA 配方組成 */}
+      <section className="mt-8">
+        <SectionHeader kicker="FORMULA" title="配方組成" />
+
+        {/* 總重＋換算 */}
+        <div className="mt-2 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs text-ink-2 tracking-[0.1em]">總重</p>
+            <p className="mt-0.5">
+              <span className="text-[28px] leading-none tabular-nums text-ink">{fmtAmount(version.totalWeight)}</span>
+              <span className="text-[15px] text-ink-2"> g</span>
+            </p>
+          </div>
+          {version.totalWeight > 0 && (
+            <div className="text-right">
+              <div className="flex items-end gap-2 justify-end">
+                <label htmlFor="scale-input" className="text-[13px] text-ink-2 pb-2.5">換算成</label>
+                <input
+                  id="scale-input"
+                  type="text"
+                  inputMode="decimal"
+                  value={targetText}
+                  onChange={(e) => setTargetText(e.target.value)}
+                  aria-label="換算目標總重"
+                  className="input-underline"
+                />
+                <span className="text-[13px] text-ink-2 pb-2.5">g</span>
+                {targetText && (
+                  <button
+                    type="button"
+                    onClick={() => setTargetText('')}
+                    className="min-w-[44px] min-h-[44px] -mr-3 flex items-center justify-center text-ink-2"
+                    aria-label="清除換算"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+              {factor !== 1 && (
+                <p className="text-xs text-ink-2 mt-1 tabular-nums">× {fmtAmount(factor)}</p>
+              )}
             </div>
           )}
+        </div>
 
-          <div className="space-y-4">
-            {(Object.keys(ING_CATS) as (keyof typeof ING_CATS)[]).map((cat) => {
-              const items = catByIngCat[cat];
-              if (!items?.length) return null;
-              return (
-                <div key={cat}>
-                  <p className="type-meta mb-2" style={{ color: ING_CAT_COLORS[cat] }}>{ING_CATS[cat].label}</p>
-                  <div className="space-y-1">
-                    {items.map((r, i) => {
-                      const pct = version.totalWeight ? (r.ing.amount / version.totalWeight) * 100 : 0;
-                      const overCeiling = r.material?.hardCeiling != null && pct > r.material.hardCeiling;
-                      const sims = r.material ? similarFor(r.material) : [];
-                      const rowKey = `${cat}-${i}`;
-                      const showSims = openSimilarFor === rowKey;
-                      const isChecked = checked.has(rowKey);
-                      return (
-                        <div key={i} className="border-b border-border/50 py-1.5">
-                          <div className={`flex items-center justify-between gap-2 ${makeMode && isChecked ? 'opacity-50' : ''}`}>
-                            {makeMode && (
-                              <button
-                                type="button"
-                                onClick={() => toggleChecked(rowKey)}
-                                aria-pressed={isChecked}
-                                aria-label={`已稱 ${ingredientDisplay(r.ing, r.material)}`}
-                                className="shrink-0 flex items-center justify-center"
-                              >
-                                {isChecked ? (
-                                  <span className="w-5 h-5 flex items-center justify-center" style={{ background: '#1A1A18' }}>
-                                    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
-                                      <path d="M2 6 L5 9 L10 3" stroke="#F5F1EB" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                  </span>
-                                ) : (
-                                  <span className="w-5 h-5 border-2" style={{ borderColor: ING_CAT_COLORS[cat] }} />
-                                )}
-                              </button>
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <p className={`type-body ${makeMode && isChecked ? 'line-through' : ''}`}>
-                                {ingredientDisplay(r.ing, r.material)}
-                                {r.material?.supplier && (
-                                  <span className="type-micro text-ink-3 ml-2">· {supplierShort(r.material.supplier)}</span>
-                                )}
-                                {!r.material && (
-                                  <span className="type-micro text-ink-3 ml-2 italic">未對應</span>
-                                )}
-                              </p>
-                              {(r.material?.species || r.material?.speciesGroup) && (
-                                <p className="type-micro text-ink-3 mt-0.5">
-                                  {r.material.species && <span className="italic">{r.material.species}</span>}
-                                  {r.material.species && r.material.speciesGroup && ' · '}
-                                  {r.material.speciesGroup && speciesGroupLabel(r.material.speciesGroup)}
-                                </p>
-                              )}
-                            </div>
-                            <p className="type-body text-ink-2 shrink-0">
-                              {factor === 1 ? (
-                                <>{r.ing.amount}{r.ing.unit}</>
-                              ) : (
-                                <>
-                                  <span className="text-accent">{fmtAmount(r.ing.amount * factor)}{r.ing.unit}</span>
-                                  <span className="type-micro text-ink-3 ml-1">原 {r.ing.amount}</span>
-                                </>
-                              )}
-                              {pct > 0 && (
-                                <span className={`text-xs opacity-60 ml-1 ${overCeiling ? 'text-error font-normal opacity-100' : 'text-ink-2'}`}>
-                                  {pct.toFixed(1)}%
-                                </span>
-                              )}
-                            </p>
-                            {sims.length > 0 && (
-                              <button
-                                type="button"
-                                onClick={() => setOpenSimilarFor(showSims ? null : `${cat}-${i}`)}
-                                className="type-micro text-accent shrink-0"
-                                aria-label={`查看同物種`}
-                              >
-                                同種×{sims.length}
-                              </button>
-                            )}
-                          </div>
-                          {showSims && sims.length > 0 && (
-                            <div className="mt-2 pl-3 border-l border-border space-y-0.5">
-                              {sims.map((sm) => (
-                                <p key={sm.id} className="type-micro text-ink-2">
-                                  · {sm.displayShort ?? sm.name}
-                                  {sm.supplier && <span className="text-ink-3"> ({sm.supplier})</span>}
-                                  {sm.qualityNote && <span className="text-ink-3"> — {sm.qualityNote.slice(0, 30)}</span>}
-                                </p>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+        {/* 比例條 */}
+        {version.totalWeight > 0 && segs.length > 0 && (
+          <div className="flex h-1.5 w-full mt-4 gap-[2px] overflow-hidden" aria-hidden="true">
+            {segs.map(({ cat, weight }) => (
+              <div
+                key={cat}
+                style={{ width: `${(weight / version.totalWeight) * 100}%`, background: ING_CAT_COLORS[cat] }}
+                title={`${ING_CATS[cat].label} ${((weight / version.totalWeight) * 100).toFixed(0)}%`}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* 材料表（原始順序） */}
+        <div className="border-t border-ink mt-1.5">
+          {resolved.length === 0 && <p className="type-body text-ink-2 py-6 text-center">尚未加入材料</p>}
+          {resolved.map((r, i) => {
+            const cat = ingCatOf(r.ing.cat);
+            const pct = version.totalWeight ? (r.ing.amount / version.totalWeight) * 100 : 0;
+            const overCeiling = r.material?.hardCeiling != null && pct > r.material.hardCeiling;
+            const sims = r.material ? similarFor(r.material) : [];
+            const showSims = openSimilarFor === i;
+            const sub = [
+              ING_CATS[cat].label,
+              r.material?.supplier ? supplierShort(r.material.supplier) : '',
+              !r.material ? '未對應' : '',
+            ].filter(Boolean).join(' · ');
+            const amountClass = overCeiling ? 'text-error font-medium' : factor !== 1 ? 'text-accent' : 'text-ink';
+            return (
+              <div key={i} className="border-b border-border">
+                <div className="min-h-14 py-2 flex items-center gap-3">
+                  <span aria-hidden="true" className="w-2 h-2 shrink-0" style={{ background: ING_CAT_COLORS[cat] }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-base text-ink truncate">
+                      {ingredientDisplay(r.ing, r.material)}
+                    </p>
+                    <p className="text-[13px] text-ink-2">
+                      {sub}
+                      {sims.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setOpenSimilarFor(showSims ? null : i)}
+                          aria-expanded={showSims}
+                          className="text-accent ml-2 py-2 -my-2"
+                          aria-label={`查看同物種（${sims.length}）`}
+                        >
+                          同種 ×{sims.length}
+                        </button>
+                      )}
+                    </p>
                   </div>
+                  <span className="w-9 shrink-0 text-right text-ink-2 tabular-nums">
+                    {factor === 1
+                      ? (pct > 0 && <span className="text-[13px]">{pct < 10 ? pct.toFixed(1) : pct.toFixed(0)}%</span>)
+                      : <span className="text-xs whitespace-nowrap">原 {fmtAmount(r.ing.amount)}</span>}
+                  </span>
+                  <span className="shrink-0 text-right whitespace-nowrap">
+                    <span className={`inline-block w-[54px] text-xl tabular-nums ${amountClass}`}>
+                      {fmtAmount(r.ing.amount * factor)}
+                    </span>
+                    <span className="text-[13px] text-ink-2"> {r.ing.unit}</span>
+                  </span>
                 </div>
-              );
-            })}
-          </div>
-          {makeMode && allChecked && (
-            <div className="mt-4">
-              <button
-                type="button"
-                onClick={handleCompleteMake}
-                className="btn-primary text-xs"
-              >
-                完成稱料 → 建立工序
-              </button>
+                {showSims && sims.length > 0 && (
+                  <div className="mb-3 ml-5 pl-3 border-l border-border space-y-0.5">
+                    {sims.map((sm) => (
+                      <p key={sm.id} className="text-[13px] text-ink-2">
+                        {sm.displayShort ?? sm.name}
+                        {sm.supplier && <span> ({sm.supplier})</span>}
+                        {sm.qualityNote && <span> — {sm.qualityNote.slice(0, 30)}</span>}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 按鈕區 */}
+        <div className="pt-3.5 flex flex-col gap-1">
+          {canMake && (
+            <button type="button" onClick={startMake} className="btn-primary w-full tracking-[0.12em]">
+              開始製作
+            </button>
+          )}
+          <button type="button" onClick={() => setBurnOpen(true)} className="btn-text self-center">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path
+                d="M8 1.5 C8.5 4 11.5 5.5 11.5 9.5 A3.5 3.5 0 0 1 4.5 9.5 C4.5 7.5 5.5 6.5 6.5 5.5 C6.5 7 7.2 7.8 8 8 C8 6 7.2 4 8 1.5 Z"
+                stroke="currentColor"
+                strokeWidth="1.25"
+                strokeLinejoin="round"
+              />
+            </svg>
+            記一筆試燒
+          </button>
+        </div>
+      </section>
+
+      {/* 抽屜區 */}
+      <div className="mt-7 border-b border-border">
+        {version.notes && (
+          <DrawerRow label="版本備註" open={isOpen('notes')} onToggle={() => toggleDrawer('notes')}>
+            <p className="text-base text-ink leading-[1.75] whitespace-pre-wrap">{version.notes}</p>
+            {(version.comments?.length ?? 0) > 0 && (
+              <div className="mt-2 space-y-0.5">
+                {version.comments.map((c, i) => (
+                  <p key={i} className="text-xs text-ink-2">{c}</p>
+                ))}
+              </div>
+            )}
+          </DrawerRow>
+        )}
+
+        {hasProcess && (
+          <DrawerRow
+            label="工序標記"
+            summary={processFlags.join('、')}
+            open={isOpen('process')}
+            onToggle={() => toggleDrawer('process')}
+          >
+            {processFlags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {processFlags.map((f) => (
+                  <span key={f} className="border border-border text-[13px] text-ink px-2 py-0.5">{f}</span>
+                ))}
+              </div>
+            )}
+            {recipe.process?.notes && <p className="text-base text-ink whitespace-pre-wrap">{recipe.process.notes}</p>}
+          </DrawerRow>
+        )}
+
+        {timelineItems.length > 0 && (
+          <DrawerRow
+            label="時間軸"
+            summary={timelineItems.join('、')}
+            open={isOpen('timeline')}
+            onToggle={() => toggleDrawer('timeline')}
+          >
+            <div className="grid grid-cols-2 border-t border-border">
+              {tl?.makeDate && <TimelineCell label="製作日期" value={tl.makeDate} />}
+              {(tl?.dryDays ?? 0) > 0 && <TimelineCell label="乾燥天數" value={`${tl.dryDays} 天`} />}
+              {tl?.agingStart && <TimelineCell label="陳化開始" value={tl.agingStart} />}
+              {tl?.agingNotes && <TimelineCell label="陳化備註" value={tl.agingNotes} wide />}
             </div>
-          )}
-          {version.notes && (
-            <p className="type-body text-ink-2 mt-4 whitespace-pre-wrap">{version.notes}</p>
-          )}
-          {(version.comments?.length ?? 0) > 0 && (
-            <div className="mt-3 space-y-1">
-              {version.comments.map((c, i) => (
-                <p key={i} className="type-micro">· {c}</p>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+          </DrawerRow>
+        )}
 
-      {/* Timeline */}
-      {recipe.timeline && (
-        <div className="mb-5 border-t border-border pt-4">
-          <p className="section-label mb-3">時間軸</p>
-          <div className="grid grid-cols-2 gap-3 text-sm">
-            {recipe.timeline.makeDate && (
-              <div>
-                <p className="text-xs text-ink-3">製作日期</p>
-                <p className="font-light text-ink">{recipe.timeline.makeDate}</p>
-              </div>
-            )}
-            {(recipe.timeline.dryDays ?? 0) > 0 && (
-              <div>
-                <p className="text-xs text-ink-3">乾燥天數</p>
-                <p className="font-light text-ink">{recipe.timeline.dryDays} 天</p>
-              </div>
-            )}
-            {recipe.timeline.agingStart && (
-              <div>
-                <p className="text-xs text-ink-3">陳化開始</p>
-                <p className="font-light text-ink">{recipe.timeline.agingStart}</p>
-              </div>
-            )}
-            {recipe.timeline.agingNotes && (
-              <div className="col-span-2">
-                <p className="text-xs text-ink-3">陳化備註</p>
-                <p className="font-light text-ink">{recipe.timeline.agingNotes}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+        {burnLog.length > 0 && (
+          <DrawerRow
+            label="試燒紀錄"
+            count={burnLog.length}
+            summary={burnSummary}
+            open={isOpen('burn')}
+            onToggle={() => toggleDrawer('burn')}
+          >
+            <BurnLog burnLog={burnLog} />
+          </DrawerRow>
+        )}
 
-      {/* Process flags */}
-      {recipe.process && (recipe.process.tincture || recipe.process.ferment || recipe.process.wine || recipe.process.notes) && (
-        <div className="mb-5 border-t border-border pt-4">
-          <p className="section-label mb-3">工序標記</p>
-          <div className="flex flex-wrap gap-2 mb-2">
-            {recipe.process.tincture && <span className="border border-border text-xs text-ink-2 px-2 py-0.5">酊劑</span>}
-            {recipe.process.ferment && <span className="border border-border text-xs text-ink-2 px-2 py-0.5">發酵</span>}
-            {recipe.process.wine && <span className="border border-border text-xs text-ink-2 px-2 py-0.5">酒媒</span>}
-          </div>
-          {recipe.process.notes && <p className="type-body text-ink-2">{recipe.process.notes}</p>}
-        </div>
-      )}
-
-      {recipe.rating > 0 && (
-        <p className="text-sm text-ink-2 mb-5">{stars(recipe.rating)}</p>
-      )}
-
-      <BurnLog burnLog={recipe.burnLog ?? []} />
-
-      <RelatedTasks recipeId={recipe.id} tasks={tasks} onTaskClick={onTaskTab} />
-
-      <div className="flex gap-3 mt-6 border-t border-border pt-4">
-        <button onClick={() => onEdit(recipe)} className="btn text-xs" aria-label={`編輯配方 ${recipe.name}`}>編輯</button>
-        <button onClick={() => onDelete(recipe.id)} className="btn text-xs text-error border-error" aria-label={`刪除配方 ${recipe.name}`}>刪除</button>
-        <div className="flex-1" />
-        <p className="text-xs text-ink-2 opacity-60 font-light self-end">
-          {RECIPE_STATUS[recipe.status].label}
-        </p>
+        {relatedTasks.length > 0 && (
+          <DrawerRow
+            label="相關工序"
+            count={relatedTasks.length}
+            summary={taskSummary}
+            open={isOpen('tasks')}
+            onToggle={() => toggleDrawer('tasks')}
+          >
+            <RelatedTasks recipeId={recipe.id} tasks={tasks} onTaskClick={onTaskTab} />
+          </DrawerRow>
+        )}
       </div>
+
+      {burnOpen && <BurnForm onSave={handleBurnSave} onCancel={() => setBurnOpen(false)} />}
+
+      {makeMode && (
+        <ProductionMode
+          recipe={recipe}
+          version={version}
+          resolved={resolved}
+          factor={factor}
+          targetWeight={targetWeight}
+          checked={checked}
+          onToggle={toggleChecked}
+          onExit={exitMake}
+          onComplete={handleCompleteMake}
+        />
+      )}
+    </div>
+  );
+}
+
+function TimelineCell({ label, value, wide }: { label: string; value: string; wide?: boolean }) {
+  return (
+    <div className={`py-3 border-b border-border ${wide ? 'col-span-2' : ''}`}>
+      <p className="text-[13px] text-ink-2">{label}</p>
+      <p className="text-base text-ink tabular-nums mt-0.5">{value}</p>
     </div>
   );
 }

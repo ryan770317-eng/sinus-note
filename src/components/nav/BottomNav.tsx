@@ -23,6 +23,7 @@ export function BottomNav({ current, onChange, onMenuOpen }: Props): JSX.Element
     <>
       {/* ───────────────────────── Tablet / Desktop: top bar ───────────────────────── */}
       <nav
+        data-app-nav
         className="hidden md:flex fixed top-0 left-0 right-0 z-50 h-12 bg-bg/95 backdrop-blur border-b border-border items-stretch"
         aria-label="主要導覽"
       >
@@ -59,6 +60,7 @@ export function BottomNav({ current, onChange, onMenuOpen }: Props): JSX.Element
 
       {/* ───────────────────────── Mobile: flat bottom tab bar ───────────────────────── */}
       <nav
+        data-app-nav
         className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg/95 backdrop-blur border-t border-border"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         aria-label="主要導覽"
@@ -78,9 +80,9 @@ export function BottomNav({ current, onChange, onMenuOpen }: Props): JSX.Element
                   active ? 'text-ink' : 'text-ink-2'
                 }`}
               >
-                {active && <span className="absolute top-0 left-3 right-3 h-[2px] bg-ink" />}
+                {active && <span className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-[2px] bg-ink" />}
                 <Icon size={22} className="shrink-0" />
-                <span className="type-micro tracking-wider mt-0.5">{tab.label}</span>
+                <span className={`text-xs tracking-[0.1em] mt-0.5 ${active ? 'text-ink font-medium' : 'text-ink-2'}`}>{tab.label}</span>
               </button>
             );
           })}

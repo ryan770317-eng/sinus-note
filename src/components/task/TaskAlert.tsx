@@ -1,6 +1,6 @@
 import type { Task, Recipe } from '../../types';
-import { TASK_TYPES, TASK_STATUS } from '../../utils/constants';
-import { daysUntil, fmtDate } from '../../utils/date';
+import { TASK_TYPES, PHASE_COLORS } from '../../utils/constants';
+import { taskUrgency } from '../../utils/nextTask';
 
 interface Props {
   tasks: Task[];
@@ -8,55 +8,42 @@ interface Props {
   onEdit: (task: Task) => void;
 }
 
+const OVERDUE_COLOR = '#a06050';
+
+/** 今日提醒：60px 細線列（同總覽「需要注意」樣式） */
 export function TaskAlert({ tasks, recipes, onEdit }: Props) {
   if (tasks.length === 0) return null;
 
   return (
-    <div className="mb-6">
-      <p className="section-label mb-3">今日提醒</p>
-      <div className="space-y-2">
+    <div className="mb-8">
+      <h2 className="kicker">TODAY<span className="ml-2.5 tracking-[0.1em]">今日提醒</span><span className="ml-1.5 text-ink tabular-nums">{tasks.length}</span></h2>
+      <div className="mt-2 border-t border-border">
         {tasks.map((task) => {
           const tt = TASK_TYPES[task.taskType] ?? TASK_TYPES['other'];
-          const isInstant = tt.defaultDays === 0;
           const recipe = task.recipeId ? recipes.find((r) => r.id === task.recipeId) : null;
-          let badge = '';
-          let badgeColor = '';
-
-          if (isInstant) {
-            badge = TASK_STATUS[task.status].label;
-            badgeColor = 'text-accent';
-          } else if (task.dueDate) {
-            const days = daysUntil(task.dueDate);
-            if (days < 0) {
-              badge = `已到期 ${Math.abs(days)} 天`;
-              badgeColor = 'text-error';
-            } else {
-              badge = `剩 ${days} 天`;
-              badgeColor = 'text-accent';
-            }
-          }
-
+          const u = taskUrgency(task);
           return (
             <button
               key={task.id}
+              type="button"
               onClick={() => onEdit(task)}
-              className="w-full text-left bg-card border border-border px-4 py-3 hover:border-ink-2 transition-colors"
+              className="w-full h-[60px] border-b border-border flex items-center gap-3 text-left"
+              aria-label={`${task.title} — ${u.text}`}
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="type-meta">{tt.icon} {tt.label}</span>
-                    {recipe && (
-                      <span className="text-xs text-ink-3">· {recipe.name}</span>
-                    )}
-                  </div>
-                  <p className="type-name truncate">{task.title}</p>
-                  {task.dueDate && !isInstant && (
-                    <p className="text-xs text-ink-3 mt-0.5">{fmtDate(task.startDate)} → {fmtDate(task.dueDate)}</p>
-                  )}
-                </div>
-                <span className={`text-xs font-light shrink-0 ${badgeColor}`}>{badge}</span>
-              </div>
+              <span
+                aria-hidden="true"
+                className="w-2 h-2 shrink-0"
+                style={{ background: u.overdue ? OVERDUE_COLOR : PHASE_COLORS[tt.phase] }}
+              />
+              <span className="flex-1 min-w-0">
+                <span className="block text-base text-ink truncate">{task.title}</span>
+                <span className="block text-[13px] text-ink-2 truncate">
+                  {tt.label}{recipe && ` · ${recipe.name}`}
+                </span>
+              </span>
+              <span className={`shrink-0 text-[13px] tabular-nums ${u.overdue ? 'text-error font-medium' : 'text-ink'}`}>
+                {u.text}
+              </span>
             </button>
           );
         })}

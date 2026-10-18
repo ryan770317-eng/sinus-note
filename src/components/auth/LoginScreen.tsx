@@ -18,10 +18,10 @@ export function LoginScreen({ onLogin, error }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-bg flex items-center justify-center px-4">
+    <div className="min-h-screen bg-bg flex items-center justify-center px-5">
       <div className="w-full max-w-sm">
-        <h1 className="type-display tracking-wider mb-1">SINUS NOTE</h1>
-        <p className="type-meta tracking-label mb-8">引香筆記</p>
+        <h1 className="type-display mb-1">SINUS NOTE</h1>
+        <p className="type-meta tracking-[0.1em] mb-8">引香筆記</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -40,7 +40,7 @@ export function LoginScreen({ onLogin, error }: Props) {
             required
             className="input-field"
           />
-          {error && <p className="text-xs text-error">{error}</p>}
+          {error && <p className="text-[13px] text-error">{error}</p>}
           <button
             type="submit"
             disabled={loading}

@@ -51,7 +51,7 @@ export function ActionDetail({ item, existingMatNames, onPatch }: Props) {
           <Field label="總重:" value={`${tw}g`} />
         </div>
         {(a.ingredients?.length ?? 0) > 0 && (
-          <table className="w-full text-xs font-light">
+          <table className="w-full text-xs">
             <thead>
               <tr className="text-ink-2 border-b border-border">
                 <th className="text-left py-0.5 font-normal">類別</th>

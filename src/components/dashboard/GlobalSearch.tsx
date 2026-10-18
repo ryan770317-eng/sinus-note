@@ -25,31 +25,32 @@ export function GlobalSearch({ recipes, materials, notes, onRecipeClick, onMater
   const allEmpty = total === 0;
 
   return (
-    <div className="mb-5">
+    <div>
       <SearchField
         value={q}
         onChange={setQ}
         placeholder="搜尋配方、材料、筆記"
         resultCount={total}
+        persistent
         className="w-full"
       />
 
       {term && (
         <div className="mt-2 bg-card border border-border">
           {allEmpty ? (
-            <p className="type-body text-ink-3 px-4 py-4">無結果</p>
+            <p className="type-body text-ink-2 px-4 py-4">無結果</p>
           ) : (
             <div className="divide-y divide-border">
               {/* 配方 */}
               <div className="px-4 py-3">
-                <p className="section-label mb-2">配方</p>
-                <div className="space-y-1">
+                <p className="section-label mb-1">配方</p>
+                <div>
                   {recipeHits.map((r) => (
                     <button
                       key={r.id}
                       type="button"
                       onClick={() => onRecipeClick(r.id)}
-                      className="block w-full text-left py-1"
+                      className="block w-full text-left min-h-[44px] py-2"
                     >
                       <span className="type-name">{r.name}</span>
                       <span className="type-meta ml-2">{r.num} · {FRAG_CATS[r.fragCat]?.label ?? r.fragCat}</span>
@@ -60,14 +61,14 @@ export function GlobalSearch({ recipes, materials, notes, onRecipeClick, onMater
 
               {/* 材料 */}
               <div className="px-4 py-3">
-                <p className="section-label mb-2">材料</p>
-                <div className="space-y-1">
+                <p className="section-label mb-1">材料</p>
+                <div>
                   {materialHits.map((m) => (
                     <button
                       key={m.id}
                       type="button"
                       onClick={() => onMaterialClick(term)}
-                      className="block w-full text-left py-1"
+                      className="block w-full text-left min-h-[44px] py-2"
                     >
                       <span className="type-name">{m.displayShort ?? m.name.split('｜')[0]}</span>
                       {m.supplier && <span className="type-meta ml-2">· {m.supplier}</span>}
@@ -78,8 +79,8 @@ export function GlobalSearch({ recipes, materials, notes, onRecipeClick, onMater
 
               {/* 隨手記 */}
               <div className="px-4 py-3">
-                <p className="section-label mb-2">隨手記</p>
-                <div className="space-y-1">
+                <p className="section-label mb-1">隨手記</p>
+                <div>
                   {noteHits.map((n) => {
                     const { date } = formatNoteDate(n.ts);
                     return (
@@ -87,7 +88,7 @@ export function GlobalSearch({ recipes, materials, notes, onRecipeClick, onMater
                         key={n.id}
                         type="button"
                         onClick={() => onNoteClick(term)}
-                        className="block w-full text-left py-1"
+                        className="block w-full text-left min-h-[44px] py-2"
                       >
                         <span className="type-meta">{date}</span>
                         <span className="type-body ml-2">{n.text.slice(0, 60)}</span>

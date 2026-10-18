@@ -1,6 +1,6 @@
 import type { Recipe, Material, Note } from '../types';
 
-/** 配方全域搜尋：比對 name、num、tags[]（全部 toLowerCase().includes） */
+/** 配方全域搜尋：比對 name、num、tags[]、各版本材料名（全部 toLowerCase().includes） */
 export function searchRecipes(recipes: Recipe[], q: string, limit = 5): Recipe[] {
   const term = q.trim().toLowerCase();
   if (!term) return [];
@@ -8,7 +8,8 @@ export function searchRecipes(recipes: Recipe[], q: string, limit = 5): Recipe[]
     .filter((r) =>
       r.name.toLowerCase().includes(term) ||
       r.num.toLowerCase().includes(term) ||
-      (r.tags ?? []).some((t) => t.toLowerCase().includes(term)),
+      (r.tags ?? []).some((t) => t.toLowerCase().includes(term)) ||
+      (r.versions ?? []).some((v) => (v.ingredients ?? []).some((i) => (i.name ?? '').toLowerCase().includes(term))),
     )
     .slice(0, limit);
 }

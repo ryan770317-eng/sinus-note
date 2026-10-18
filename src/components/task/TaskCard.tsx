@@ -11,6 +11,7 @@ import { ProgressBar } from '../shared/ProgressBar';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { useToast } from '../shared/useToast';
 import { ActionMenu } from '../shared/ActionMenu';
+import { StatusDot } from '../shared/StatusDot';
 
 interface Props {
   task: Task;
@@ -58,10 +59,10 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRestor
   return (
     <>
       <div
-        className={`border border-border flex transition-all ${isDone ? 'opacity-40' : ''}`}
+        className="border border-border flex transition-all"
         style={{
           borderLeftWidth: 3,
-          borderLeftColor: isDone ? '#D6CFC4' : phaseColor,
+          borderLeftColor: isDone ? '#6B6459' : phaseColor,
           background: isDone ? 'transparent' : TASK_STATUS_BG[task.status],
         }}
       >
@@ -102,24 +103,16 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRestor
           aria-expanded={hasExpandable ? expanded : undefined}
         >
           {/* Type + status + menu */}
-          <div className="flex items-start justify-between gap-2 mb-1">
-            <span className="type-micro tracking-label" style={{ color: isDone ? '#D6CFC4' : phaseColor }}>
+          <div className="flex items-center justify-between gap-2 -mt-2 -mr-3">
+            <span className={`text-[13px] ${isDone ? 'text-ink-2 line-through' : 'text-ink-2'}`}>
               {tt.icon} {tt.label}
             </span>
             <div className="flex items-center gap-1 shrink-0">
-              <span
-                className="type-micro px-1.5 py-0.5"
-                style={{
-                  background: isDone ? 'transparent' : `${phaseColor}18`,
-                  color: isDone ? '#D6CFC4' : phaseColor,
-                }}
-              >
-                {TASK_STATUS[task.status].label}
-              </span>
+              <StatusDot color={isDone ? '#6B6459' : phaseColor} label={TASK_STATUS[task.status].label} />
               {hasExpandable && (
                 <span
                   aria-hidden="true"
-                  className="text-ink-3 transition-transform inline-flex items-center"
+                  className="text-ink-2 transition-transform inline-flex items-center"
                   style={{ transform: expanded ? 'rotate(180deg)' : 'none' }}
                 >
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -142,21 +135,21 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRestor
           </div>
 
           {/* Title */}
-          <p className={`font-serif text-[15px] text-ink ${isDone ? 'line-through text-ink-3' : ''}`}>
+          <p className={`font-serif text-lg ${isDone ? 'line-through text-ink-2' : 'text-ink'}`}>
             {task.title}
           </p>
 
           {/* 短摘要（永遠顯示） */}
           {task.material && (
-            <p className="type-meta mt-1">{task.material}</p>
+            <p className={`type-meta mt-1 ${isDone ? 'line-through' : ''}`}>{task.material}</p>
           )}
 
           {/* 收合狀態：單行時間摘要 */}
           {!expanded && !isInstant && task.dueDate && (
-            <p className="type-micro mt-1.5">
-              {fmtDate(task.startDate)} → {fmtDate(task.dueDate)}
+            <p className="text-[13px] text-ink-2 mt-1.5 tabular-nums">
+              {fmtDate(task.startDate)} – {fmtDate(task.dueDate)}
               {countdown && (
-                <span className="ml-2" style={{ color: countdownColor }}>· {countdown}</span>
+                <span className={`ml-2 ${countdownColor === '#a06050' ? 'text-error font-medium' : 'text-ink'}`}>· {countdown}</span>
               )}
             </p>
           )}
@@ -168,14 +161,14 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRestor
               {!isInstant && task.dueDate && (
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <p className="type-micro">
-                      {fmtDate(task.startDate)} → {fmtDate(task.dueDate)}
-                      <span className="ml-1 text-ink-4">
+                    <p className="text-[13px] text-ink-2 tabular-nums">
+                      {fmtDate(task.startDate)} – {fmtDate(task.dueDate)}
+                      <span className="ml-1 text-ink-2 tabular-nums">
                         ({Math.round((new Date(task.dueDate).getTime() - new Date(task.startDate).getTime()) / 86400000)} 天)
                       </span>
                     </p>
                     {countdown && (
-                      <span className="type-micro" style={{ color: countdownColor }}>{countdown}</span>
+                      <span className={`text-[13px] tabular-nums ${countdownColor === '#a06050' ? 'text-error font-medium' : 'text-ink'}`}>{countdown}</span>
                     )}
                   </div>
                   {!isDone && <ProgressBar value={progress} />}
@@ -185,19 +178,19 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRestor
               {/* Notes */}
               {task.notes && (
                 <div className="pt-3 border-t border-border">
-                  <p className="type-micro tracking-label mb-1">備註</p>
-                  <p className="type-meta whitespace-pre-wrap">{task.notes}</p>
+                  <p className="text-xs text-ink-2 tracking-[0.1em] mb-1">備註</p>
+                  <p className="text-base text-ink whitespace-pre-wrap">{task.notes}</p>
                 </div>
               )}
 
               {/* Related recipe */}
               {recipe && (
                 <div className="pt-3 border-t border-border">
-                  <p className="type-micro tracking-label mb-1">關聯配方</p>
+                  <p className="text-xs text-ink-2 tracking-[0.1em] mb-1">關聯配方</p>
                   <button
+                    type="button"
                     onClick={() => onRecipeClick(recipe.id)}
-                    className="type-body underline"
-                    style={{ color: '#8B6F52' }}
+                    className="min-h-[44px] text-base text-ink underline underline-offset-4"
                   >
                     {recipe.name}
                   </button>

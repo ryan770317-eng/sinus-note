@@ -60,7 +60,6 @@ export function BatchImport({
   onAddTask,
 }: Props) {
   const toast = useToast();
-  const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [parsing, setParsing] = useState(false);
   const [actions, setActions] = useState<ActionState[]>([]);
@@ -217,24 +216,9 @@ export function BatchImport({
   const pendingCount = actions.filter((a) => a.status === 'pending' && a.action.type !== 'journal').length;
 
   return (
-    <div className="mt-4">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        aria-controls="batch-import-panel"
-        aria-label={`批次解析工具（${open ? '已展開' : '已收合'}）`}
-        className="flex items-center justify-between w-full px-4 py-3 border border-border bg-card hover:border-ink-2 transition-colors"
-        style={{ borderLeftWidth: 3, borderLeftColor: '#8B6F52' }}
-      >
-        <div className="flex items-center gap-2">
-          <span className="type-meta text-ink">貼上對話 → 批次解析</span>
-          <span className="type-micro tracking-label text-ink-2 px-1.5 py-0.5" style={{ background: 'rgba(139,111,82,0.12)' }}>AI</span>
-        </div>
-        <span className="text-ink-2 text-xs" aria-hidden="true">{open ? '▲' : '▼'}</span>
-      </button>
-
-      {open && (
-        <div id="batch-import-panel">
+    <div>
+      {/* 開合由外層 DrawerRow 控制（總覽 D2） */}
+      <div id="batch-import-panel">
           <label htmlFor="batch-input" className="sr-only">貼入內容</label>
           <textarea
             id="batch-input"
@@ -246,7 +230,7 @@ export function BatchImport({
           <button
             onClick={handleParse}
             disabled={parsing || !input.trim()}
-            className="btn text-xs mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label={parsing ? '解析中' : '解析貼入內容'}
           >
             {parsing ? '解析中...' : '解析'}
@@ -259,7 +243,7 @@ export function BatchImport({
                   <button
                     onClick={confirmAll}
                     disabled={writingAll}
-                    className="btn-primary text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label={`寫入全部 ${pendingCount} 筆待確認動作`}
                   >
                     {writingAll ? '寫入中…' : `全部寫入（${pendingCount} 筆）`}
@@ -282,8 +266,8 @@ export function BatchImport({
                     <div className="shrink-0 pt-1">
                       {item.status === 'pending' && (
                         <div className="flex gap-2">
-                          <button onClick={() => confirmAction(idx)} className="btn text-xs">確認寫入</button>
-                          <button onClick={() => skipAction(idx)} className="btn text-xs">跳過</button>
+                          <button onClick={() => confirmAction(idx)} className="btn">確認寫入</button>
+                          <button onClick={() => skipAction(idx)} className="btn">跳過</button>
                         </div>
                       )}
                       {item.status === 'writing' && (
@@ -293,10 +277,10 @@ export function BatchImport({
                         <span className="text-xs text-accent">✓ 已寫入</span>
                       )}
                       {item.status === 'skipped' && (
-                        <span className="text-xs text-ink-4">已跳過</span>
+                        <span className="text-xs text-ink-2 line-through">已跳過</span>
                       )}
                       {item.action.type === 'journal' && item.status === 'pending' && (
-                        <button onClick={() => skipAction(idx)} className="btn text-xs">關閉</button>
+                        <button onClick={() => skipAction(idx)} className="btn">關閉</button>
                       )}
                     </div>
                   </div>
@@ -304,8 +288,7 @@ export function BatchImport({
               ))}
             </div>
           )}
-        </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -29,7 +29,7 @@ import { useToast } from './components/shared/useToast';
 import { OfflineBanner } from './components/shared/OfflineBanner';
 
 import { exportBackup, readJsonFile, mergePatch, type BackupData } from './utils/export';
-import { BACKUP_KEY } from './utils/backup';
+import { BACKUP_KEY, SNOOZE_KEY, shouldRemindBackup } from './utils/backup';
 import { todayISO } from './utils/date';
 import { MOCK_RECIPES, MOCK_TASKS, MOCK_MATERIALS, MOCK_NOTES } from './utils/mockData';
 import type { Recipe, FragCat, BurnEntry, Material } from './types';
@@ -56,6 +56,10 @@ export default function App() {
   // 全域搜尋跳轉：帶入目標分頁的初始搜尋詞
   const [matSeed, setMatSeed] = useState<string | null>(null);
   const [noteSeed, setNoteSeed] = useState<string | null>(null);
+  // 總覽「處理」跳轉：工序分頁掛載時直接打開這筆的編輯
+  const [taskSeed, setTaskSeed] = useState<string | null>(null);
+  // 匯出／延後提醒後重算 backupDue
+  const [backupTick, setBackupTick] = useState(0);
 
   // Recipe navigation
   const [recipeScreen, setRecipeScreen] = useState<RecipeScreen>('home');
@@ -63,6 +67,8 @@ export default function App() {
   const [activeRecipeId, setActiveRecipeId] = useState<number | null>(null);
   const [editRecipe, setEditRecipe] = useState<Recipe | null>(null);
   const [newRecipeForCat, setNewRecipeForCat] = useState<FragCat | undefined>();
+  // 詳情／表單「← 返回」要回到進來的那一層（配方首頁或分類頁）
+  const [recipeOrigin, setRecipeOrigin] = useState<'home' | 'category'>('home');
 
   // Confirmation state (import / delete recipe)
   const [pendingImport, setPendingImport] = useState<PendingImport | null>(null);
@@ -94,7 +100,7 @@ export default function App() {
         aria-label="載入中"
       >
         <p className="font-serif text-2xl text-ink tracking-wide">SINUS NOTE</p>
-        <p className="text-xs text-ink-3 font-light tracking-label">載入中…</p>
+        <p className="text-xs text-ink-3 tracking-label">載入中…</p>
       </div>
     );
   }
@@ -131,7 +137,7 @@ export default function App() {
         aria-label="資料載入中"
       >
         <p className="font-serif text-2xl text-ink tracking-wide">SINUS NOTE</p>
-        <p className="text-xs text-ink-3 font-light tracking-label">資料載入中…</p>
+        <p className="text-xs text-ink-3 tracking-label">資料載入中…</p>
       </div>
     );
   }
@@ -152,6 +158,25 @@ export default function App() {
 
   const alertTasks = tasks.filter(isAlertTask);
 
+  // 備份提醒（mock 模式不算 due）；backupTick 讓匯出／延後後重新讀 localStorage
+  void backupTick;
+  const backupState = shouldRemindBackup(
+    Date.now(),
+    localStorage.getItem(BACKUP_KEY),
+    localStorage.getItem(SNOOZE_KEY),
+  );
+  const backupDue = !isMock && backupState.remind;
+
+  function handleSnoozeBackup() {
+    localStorage.setItem(SNOOZE_KEY, new Date(Date.now() + 7 * 86400000).toISOString());
+    setBackupTick((n) => n + 1);
+  }
+
+  function openTask(id: string) {
+    setTaskSeed(id);
+    setTab('task');
+  }
+
   // 示範資料只能看不能改；新增操作維持可用（寫入第一筆真資料後自動退出示範模式）
   const MOCK_BLOCK_MSG = '目前顯示的是示範資料，無法編輯或刪除 — 新增第一筆自己的資料後就會切換';
   // 用 throw 而非靜默 return：呼叫端（刪除確認、表單）才不會接著顯示「已完成」的成功回饋
@@ -170,6 +195,9 @@ export default function App() {
   }
 
   function goRecipeDetail(id: number) {
+    const recipe = recipes.find((r) => Number(r.id) === Number(id));
+    if (recipe) setActiveCat(recipe.fragCat);
+    setRecipeOrigin(tab === 'recipe' && recipeScreen === 'category' ? 'category' : 'home');
     setActiveRecipeId(id);
     setRecipeScreen('detail');
     setTab('recipe');
@@ -177,14 +205,17 @@ export default function App() {
 
   function goRecipeForm(recipe?: Recipe, forCat?: FragCat) {
     if (recipe && isMock) { toast.info(MOCK_BLOCK_MSG); return; }
+    if (!recipe) setRecipeOrigin(recipeScreen === 'category' ? 'category' : 'home');
     setEditRecipe(recipe ?? null);
     setNewRecipeForCat(forCat);
     setRecipeScreen('form');
   }
 
   function goRecipeBack() {
-    if (recipeScreen === 'detail' || recipeScreen === 'form') {
-      setRecipeScreen('category');
+    if (recipeScreen === 'detail') {
+      setRecipeScreen(recipeOrigin);
+    } else if (recipeScreen === 'form') {
+      setRecipeScreen(editRecipe ? 'detail' : recipeOrigin);
     } else {
       setRecipeScreen('home');
     }
@@ -208,7 +239,7 @@ export default function App() {
     if (!recipe) return;
     try {
       await recipeStore.deleteRecipe(id);
-      setRecipeScreen('category');
+      setRecipeScreen(recipeOrigin);
       toast.success('配方已刪除', {
         action: {
           label: '復原',
@@ -273,8 +304,10 @@ export default function App() {
       catOrder: recipeStore.catOrder,
       materials: matStore.materials,
       tasks: taskStore.tasks,
+      notes: noteStore.notes,
     });
     localStorage.setItem(BACKUP_KEY, new Date().toISOString());
+    setBackupTick((n) => n + 1);
     setMenuOpen(false);
   }
 
@@ -315,18 +348,20 @@ export default function App() {
         if (data.catImages) await recipeStore.saveCatImages(data.catImages);
         if (data.materials) await matStore.saveMaterials(data.materials);
         if (data.tasks) await taskStore.saveTasks(data.tasks);
+        if (data.notes) await noteStore.saveNotes(data.notes);
         toast.success('匯入完成');
       } else {
         const patch = req.patch;
         const merged = mergePatch(
-          { recipes: recipeStore.recipes, materials: matStore.materials, tasks: taskStore.tasks },
-          { recipes: patch.recipes, materials: patch.materials, tasks: patch.tasks },
+          { recipes: recipeStore.recipes, materials: matStore.materials, tasks: taskStore.tasks, notes: noteStore.notes },
+          { recipes: patch.recipes, materials: patch.materials, tasks: patch.tasks, notes: patch.notes },
           recipeStore.nextId,
         );
         await recipeStore.saveRecipes(merged.recipes, merged.nextId);
         await matStore.saveMaterials(merged.materials);
         await taskStore.saveTasks(merged.tasks);
-        toast.success(`合併完成：配方 +${merged.added.recipes}、材料 +${merged.added.materials}、工序 +${merged.added.tasks}`);
+        if (merged.added.notes > 0) await noteStore.saveNotes(merged.notes);
+        toast.success(`合併完成：配方 +${merged.added.recipes}、材料 +${merged.added.materials}、工序 +${merged.added.tasks}、隨手記 +${merged.added.notes}`);
       }
     } catch (err) {
       toast.error(`${req.kind === 'replace' ? '匯入' : '合併'}失敗：${err instanceof Error ? err.message : String(err)}`);
@@ -338,12 +373,14 @@ export default function App() {
       const r = req.data.recipes?.length ?? 0;
       const m = req.data.materials?.length ?? 0;
       const t = req.data.tasks?.length ?? 0;
-      return `匯入將覆蓋全部資料，無法復原。\n即將匯入：配方 ${r}、材料 ${m}、工序 ${t}。\n確定執行嗎？`;
+      const n = req.data.notes?.length ?? 0;
+      return `匯入將覆蓋全部資料，無法復原。\n即將匯入：配方 ${r}、材料 ${m}、工序 ${t}、隨手記 ${n}。\n確定執行嗎？`;
     }
     const r = req.patch.recipes?.length ?? 0;
     const m = req.patch.materials?.length ?? 0;
     const t = req.patch.tasks?.length ?? 0;
-    return `合併匯入將保留既有資料並追加差異項。\n檔案內容：配方 ${r}、材料 ${m}、工序 ${t}。\n確定執行嗎？`;
+    const n = req.patch.notes?.length ?? 0;
+    return `合併匯入將保留既有資料並追加差異項。\n檔案內容：配方 ${r}、材料 ${m}、工序 ${t}、隨手記 ${n}。\n確定執行嗎？`;
   }
 
   // ── Render ────────────────────────────────────────────────────
@@ -357,17 +394,17 @@ export default function App() {
           notes={notes}
           isMock={isMock}
           nextId={recipeStore.nextId}
+          backupDue={backupDue}
           onTabChange={(t) => { setTab(t); if (t === 'recipe') setRecipeScreen('home'); }}
           onRecipeClick={goRecipeDetail}
           onMaterialClick={(q) => { setMatSeed(q); setTab('material'); }}
           onNoteClick={(q) => { setNoteSeed(q); setTab('notes'); }}
-          onTaskClick={() => setTab('task')}
+          onTaskOpen={openTask}
           onAddMaterial={handleAddMaterial}
           onUpdateStock={handleUpdateStock}
           onAddRecipe={handleAddRecipe}
           onAddRecipeNote={handleAddRecipeNote}
           onAddTask={async (data) => { await taskStore.addTask(data); }}
-          onExport={handleExport}
           onMenuOpen={() => setMenuOpen(true)}
         />
       );
@@ -408,6 +445,11 @@ export default function App() {
                 completedDate: null, notes: batchWeight ? `批次 ${batchWeight}g` : '', checkpoints: [],
               });
             }}
+            onBurnSaveForRecipe={mockGuard(async (recipeId: number, entry: BurnEntry) => {
+              const target = recipeStore.recipes.find((r) => r.id === recipeId);
+              if (!target) throw new Error('找不到對應配方，試燒紀錄未寫入');
+              await recipeStore.updateRecipe(recipeId, { burnLog: [...(target.burnLog ?? []), entry] });
+            })}
           />
         );
       }
@@ -438,6 +480,7 @@ export default function App() {
           onRestore={taskStore.restoreTask}
           onRecipeClick={(id) => { goRecipeDetail(id); }}
           onBurnSave={mockGuard(handleBurnSave)}
+          initialEditTaskId={taskSeed ?? undefined}
         />
       );
     }
@@ -479,6 +522,7 @@ export default function App() {
         catOrder={recipeStore.catOrder}
         onCatClick={goRecipeCat}
         onRecipeClick={goRecipeDetail}
+        onNew={(cat) => goRecipeForm(undefined, cat)}
         onSaveCatImage={async (catId, base64) => {
           try {
             await recipeStore.saveCatImages({ ...recipeStore.catImagesMap, [catId]: base64 });
@@ -513,6 +557,7 @@ export default function App() {
           // 手動切分頁時清除全域搜尋 seed，避免殘留搜尋詞
           setMatSeed(null);
           setNoteSeed(null);
+          setTaskSeed(null);
         }}
         onMenuOpen={() => setMenuOpen(true)}
       />
@@ -530,6 +575,10 @@ export default function App() {
           onImport={handleImport}
           onMergeImport={handleMergeImport}
           onLogout={async () => { await logout(); setMenuOpen(false); }}
+          isMock={isMock}
+          backupDaysSince={backupState.daysSince}
+          backupDue={backupDue}
+          onSnoozeBackup={handleSnoozeBackup}
         />
       )}
 
@@ -545,7 +594,7 @@ export default function App() {
 
       {pendingDeleteRecipe && (
         <ConfirmDialog
-          message={`確定要刪除配方「${pendingDeleteRecipe.name}」？\n此操作無法復原。`}
+          message={`確定要刪除配方「${pendingDeleteRecipe.name}」？`}
           confirmLabel="刪除"
           tone="danger"
           onConfirm={async () => {

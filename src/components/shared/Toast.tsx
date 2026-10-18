@@ -69,7 +69,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={() => dismiss(t.id)}
-              className="flex-1 text-left text-xs font-light tracking-label px-4 py-2.5"
+              className="flex-1 text-left text-[13px] tracking-[0.04em] px-4 min-h-[44px]"
               aria-label={`關閉通知：${t.message}`}
             >
               {t.message}
@@ -81,7 +81,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                   t.action?.onClick();
                   dismiss(t.id);
                 }}
-                className="text-xs font-normal tracking-label px-4 py-2.5 border-l hover:opacity-80"
+                className="text-[13px] font-medium tracking-[0.04em] px-4 min-h-[44px] border-l"
                 style={{ borderColor: toastBorder(t.type) }}
               >
                 {t.action.label}

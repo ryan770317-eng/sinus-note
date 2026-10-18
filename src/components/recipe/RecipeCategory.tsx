@@ -38,7 +38,7 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
           ← 返回
         </button>
         <h1 className="type-title">{FRAG_CATS[cat].label}</h1>
-        <span className="text-xs text-ink-2 opacity-60 font-light" aria-label={`共 ${catRecipes.length} 個配方`}>{catRecipes.length} 個</span>
+        <span className="text-xs text-ink-2 tabular-nums" aria-label={`共 ${catRecipes.length} 個配方`}>{catRecipes.length} 個</span>
       </div>
 
       {catRecipes.length === 0 && (
@@ -54,8 +54,8 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
             {/* Status group header with colored accent */}
             <div className="flex items-center gap-2 mb-3">
               <div className="w-1.5 h-1.5" style={{ background: st.color }} />
-              <p className="text-xs tracking-label font-light" style={{ color: st.color }}>{st.label}</p>
-              <span className="type-micro opacity-60">{group.length}</span>
+              <p className="text-xs tracking-label" style={{ color: st.color }}>{st.label}</p>
+              <span className="type-micro tabular-nums">{group.length}</span>
             </div>
 
             <div className="space-y-2">
@@ -83,7 +83,7 @@ export function RecipeCategory({ cat, recipes, onBack, onRecipeClick, onNew }: P
                         <p className="type-micro text-accent">{starsFilled(r.rating)}</p>
                       )}
                       {(r.burnLog?.length ?? 0) > 0 && (
-                        <p className="type-micro opacity-60">試燒 {r.burnLog!.length}</p>
+                        <p className="type-micro tabular-nums">試燒 {r.burnLog!.length}</p>
                       )}
                     </div>
                   </div>

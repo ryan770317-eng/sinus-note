@@ -90,7 +90,7 @@ export function ActionMenu({
         onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
         aria-label={triggerLabel}
         aria-expanded={open}
-        className={`min-w-[32px] min-h-[32px] flex items-center justify-center text-ink-3 hover:text-ink hover:bg-ink/5 transition-colors ${triggerClassName}`}
+        className={`min-w-[44px] min-h-[44px] flex items-center justify-center text-ink-3 hover:text-ink hover:bg-ink/5 transition-colors ${triggerClassName}`}
       >
         <DotsIcon />
       </button>
@@ -123,7 +123,7 @@ export function ActionMenu({
       {/* Mobile bottom sheet */}
       {open && isMobile && (
         <div
-          className="fixed inset-0 z-50"
+          className="fixed inset-0 z-[70]"
           role="dialog"
           aria-modal="true"
           onClick={(e) => e.stopPropagation()}

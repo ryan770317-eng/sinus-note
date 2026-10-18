@@ -126,7 +126,7 @@ export function MaterialTestSopModal({ material, onSave, onClose }: Props) {
             type="button"
             onClick={onClose}
             disabled={submitting}
-            className="btn text-xs disabled:opacity-50"
+            className="btn disabled:opacity-50"
           >
             之後再做
           </button>
@@ -134,7 +134,7 @@ export function MaterialTestSopModal({ material, onSave, onClose }: Props) {
             type="button"
             onClick={handleComplete}
             disabled={submitting}
-            className="btn-primary text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? '儲存中…' : '完成測試'}
           </button>
