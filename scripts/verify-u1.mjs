@@ -1,7 +1,7 @@
 /**
  * U1 驗證：配方批次換算器。
  * 前置：dev server 於 :5199。 node scripts/verify-u1.mjs
- * 走配方 → 供香分類 → 沉木供香（假）詳情，填換算 40（總重 20 → ×2），
+ * 走配方清單 → 沉木供香（假）詳情，填換算 40（總重 20 → ×2），
  * 斷言沉香粉 10g → 20g 主顯示 + 「原 10」+ 總重「×2」；清除後回原量。無 pageerror。
  */
 import { launchApp } from './smoke.mjs';
@@ -15,9 +15,8 @@ const { browser, page, pageErrors } = await launchApp();
 try {
   await page.getByRole('tab', { name: '切換到配方分頁' }).first().click();
   await page.waitForTimeout(400);
-  await page.getByText('供香', { exact: true }).first().click();
-  await page.waitForTimeout(400);
-  await page.getByText('沉木供香（假）').first().click();
+  // D3 起配方首頁預設清單檢視：直接點清單列
+  await page.getByRole('button', { name: '開啟配方 沉木供香（假）' }).click();
   await page.waitForTimeout(400);
 
   assert(await page.getByText('配方組成').count() > 0, '進入配方詳情（含「配方組成」）');

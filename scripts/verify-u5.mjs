@@ -15,9 +15,8 @@ function assert(cond, msg) {
 async function gotoRecipeDetail(page) {
   await page.getByRole('tab', { name: '切換到配方分頁' }).first().click();
   await page.waitForTimeout(400);
-  await page.getByText('供香', { exact: true }).first().click();
-  await page.waitForTimeout(400);
-  await page.getByText('沉木供香（假）').first().click();
+  // D3 起配方首頁預設清單檢視：直接點清單列
+  await page.getByRole('button', { name: '開啟配方 沉木供香（假）' }).click();
   await page.waitForTimeout(400);
 }
 

@@ -67,6 +67,8 @@ export default function App() {
   const [activeRecipeId, setActiveRecipeId] = useState<number | null>(null);
   const [editRecipe, setEditRecipe] = useState<Recipe | null>(null);
   const [newRecipeForCat, setNewRecipeForCat] = useState<FragCat | undefined>();
+  // 詳情／表單「← 返回」要回到進來的那一層（配方首頁或分類頁）
+  const [recipeOrigin, setRecipeOrigin] = useState<'home' | 'category'>('home');
 
   // Confirmation state (import / delete recipe)
   const [pendingImport, setPendingImport] = useState<PendingImport | null>(null);
@@ -193,6 +195,9 @@ export default function App() {
   }
 
   function goRecipeDetail(id: number) {
+    const recipe = recipes.find((r) => Number(r.id) === Number(id));
+    if (recipe) setActiveCat(recipe.fragCat);
+    setRecipeOrigin(tab === 'recipe' && recipeScreen === 'category' ? 'category' : 'home');
     setActiveRecipeId(id);
     setRecipeScreen('detail');
     setTab('recipe');
@@ -200,14 +205,17 @@ export default function App() {
 
   function goRecipeForm(recipe?: Recipe, forCat?: FragCat) {
     if (recipe && isMock) { toast.info(MOCK_BLOCK_MSG); return; }
+    if (!recipe) setRecipeOrigin(recipeScreen === 'category' ? 'category' : 'home');
     setEditRecipe(recipe ?? null);
     setNewRecipeForCat(forCat);
     setRecipeScreen('form');
   }
 
   function goRecipeBack() {
-    if (recipeScreen === 'detail' || recipeScreen === 'form') {
-      setRecipeScreen('category');
+    if (recipeScreen === 'detail') {
+      setRecipeScreen(recipeOrigin);
+    } else if (recipeScreen === 'form') {
+      setRecipeScreen(editRecipe ? 'detail' : recipeOrigin);
     } else {
       setRecipeScreen('home');
     }
@@ -231,7 +239,7 @@ export default function App() {
     if (!recipe) return;
     try {
       await recipeStore.deleteRecipe(id);
-      setRecipeScreen('category');
+      setRecipeScreen(recipeOrigin);
       toast.success('配方已刪除', {
         action: {
           label: '復原',
@@ -504,6 +512,7 @@ export default function App() {
         catOrder={recipeStore.catOrder}
         onCatClick={goRecipeCat}
         onRecipeClick={goRecipeDetail}
+        onNew={(cat) => goRecipeForm(undefined, cat)}
         onSaveCatImage={async (catId, base64) => {
           try {
             await recipeStore.saveCatImages({ ...recipeStore.catImagesMap, [catId]: base64 });

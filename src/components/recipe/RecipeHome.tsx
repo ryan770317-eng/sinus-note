@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
-import type { Recipe, FragCat } from '../../types';
-import { FRAG_CATS, FRAG_CAT_COLORS } from '../../utils/constants';
+import type { Recipe, FragCat, RecipeStatus } from '../../types';
+import { FRAG_CATS, FRAG_CAT_COLORS, RECIPE_STATUS } from '../../utils/constants';
+import { searchRecipes } from '../../utils/globalSearch';
+import { RecipeRow } from '../shared/RecipeRow';
 import { fileToResizedDataUrl } from '../../utils/image';
 import { SearchField } from '../shared/SearchField';
 import { useToast } from '../shared/useToast';
@@ -14,7 +16,24 @@ interface Props {
   onRecipeClick: (id: number) => void;
   onSaveCatImage: (catId: string, base64: string) => Promise<void>;
   onSaveCatOrder: (order: FragCat[]) => Promise<void>;
+  /** FAB 新增配方（有選分類篩選時帶入該分類） */
+  onNew: (cat?: FragCat) => void;
 }
+
+type View = 'list' | 'grid';
+type StatusFilter = 'all' | RecipeStatus;
+
+const VIEW_KEY = 'sinus_recipe_view';
+
+function readView(): View {
+  try {
+    return localStorage.getItem(VIEW_KEY) === 'grid' ? 'grid' : 'list';
+  } catch {
+    return 'list';
+  }
+}
+
+const STATUS_FILTERS: StatusFilter[] = ['all', 'progress', 'pending', 'success', 'fail'];
 
 const DEFAULT_ORDER = Object.keys(FRAG_CATS) as FragCat[];
 
@@ -40,9 +59,14 @@ export function RecipeHome({
   onRecipeClick,
   onSaveCatImage,
   onSaveCatOrder,
+  onNew,
 }: Props) {
   const toast = useToast();
   const [search, setSearch] = useState('');
+  const [view, setView] = useState<View>(readView);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [catFilter, setCatFilter] = useState<FragCat | null>(null);
   const [dragging, setDragging] = useState<FragCat | null>(null);
   const [order, setOrder] = useState<FragCat[]>(catOrder ?? DEFAULT_ORDER);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -55,16 +79,29 @@ export function RecipeHome({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- 只跟 catOrder 同步
   }, [catOrder]);
 
-  const countByCat = (cat: FragCat) => recipes.filter((r) => r.fragCat === cat).length;
+  function changeView(v: View) {
+    setView(v);
+    try { localStorage.setItem(VIEW_KEY, v); } catch { /* 私密模式等寫入失敗：只影響記憶 */ }
+  }
 
-  const filtered = search
-    ? recipes.filter(
-        (r) =>
-          r.name.includes(search) ||
-          r.num.includes(search) ||
-          (r.tags ?? []).some((t) => t.includes(search)),
-      )
-    : null;
+  const countByCat = (cat: FragCat) => recipes.filter((r) => r.fragCat === cat).length;
+  const countByStatus = (st: StatusFilter) => (st === 'all' ? recipes.length : recipes.filter((r) => r.status === st).length);
+  const statusOptions: StatusFilter[] = recipes.some((r) => r.status === 'order') ? [...STATUS_FILTERS, 'order'] : STATUS_FILTERS;
+  const catOptions = (Object.keys(FRAG_CATS) as FragCat[]).filter((c) => countByCat(c) > 0);
+
+  const searched = search.trim() ? searchRecipes(recipes, search, Infinity) : recipes;
+  const listed = searched
+    .filter((r) => statusFilter === 'all' || r.status === statusFilter)
+    .filter((r) => !catFilter || r.fragCat === catFilter)
+    .sort((a, b) => (b.updatedAt > a.updatedAt ? 1 : b.updatedAt < a.updatedAt ? -1 : 0));
+
+  const condLabel = [
+    statusFilter !== 'all' ? RECIPE_STATUS[statusFilter].label : null,
+    catFilter ? FRAG_CATS[catFilter].label : null,
+  ].filter(Boolean).join(' · ') || '全部';
+
+  // 圖格是第二檢視；有搜尋或篩選時一律顯示清單結果
+  const showGrid = view === 'grid' && !search.trim() && statusFilter === 'all' && !catFilter;
 
   function handleDragStart(cat: FragCat) {
     setDragging(cat);
@@ -109,47 +146,132 @@ export function RecipeHome({
   }
 
   return (
-    <div className="max-w-content mx-auto px-4 pt-7 pb-20">
+    <div className="max-w-content mx-auto px-5 pt-7 pb-24">
       {/* Header */}
-      <div className="flex items-baseline justify-between gap-3 mb-4">
-        <h1 className="type-title shrink-0">配方</h1>
-        <div className="flex items-center gap-3 min-w-0">
-          <p className="font-mono type-micro tracking-wider uppercase hidden sm:block whitespace-nowrap">
-            {order.length} cats · {recipes.length} formulae
-          </p>
-          <SearchField
-            value={search}
-            onChange={setSearch}
-            placeholder="配方名稱、編號、標籤"
-            resultCount={filtered?.length}
-            className="w-full sm:w-[320px]"
-          />
+      <p className="kicker">FORMULAE</p>
+      <h1 className="type-display mt-1">配方</h1>
+
+      {/* 搜尋＋篩選 */}
+      <div className="mt-5 flex gap-2 items-start">
+        <SearchField
+          value={search}
+          onChange={setSearch}
+          placeholder="搜尋配方、材料"
+          persistent
+          className="flex-grow min-w-0"
+        />
+        <button
+          type="button"
+          onClick={() => setFilterOpen((o) => !o)}
+          aria-expanded={filterOpen}
+          className={`h-12 px-3.5 shrink-0 border flex items-center gap-2 text-[15px] text-ink ${
+            filterOpen || statusFilter !== 'all' || catFilter ? 'border-ink' : 'border-border'
+          }`}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M2 3 H14 L9.5 8.5 V13 L6.5 14.5 V8.5 Z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round" />
+          </svg>
+          篩選
+        </button>
+      </div>
+
+      {/* 篩選面板 */}
+      {filterOpen && (
+        <div className="mt-3 space-y-2">
+          <div
+            className="grid"
+            style={{ gridTemplateColumns: `repeat(${statusOptions.length}, minmax(0, 1fr))` }}
+            role="group"
+            aria-label="狀態篩選"
+          >
+            {statusOptions.map((st, i) => {
+              const active = statusFilter === st;
+              return (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => setStatusFilter(st)}
+                  aria-pressed={active}
+                  className={`h-11 text-[13px] flex items-center justify-center gap-1 border-[1.5px] ${
+                    i > 0 ? '-ml-[1.5px]' : ''
+                  } ${active ? 'bg-ink text-white border-ink relative z-10' : 'border-ink-2 text-ink'}`}
+                >
+                  {st === 'all' ? '全部' : RECIPE_STATUS[st].label}
+                  <span className="tabular-nums">{countByStatus(st)}</span>
+                </button>
+              );
+            })}
+          </div>
+          {catOptions.length > 0 && (
+            <div className="grid grid-cols-4 gap-2" role="group" aria-label="分類篩選">
+              {catOptions.map((c) => {
+                const active = catFilter === c;
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setCatFilter(active ? null : c)}
+                    aria-pressed={active}
+                    className={`h-11 bg-card border flex items-center justify-center gap-1.5 text-[13px] text-ink ${
+                      active ? 'border-ink' : 'border-border'
+                    }`}
+                  >
+                    <span aria-hidden="true" className="w-1.5 h-1.5 shrink-0" style={{ background: FRAG_CAT_COLORS[c].border }} />
+                    {FRAG_CATS[c].label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 清單標題列 */}
+      <div className="mt-6 flex items-center justify-between gap-3">
+        <p className="text-[13px] text-ink-2">
+          {condLabel} · <span className="tabular-nums">{showGrid ? recipes.length : listed.length}</span> 款
+        </p>
+        <div className="flex items-center -mr-3">
+          <button
+            type="button"
+            onClick={() => changeView('list')}
+            aria-pressed={view === 'list'}
+            aria-label="清單檢視"
+            className={`w-11 h-11 flex items-center justify-center ${view === 'list' ? 'text-ink' : 'text-ink-2'}`}
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M2 4.5 H16 M2 9 H16 M2 13.5 H16" stroke="currentColor" strokeWidth="1.25" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={() => changeView('grid')}
+            aria-pressed={view === 'grid'}
+            aria-label="圖格檢視"
+            className={`w-11 h-11 flex items-center justify-center ${view === 'grid' ? 'text-ink' : 'text-ink-2'}`}
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <rect x="2.5" y="2.5" width="5.5" height="5.5" stroke="currentColor" strokeWidth="1.25" />
+              <rect x="10" y="2.5" width="5.5" height="5.5" stroke="currentColor" strokeWidth="1.25" />
+              <rect x="2.5" y="10" width="5.5" height="5.5" stroke="currentColor" strokeWidth="1.25" />
+              <rect x="10" y="10" width="5.5" height="5.5" stroke="currentColor" strokeWidth="1.25" />
+            </svg>
+          </button>
         </div>
       </div>
 
-      {/* Search results */}
-      {filtered && (
-        <div className="space-y-2 mb-6">
-          {filtered.length === 0 && (
-            <p className="type-body text-ink-3">無結果</p>
-          )}
-          {filtered.map((r) => (
-            <button
-              key={r.id}
-              onClick={() => onRecipeClick(r.id)}
-              className="w-full text-left bg-card border border-border px-4 py-3 hover:border-ink-2 transition-colors"
-            >
-              <p className="type-name">{r.name}</p>
-              <p className="type-meta">
-                {r.num} · {FRAG_CATS[r.fragCat]?.label ?? r.fragCat}
-              </p>
-            </button>
+      {/* 清單檢視（預設） */}
+      {!showGrid && (
+        <div className="mt-1 border-t border-ink">
+          {listed.length === 0 && <p className="type-body text-ink-2 py-8 text-center">無結果</p>}
+          {listed.map((r) => (
+            <RecipeRow key={r.id} recipe={r} onClick={() => onRecipeClick(r.id)} />
           ))}
         </div>
       )}
 
-      {/* Category grid · Layout 05 — 3×4 留一格空 */}
-      {!filtered && (
+      {/* 圖格檢視 · Layout 05 — 分類格（拖曳排序、封面上傳） */}
+      {showGrid && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-0">
           {order.map((cat, i) => {
             const colors = FRAG_CAT_COLORS[cat];
@@ -278,6 +400,17 @@ export function RecipeHome({
         className="hidden"
         onChange={handleFileChange}
       />
+
+      {/* FAB */}
+      <button
+        type="button"
+        onClick={() => onNew(catFilter ?? undefined)}
+        className="fixed right-5 w-14 h-14 bg-ink text-white text-2xl flex items-center justify-center z-40 hover:bg-ink-2 transition-colors"
+        style={{ bottom: 'calc(3.5rem + 1rem + env(safe-area-inset-bottom))' }}
+        aria-label="新增配方"
+      >
+        ＋
+      </button>
     </div>
   );
 }

@@ -30,6 +30,16 @@ describe('searchRecipes', () => {
   it('大小寫不敏感', () => {
     expect(searchRecipes([recipe({ id: 3, name: 'Amber' })], 'amber').length).toBe(1);
   });
+  it('以材料名命中（任一版本、不分大小寫）', () => {
+    const withIng = recipe({
+      id: 4, name: '晨間',
+      versions: [
+        { label: '主版', totalWeight: 10, notes: '', comments: [], ingredients: [{ cat: 'resin', name: 'Frankincense 乳香', amount: 1, unit: 'g' }] },
+      ],
+    });
+    expect(searchRecipes([withIng, ...recipes], '乳香').map((r) => r.id)).toEqual([4]);
+    expect(searchRecipes([withIng], 'FRANKINCENSE').map((r) => r.id)).toEqual([4]);
+  });
   it('limit 截斷', () => {
     const many = Array.from({ length: 8 }, (_, i) => recipe({ id: i, name: '木' }));
     expect(searchRecipes(many, '木', 5).length).toBe(5);
