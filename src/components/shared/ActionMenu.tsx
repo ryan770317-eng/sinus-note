@@ -123,7 +123,7 @@ export function ActionMenu({
       {/* Mobile bottom sheet */}
       {open && isMobile && (
         <div
-          className="fixed inset-0 z-50"
+          className="fixed inset-0 z-[70]"
           role="dialog"
           aria-modal="true"
           onClick={(e) => e.stopPropagation()}

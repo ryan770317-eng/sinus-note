@@ -2,7 +2,7 @@
  * U1 驗證：配方批次換算器。
  * 前置：dev server 於 :5199。 node scripts/verify-u1.mjs
  * 走配方清單 → 沉木供香（假）詳情，填換算 40（總重 20 → ×2），
- * 斷言沉香粉 10g → 20g 主顯示 + 「原 10」+ 總重「×2」；清除後回原量。無 pageerror。
+ * 斷言沉香粉 10 → 20 g 主顯示 + 「原 10」+ 倍率「× 2」；清除後回原量。無 pageerror。
  */
 import { launchApp } from './smoke.mjs';
 
@@ -26,16 +26,17 @@ try {
   await page.waitForTimeout(300);
 
   const body1 = await page.locator('body').innerText();
-  assert(body1.includes('×2'), '總重列顯示倍率「×2」');
+  assert(body1.includes('× 2'), '總重下方顯示倍率「× 2」');
   assert(body1.includes('原 10'), '沉香粉顯示原量「原 10」');
-  assert(body1.includes('20g'), '沉香粉換算後顯示「20g」主用量');
+  const row = page.locator('div.min-h-14').filter({ hasText: '沉香粉' }).first();
+  assert(/20\s*g/.test(await row.innerText()), '沉香粉換算後主用量顯示「20 g」');
 
   // 清除換算
   await page.getByLabel('清除換算').click();
   await page.waitForTimeout(300);
   const body2 = await page.locator('body').innerText();
   assert(!body2.includes('原 10'), '清除後不再顯示「原 10」（回原量）');
-  assert(!body2.includes('×2'), '清除後不再顯示倍率「×2」');
+  assert(!body2.includes('× 2'), '清除後不再顯示倍率「× 2」');
 
   assert(pageErrors.length === 0, 'no pageerror (' + pageErrors.join(' | ') + ')');
   console.log('\nU1 VERIFY OK');

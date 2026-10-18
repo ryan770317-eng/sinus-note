@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import type { Task } from '../../types';
 import { TASK_TYPES, TASK_STATUS } from '../../utils/constants';
 
@@ -8,45 +7,29 @@ interface Props {
   onTaskClick: () => void; // Navigate to task tab
 }
 
+/** 相關工序內容（56 高細線列）。開合由外層 DrawerRow 控制。 */
 export function RelatedTasks({ recipeId, tasks, onTaskClick }: Props) {
-  const [open, setOpen] = useState(false);
   const related = tasks.filter((t) => t.recipeId === recipeId);
-
   if (related.length === 0) return null;
-
   return (
-    <div className="border-t border-border mt-4 pt-4">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 w-full text-left"
-      >
-        <span className="section-label">相關工序</span>
-        <span className="text-ink-2 text-xs ml-1 tabular-nums">{related.length} 筆</span>
-        <span className="ml-auto text-ink-2">{open ? '▲' : '▼'}</span>
-      </button>
-
-      {open && (
-        <div className="mt-3 space-y-2">
-          {related.map((task) => {
-            const tt = TASK_TYPES[task.taskType] ?? TASK_TYPES['other'];
-            return (
-              <button
-                key={task.id}
-                onClick={onTaskClick}
-                className="w-full text-left bg-card border border-border px-3 py-2 hover:border-ink-2 transition-colors"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="type-meta">{tt.icon} {tt.label}</span>
-                    <p className="type-name">{task.title}</p>
-                  </div>
-                  <span className="text-xs text-ink-3">{TASK_STATUS[task.status].label}</span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      )}
+    <div className="border-t border-border">
+      {related.map((task) => {
+        const tt = TASK_TYPES[task.taskType] ?? TASK_TYPES['other'];
+        return (
+          <button
+            key={task.id}
+            type="button"
+            onClick={onTaskClick}
+            className="w-full min-h-14 py-2 border-b border-border last:border-b-0 flex items-center justify-between gap-3 text-left"
+          >
+            <span className="min-w-0">
+              <span className="block text-base text-ink truncate">{task.title}</span>
+              <span className="block text-[13px] text-ink-2">{tt.label}</span>
+            </span>
+            <span className="shrink-0 text-[13px] text-ink">{TASK_STATUS[task.status].label}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

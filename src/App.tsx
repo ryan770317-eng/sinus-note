@@ -440,6 +440,11 @@ export default function App() {
                 completedDate: null, notes: batchWeight ? `批次 ${batchWeight}g` : '', checkpoints: [],
               });
             }}
+            onBurnSaveForRecipe={mockGuard(async (recipeId: number, entry: BurnEntry) => {
+              const target = recipeStore.recipes.find((r) => r.id === recipeId);
+              if (!target) throw new Error('找不到對應配方，試燒紀錄未寫入');
+              await recipeStore.updateRecipe(recipeId, { burnLog: [...(target.burnLog ?? []), entry] });
+            })}
           />
         );
       }
@@ -584,7 +589,7 @@ export default function App() {
 
       {pendingDeleteRecipe && (
         <ConfirmDialog
-          message={`確定要刪除配方「${pendingDeleteRecipe.name}」？\n此操作無法復原。`}
+          message={`確定要刪除配方「${pendingDeleteRecipe.name}」？`}
           confirmLabel="刪除"
           tone="danger"
           onConfirm={async () => {
