@@ -200,3 +200,8 @@
     scroll-margin-top: 1rem;
   }
 }
+
+/* 製作核對模式（ProductionMode）開著時隱藏主要導覽 */
+body.production-mode [data-app-nav] {
+  display: none;
+}

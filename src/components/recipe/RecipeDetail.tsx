@@ -12,6 +12,7 @@ import { useToast } from '../shared/useToast';
 import { BurnForm } from '../task/BurnForm';
 import { BurnLog } from './BurnLog';
 import { RelatedTasks } from './RelatedTasks';
+import { ProductionMode } from './ProductionMode';
 
 interface Props {
   recipe: Recipe;
@@ -140,7 +141,6 @@ export function RecipeDetail({
 
   // U5 製作核對進度
   const totalItems = resolved.length;
-  const allChecked = totalItems > 0 && checked.size === totalItems;
   const canMake = totalItems > 0 && version.totalWeight > 0;
 
   function startMake() {
@@ -415,8 +415,6 @@ export function RecipeDetail({
             const overCeiling = r.material?.hardCeiling != null && pct > r.material.hardCeiling;
             const sims = r.material ? similarFor(r.material) : [];
             const showSims = openSimilarFor === i;
-            const rowKey = String(i);
-            const isChecked = checked.has(rowKey);
             const sub = [
               ING_CATS[cat].label,
               r.material?.supplier ? supplierShort(r.material.supplier) : '',
@@ -425,30 +423,10 @@ export function RecipeDetail({
             const amountClass = overCeiling ? 'text-error font-medium' : factor !== 1 ? 'text-accent' : 'text-ink';
             return (
               <div key={i} className="border-b border-border">
-                <div className={`min-h-14 py-2 flex items-center gap-3 ${makeMode && isChecked ? 'opacity-50' : ''}`}>
-                  {makeMode && (
-                    <button
-                      type="button"
-                      onClick={() => toggleChecked(rowKey)}
-                      aria-pressed={isChecked}
-                      aria-label={`已稱 ${ingredientDisplay(r.ing, r.material)}`}
-                      className="shrink-0 w-11 h-11 -ml-3 flex items-center justify-center"
-                    >
-                      <span
-                        className="w-5 h-5 flex items-center justify-center"
-                        style={isChecked ? { background: '#1A1A18' } : { border: `2px solid ${ING_CAT_COLORS[cat]}` }}
-                      >
-                        {isChecked && (
-                          <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
-                            <path d="M2 6 L5 9 L10 3" stroke="#FFFFFF" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                      </span>
-                    </button>
-                  )}
+                <div className="min-h-14 py-2 flex items-center gap-3">
                   <span aria-hidden="true" className="w-2 h-2 shrink-0" style={{ background: ING_CAT_COLORS[cat] }} />
                   <div className="flex-1 min-w-0">
-                    <p className={`text-base text-ink truncate ${makeMode && isChecked ? 'line-through' : ''}`}>
+                    <p className="text-base text-ink truncate">
                       {ingredientDisplay(r.ing, r.material)}
                     </p>
                     <p className="text-[13px] text-ink-2">
@@ -496,23 +474,10 @@ export function RecipeDetail({
 
         {/* 按鈕區 */}
         <div className="pt-3.5 flex flex-col gap-1">
-          {canMake && !makeMode && (
+          {canMake && (
             <button type="button" onClick={startMake} className="btn-primary w-full tracking-[0.12em]">
               開始製作
             </button>
-          )}
-          {makeMode && (
-            <>
-              <button
-                type="button"
-                onClick={handleCompleteMake}
-                disabled={!allChecked}
-                className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {allChecked ? '完成稱料，建立工序' : `已稱 ${checked.size}/${totalItems}`}
-              </button>
-              <button type="button" onClick={exitMake} className="btn w-full">結束</button>
-            </>
           )}
           <button type="button" onClick={() => setBurnOpen(true)} className="btn-text self-center">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -603,6 +568,20 @@ export function RecipeDetail({
       </div>
 
       {burnOpen && <BurnForm onSave={handleBurnSave} onCancel={() => setBurnOpen(false)} />}
+
+      {makeMode && (
+        <ProductionMode
+          recipe={recipe}
+          version={version}
+          resolved={resolved}
+          factor={factor}
+          targetWeight={targetWeight}
+          checked={checked}
+          onToggle={toggleChecked}
+          onExit={exitMake}
+          onComplete={handleCompleteMake}
+        />
+      )}
     </div>
   );
 }

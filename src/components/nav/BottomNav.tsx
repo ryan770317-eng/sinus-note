@@ -23,6 +23,7 @@ export function BottomNav({ current, onChange, onMenuOpen }: Props): JSX.Element
     <>
       {/* ───────────────────────── Tablet / Desktop: top bar ───────────────────────── */}
       <nav
+        data-app-nav
         className="hidden md:flex fixed top-0 left-0 right-0 z-50 h-12 bg-bg/95 backdrop-blur border-b border-border items-stretch"
         aria-label="主要導覽"
       >
@@ -59,6 +60,7 @@ export function BottomNav({ current, onChange, onMenuOpen }: Props): JSX.Element
 
       {/* ───────────────────────── Mobile: flat bottom tab bar ───────────────────────── */}
       <nav
+        data-app-nav
         className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg/95 backdrop-blur border-t border-border"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         aria-label="主要導覽"
