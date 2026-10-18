@@ -74,15 +74,15 @@ export function NotesList({ notes, initialSearch, onAdd, onUpdate, onDelete, onR
   const filteredNotes = q ? notes.filter((n) => n.text.toLowerCase().includes(q)) : notes;
 
   return (
-    <div className="max-w-content mx-auto px-4 pt-7 pb-20">
-      <div className="flex items-baseline justify-between gap-3 mb-5">
-        <h1 className="type-title shrink-0">隨手記</h1>
+    <div className="max-w-content mx-auto px-5 pt-7 pb-24">
+      <h1 className="type-title h-11 flex items-center">隨手記</h1>
+      <div className="mt-3 mb-5">
         <SearchField
           value={search}
           onChange={setSearch}
           placeholder="搜尋筆記內容"
           resultCount={filteredNotes.length}
-          className="w-full sm:w-[320px]"
+          persistent
         />
       </div>
 
@@ -107,7 +107,7 @@ export function NotesList({ notes, initialSearch, onAdd, onUpdate, onDelete, onR
             <button
               type="submit"
               disabled={submitting || !input.trim()}
-              className="btn-primary text-xs px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary px-4 disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="記錄筆記"
             >
               {submitting ? '儲存中…' : '記錄'}
@@ -119,10 +119,10 @@ export function NotesList({ notes, initialSearch, onAdd, onUpdate, onDelete, onR
       {/* Notes list */}
       <div className="space-y-3">
         {notes.length === 0 && (
-          <p className="type-body text-ink-3 text-center py-8">尚無筆記</p>
+          <p className="type-body text-ink-2 text-center py-8">尚無筆記</p>
         )}
         {notes.length > 0 && filteredNotes.length === 0 && (
-          <p className="type-body text-ink-3 text-center py-8">無符合的筆記</p>
+          <p className="type-body text-ink-2 text-center py-8">無符合的筆記</p>
         )}
         {filteredNotes.map((note) => {
           const { date, time } = formatNoteDate(note.ts);
@@ -132,8 +132,8 @@ export function NotesList({ notes, initialSearch, onAdd, onUpdate, onDelete, onR
           return (
             <div key={note.id} className="bg-card border border-border p-4">
               {/* Timestamp */}
-              <p className="type-meta mb-2">
-                <span className="font-normal text-ink">{date}</span>
+              <p className="text-[13px] text-ink-2 mb-2 tabular-nums">
+                <span className="text-ink">{date}</span>
                 {' '}{time}
               </p>
 
@@ -150,15 +150,12 @@ export function NotesList({ notes, initialSearch, onAdd, onUpdate, onDelete, onR
                 >
                   {note.text}
                 </p>
-                {collapsible && !isExpanded && (
-                  <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-card to-transparent pointer-events-none" />
-                )}
               </div>
 
               {collapsible && (
                 <button
                   onClick={() => toggleExpand(note.id)}
-                  className="text-xs text-accent mt-1"
+                  className="btn-text -ml-3 text-[13px] text-accent"
                 >
                   {isExpanded ? '收合' : '展開全文'}
                 </button>
@@ -177,14 +174,14 @@ export function NotesList({ notes, initialSearch, onAdd, onUpdate, onDelete, onR
                 <button
                   onClick={() => handleAnalyze(note)}
                   disabled={analyzing.has(note.id)}
-                  className="btn text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label={analyzing.has(note.id) ? '解析中' : '以 AI 解析此筆記'}
                 >
                   {analyzing.has(note.id) ? '解析中...' : 'AI 解析'}
                 </button>
                 <button
                   onClick={() => setPendingDelete(note)}
-                  className="btn text-xs text-error border-error"
+                  className="btn text-error border-error"
                   aria-label="刪除筆記"
                 >
                   刪除

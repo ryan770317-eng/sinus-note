@@ -34,12 +34,12 @@ export class ErrorBoundary extends Component<Props, State> {
               {this.state.error.message || '介面載入異常，您的資料仍然安全。'}
             </p>
             <div className="flex gap-2">
-              <button onClick={this.reset} className="btn text-xs">
+              <button onClick={this.reset} className="btn">
                 重試
               </button>
               <button
                 onClick={() => window.location.reload()}
-                className="btn-primary text-xs"
+                className="btn-primary"
               >
                 重新整理頁面
               </button>

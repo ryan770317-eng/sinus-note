@@ -66,12 +66,12 @@ export function QuickNoteSheet({ onSave, onClose }: Props) {
           }}
         />
         <div className="flex items-center gap-3">
-          <button type="button" onClick={onClose} className="btn text-xs">取消</button>
+          <button type="button" onClick={onClose} className="btn">取消</button>
           <button
             type="button"
             onClick={handleSave}
             disabled={submitting || !text.trim()}
-            className="btn-primary text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? '記錄中…' : '記錄'}
           </button>

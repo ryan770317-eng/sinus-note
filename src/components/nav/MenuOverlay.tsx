@@ -57,7 +57,7 @@ export function MenuOverlay({
       <div className="absolute inset-0 bg-ink/20" onClick={onClose} aria-hidden="true" />
       <div
         ref={overlayRef}
-        className="relative bg-bg border border-border w-64 mb-12 mr-0 shadow-none"
+        className="relative bg-bg border border-border w-72 mb-12 mr-0 max-h-[calc(100vh-4rem)] overflow-y-auto"
       >
         {(isMock || backupDue) && (
           <div className="p-4 border-b border-border space-y-3" role="status">
@@ -86,41 +86,41 @@ export function MenuOverlay({
               type={showApiKey ? 'text' : 'password'}
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              className="input-field flex-1 text-xs"
+              className="input-field flex-1 min-w-0"
               placeholder="sk-ant-..."
             />
             <button
               onClick={() => setShowApiKey((s) => !s)}
-              className="btn text-xs px-2"
+              className="btn px-3 shrink-0"
             >
               {showApiKey ? '隱' : '顯'}
             </button>
           </div>
-          <button onClick={saveApiKey} className="btn w-full mt-2 text-xs">
+          <button type="button" onClick={saveApiKey} className="btn w-full mt-2">
             儲存
           </button>
-          <p className="type-micro text-ink-3 mt-2">已部署雲端代理時此欄可留空</p>
+          <p className="type-micro mt-2">已部署雲端代理時此欄可留空</p>
         </div>
 
         <div className="divide-y divide-border">
-          <button onClick={onExport} className="w-full text-left px-4 py-3 type-body text-ink-2 hover:bg-card tracking-label">
+          <button onClick={onExport} className="w-full text-left px-4 min-h-[48px] type-body text-ink hover:bg-card">
             匯出備份
           </button>
           <button
             onClick={() => importRef.current?.click()}
-            className="w-full text-left px-4 py-3 type-body text-ink-2 hover:bg-card tracking-label"
+            className="w-full text-left px-4 min-h-[48px] type-body text-ink hover:bg-card"
           >
             完整匯入（覆蓋）
           </button>
           <button
             onClick={() => mergeRef.current?.click()}
-            className="w-full text-left px-4 py-3 type-body text-ink-2 hover:bg-card tracking-label"
+            className="w-full text-left px-4 min-h-[48px] type-body text-ink hover:bg-card"
           >
             合併匯入（追加）
           </button>
           <button
             onClick={onLogout}
-            className="w-full text-left px-4 py-3 text-sm text-error hover:bg-card tracking-label"
+            className="w-full text-left px-4 min-h-[48px] text-base text-error hover:bg-card"
           >
             登出
           </button>

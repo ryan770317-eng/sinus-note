@@ -230,7 +230,7 @@ export function BatchImport({
           <button
             onClick={handleParse}
             disabled={parsing || !input.trim()}
-            className="btn text-xs mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label={parsing ? '解析中' : '解析貼入內容'}
           >
             {parsing ? '解析中...' : '解析'}
@@ -243,7 +243,7 @@ export function BatchImport({
                   <button
                     onClick={confirmAll}
                     disabled={writingAll}
-                    className="btn-primary text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label={`寫入全部 ${pendingCount} 筆待確認動作`}
                   >
                     {writingAll ? '寫入中…' : `全部寫入（${pendingCount} 筆）`}
@@ -266,8 +266,8 @@ export function BatchImport({
                     <div className="shrink-0 pt-1">
                       {item.status === 'pending' && (
                         <div className="flex gap-2">
-                          <button onClick={() => confirmAction(idx)} className="btn text-xs">確認寫入</button>
-                          <button onClick={() => skipAction(idx)} className="btn text-xs">跳過</button>
+                          <button onClick={() => confirmAction(idx)} className="btn">確認寫入</button>
+                          <button onClick={() => skipAction(idx)} className="btn">跳過</button>
                         </div>
                       )}
                       {item.status === 'writing' && (
@@ -280,7 +280,7 @@ export function BatchImport({
                         <span className="text-xs text-ink-2 line-through">已跳過</span>
                       )}
                       {item.action.type === 'journal' && item.status === 'pending' && (
-                        <button onClick={() => skipAction(idx)} className="btn text-xs">關閉</button>
+                        <button onClick={() => skipAction(idx)} className="btn">關閉</button>
                       )}
                     </div>
                   </div>

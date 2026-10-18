@@ -3,6 +3,9 @@ import type { Task, TaskType, TaskStatus, Recipe } from '../../types';
 import { TASK_TYPES, TASK_STATUS } from '../../utils/constants';
 import { todayISO, addDays } from '../../utils/date';
 import { useToast } from '../shared/useToast';
+import { BottomSheet } from '../shared/BottomSheet';
+
+const FORM_ID = 'task-form';
 
 interface Props {
   initial?: Task;
@@ -78,10 +81,26 @@ export function TaskForm({ initial, recipes, materialNames, onSave, onCancel }: 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-card border border-border p-4 space-y-3">
-      <div className="flex items-center justify-between mb-1">
-        <p className="section-label">{initial ? '編輯工序' : '新增工序'}</p>
-        <label className="flex items-center gap-2 type-meta cursor-pointer">
+    <BottomSheet
+      title={initial ? '編輯工序' : '新增工序'}
+      onClose={onCancel}
+      footer={
+        <>
+          <button type="button" onClick={onCancel} disabled={submitting} className="btn disabled:opacity-50">取消</button>
+          <button
+            type="submit"
+            form={FORM_ID}
+            disabled={submitting}
+            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {submitting ? '儲存中…' : '儲存'}
+          </button>
+        </>
+      }
+    >
+    <form id={FORM_ID} onSubmit={handleSubmit} className="space-y-3 pt-1">
+      <div className="flex items-center justify-end">
+        <label className="flex items-center gap-2 type-meta cursor-pointer min-h-[44px]">
           <input type="checkbox" checked={quick} onChange={(e) => setQuick(e.target.checked)} className="accent-accent" />
           快速模式
         </label>
@@ -98,7 +117,7 @@ export function TaskForm({ initial, recipes, materialNames, onSave, onCancel }: 
           aria-invalid={titleError}
           className={`input-field ${titleError ? 'border-error' : ''}`}
         />
-        {titleError && <p className="text-xs text-error mt-1">請填寫標題</p>}
+        {titleError && <p className="text-[13px] text-error mt-1">請填寫標題</p>}
       </div>
 
       <div>
@@ -126,13 +145,13 @@ export function TaskForm({ initial, recipes, materialNames, onSave, onCancel }: 
               autoComplete="off"
             />
             {matSuggestions.length > 0 && (
-              <div className="absolute z-10 left-0 right-0 bg-bg border border-border">
+              <div className="absolute z-10 left-0 right-0 bg-card border-[1.5px] border-ink border-t-0">
                 {matSuggestions.map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() => { setMaterial(s); setMatSuggestions([]); }}
-                    className="w-full text-left px-3 py-2 type-body hover:bg-card"
+                    className="w-full text-left px-3 min-h-[44px] type-body hover:bg-card"
                   >
                     {s}
                   </button>
@@ -182,16 +201,7 @@ export function TaskForm({ initial, recipes, materialNames, onSave, onCancel }: 
         </>
       )}
 
-      <div className="flex gap-3 justify-end pt-1">
-        <button type="button" onClick={onCancel} disabled={submitting} className="btn text-xs disabled:opacity-50">取消</button>
-        <button
-          type="submit"
-          disabled={submitting}
-          className="btn-primary text-xs disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {submitting ? '儲存中…' : '儲存'}
-        </button>
-      </div>
     </form>
+    </BottomSheet>
   );
 }

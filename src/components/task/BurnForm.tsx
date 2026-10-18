@@ -90,11 +90,11 @@ export function BurnForm({ onSave, onCancel }: Props) {
       </div>
 
       <div className="flex gap-3 mt-5 justify-end">
-        <button onClick={onCancel} disabled={submitting} className="btn text-xs disabled:opacity-50">取消</button>
+        <button onClick={onCancel} disabled={submitting} className="btn disabled:opacity-50">取消</button>
         <button
           onClick={handleSave}
           disabled={submitting}
-          className="btn-primary text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {submitting ? '儲存中…' : '儲存'}
         </button>

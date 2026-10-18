@@ -6,6 +6,7 @@ import { todayISO } from '../../utils/date';
 import { versionTag } from '../../utils/id';
 import { useToast } from '../shared/useToast';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
+import { DecimalInput } from '../shared/DecimalInput';
 
 interface Props {
   initial?: Recipe;
@@ -178,12 +179,12 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
   }
 
   return (
-    <div className="max-w-content mx-auto px-4 pt-7 pb-20">
+    <div className="max-w-content mx-auto px-5 pt-4 pb-24">
       <div className="flex items-center gap-3 mb-6">
         <button
           type="button"
           onClick={onCancel}
-          className="type-meta py-2 -ml-2 px-2"
+          className="btn-text text-base -ml-3"
           aria-label="返回上一頁"
         >
           ← 返回
@@ -210,7 +211,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
               className={`input-field ${nameError ? 'border-error' : ''}`}
             />
             {nameError && (
-              <p className="text-xs text-error mt-1">請填寫配方名稱</p>
+              <p className="text-[13px] text-error mt-1">請填寫配方名稱</p>
             )}
           </div>
           <div>
@@ -246,7 +247,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
             </div>
             <div>
               <label className="section-label block mb-1">乾燥天數</label>
-              <input type="number" value={form.timeline.dryDays} onChange={(e) => setF('timeline', { ...form.timeline, dryDays: Number(e.target.value) })} className="input-field" />
+              <DecimalInput value={form.timeline.dryDays} onValueChange={(n) => setF('timeline', { ...form.timeline, dryDays: n })} className="input-field tabular-nums" aria-label="乾燥天數" />
             </div>
             <div>
               <label className="section-label block mb-1">陳化開始</label>
@@ -264,7 +265,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
           <p className="section-label mb-3">工序標記</p>
           <div className="flex gap-4 mb-2">
             {(['tincture', 'ferment', 'wine'] as const).map((k) => (
-              <label key={k} className="flex items-center gap-1.5 text-xs text-ink-2 cursor-pointer">
+              <label key={k} className="flex items-center gap-1.5 min-h-[44px] text-[13px] text-ink cursor-pointer">
                 <input type="checkbox" checked={form.process[k]} onChange={(e) => setF('process', { ...form.process, [k]: e.target.checked })} className="accent-accent" />
                 {k === 'tincture' ? '酊劑' : k === 'ferment' ? '發酵' : '酒媒'}
               </label>
@@ -277,12 +278,12 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
         <div className="border-t border-border pt-4">
           <div className="flex items-center gap-3 mb-3">
             <p className="section-label">版本</p>
-            <button type="button" onClick={addVersion} className="btn text-xs">+ 新版本</button>
+            <button type="button" onClick={addVersion} className="btn">+ 新版本</button>
             {form.versions.length > 1 && (
               <button
                 type="button"
                 onClick={() => setConfirmDeleteVersion(true)}
-                className="btn text-xs text-error border-error"
+                className="btn text-error border-error"
                 aria-label={`刪除版本「${version.label}」`}
               >
                 刪除此版本
@@ -297,7 +298,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
                   key={i}
                   type="button"
                   onClick={() => setVIdx(i)}
-                  className={`px-3 py-2 text-xs tracking-label whitespace-nowrap ${i === vIdx ? 'border-b-2 border-ink text-ink -mb-px' : 'text-ink-2'}`}
+                  className={`h-11 px-3 text-[13px] whitespace-nowrap ${i === vIdx ? 'border-b-2 border-ink text-ink -mb-px' : 'text-ink-2'}`}
                 >
                   {v.label}
                 </button>
@@ -312,14 +313,14 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
             </div>
             <div>
               <label className="section-label block mb-1">總重 (g)</label>
-              <input type="number" value={version.totalWeight} onChange={(e) => setVersion({ totalWeight: Number(e.target.value) })} className="input-field" />
+              <DecimalInput key={`tw-${vIdx}`} value={version.totalWeight} onValueChange={(n) => setVersion({ totalWeight: n })} className="input-field tabular-nums" aria-label="總重 (g)" />
             </div>
           </div>
 
           {/* Ingredients */}
           <div className="space-y-2 mb-3">
             {version.ingredients.map((ing, i) => (
-              <div key={i} className="grid grid-cols-[1fr_1fr_80px_60px_28px] gap-2 items-start">
+              <div key={i} className="grid grid-cols-[1fr_1fr_72px_52px_44px] gap-2 items-start">
                 <select value={ing.cat} onChange={(e) => updateIngredient(i, { cat: e.target.value as IngredientCat })} className="input-field text-xs">
                   {(Object.keys(ING_CATS) as IngredientCat[]).map((c) => <option key={c} value={c}>{ING_CATS[c].label}</option>)}
                 </select>
@@ -358,7 +359,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
                         >
                           <div className="flex items-center gap-2">
                             <span className="type-micro text-ink-3">{s.material.id}</span>
-                            <span className="text-xs text-ink truncate">
+                            <span className="text-[13px] text-ink truncate">
                               {s.material.displayShort ?? s.material.name}
                             </span>
                             {s.material.supplier && (
@@ -389,7 +390,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
                     </div>
                   )}
                 </div>
-                <input type="number" value={ing.amount} onChange={(e) => updateIngredient(i, { amount: Number(e.target.value) })} placeholder="用量" className="input-field text-xs" step="0.1" />
+                <DecimalInput key={`amt-${vIdx}-${i}`} value={ing.amount} onValueChange={(n) => updateIngredient(i, { amount: n })} placeholder="用量" className="input-field text-xs tabular-nums" aria-label={`材料 ${i + 1} 用量`} />
                 <input value={ing.unit} onChange={(e) => updateIngredient(i, { unit: e.target.value })} placeholder="g" className="input-field text-xs" />
                 <button
                   type="button"
@@ -402,7 +403,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
               </div>
             ))}
           </div>
-          <button type="button" onClick={addIngredient} className="btn text-xs mb-4">+ 新增材料</button>
+          <button type="button" onClick={addIngredient} className="btn mb-4">+ 新增材料</button>
 
           <div>
             <label className="section-label block mb-1">版本備註</label>
@@ -415,14 +416,14 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
             type="button"
             onClick={onCancel}
             disabled={submitting}
-            className="btn text-xs disabled:opacity-50"
+            className="btn disabled:opacity-50"
           >
             取消
           </button>
           <button
             type="submit"
             disabled={submitting}
-            className="btn-primary text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? '儲存中…' : '儲存'}
           </button>

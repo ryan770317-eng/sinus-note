@@ -91,39 +91,10 @@ export function TaskDashboard({
   const hiddenDone = tasks.filter((t) => t.status === 'done' && (t.completedDate ?? '') < sevenDaysAgo).length;
 
   return (
-    <div className="max-w-content mx-auto px-4 pt-7 pb-20">
-      <h1 className="type-title mb-6">工序</h1>
+    <div className="max-w-content mx-auto px-5 pt-7 pb-24">
+      <h1 className="type-title h-11 flex items-center mb-6">工序</h1>
 
       <TaskAlert tasks={alertTasks} recipes={recipes} onEdit={setEditTask} />
-
-      {editTask && (
-        <div className="mb-6">
-          <TaskForm
-            initial={editTask}
-            recipes={recipes}
-            materialNames={materialNames}
-            onSave={async (data) => {
-              await onUpdate(editTask.id, data);
-              setEditTask(null);
-            }}
-            onCancel={() => setEditTask(null)}
-          />
-        </div>
-      )}
-
-      {showForm && !editTask && (
-        <div className="mb-6">
-          <TaskForm
-            recipes={recipes}
-            materialNames={materialNames}
-            onSave={async (data) => {
-              await onAdd(data);
-              setShowForm(false);
-            }}
-            onCancel={() => setShowForm(false)}
-          />
-        </div>
-      )}
 
       {/* Grouped list */}
       {TASK_STATUS_ORDER.map((status) => {
@@ -149,7 +120,7 @@ export function TaskDashboard({
             {status === 'done' && hiddenDone > 0 && !showAllDone && (
               <button
                 onClick={() => setShowAllDone(true)}
-                className="mt-3 type-meta underline"
+                className="btn-text -ml-3 mt-1 text-[13px] text-ink-2 underline underline-offset-4"
               >
                 顯示全部已完成（共 {totalDone} 筆）
               </button>
@@ -159,7 +130,7 @@ export function TaskDashboard({
       })}
 
       {tasks.length === 0 && !showForm && (
-        <p className="type-body text-ink-3 text-center py-16">
+        <p className="type-body text-ink-2 text-center py-16">
           還沒有工序，點 ＋ 新增
         </p>
       )}
@@ -167,13 +138,40 @@ export function TaskDashboard({
       {/* FAB */}
       {!showForm && !editTask && (
         <button
+          type="button"
           onClick={() => setShowForm(true)}
-          className="fixed right-5 w-14 h-14 bg-ink text-bg text-2xl flex items-center justify-center z-40 shadow-sm hover:bg-ink-2 transition-colors"
-          style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom))' }}
+          className="fixed right-5 w-14 h-14 bg-ink text-white text-2xl flex items-center justify-center z-40 hover:bg-ink-2 transition-colors"
+          style={{ bottom: 'calc(3.5rem + 1rem + env(safe-area-inset-bottom))' }}
           aria-label="新增工序"
         >
           ＋
         </button>
+      )}
+
+      {editTask && (
+        <TaskForm
+          key={editTask.id}
+          initial={editTask}
+          recipes={recipes}
+          materialNames={materialNames}
+          onSave={async (data) => {
+            await onUpdate(editTask.id, data);
+            setEditTask(null);
+          }}
+          onCancel={() => setEditTask(null)}
+        />
+      )}
+
+      {showForm && !editTask && (
+        <TaskForm
+          recipes={recipes}
+          materialNames={materialNames}
+          onSave={async (data) => {
+            await onAdd(data);
+            setShowForm(false);
+          }}
+          onCancel={() => setShowForm(false)}
+        />
       )}
 
       {burnTask && (
