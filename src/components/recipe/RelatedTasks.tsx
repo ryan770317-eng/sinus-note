@@ -21,8 +21,8 @@ export function RelatedTasks({ recipeId, tasks, onTaskClick }: Props) {
         className="flex items-center gap-2 w-full text-left"
       >
         <span className="section-label">相關工序</span>
-        <span className="text-ink-4 text-xs ml-1">{related.length} 筆</span>
-        <span className="ml-auto text-ink-4">{open ? '▲' : '▼'}</span>
+        <span className="text-ink-2 text-xs ml-1 tabular-nums">{related.length} 筆</span>
+        <span className="ml-auto text-ink-2">{open ? '▲' : '▼'}</span>
       </button>
 
       {open && (

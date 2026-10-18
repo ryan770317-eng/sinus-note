@@ -21,7 +21,7 @@ export function ConfirmDialog({
 }: Props) {
   const msgId = useId();
   const confirmClass = tone === 'danger'
-    ? 'px-4 py-2 border border-error bg-error text-bg font-light text-sm tracking-label hover:opacity-90 transition-opacity cursor-pointer'
+    ? 'px-4 py-2 border border-error bg-error text-bg text-sm tracking-label hover:opacity-90 transition-opacity cursor-pointer'
     : 'btn-primary text-xs';
 
   return (

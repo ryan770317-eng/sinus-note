@@ -231,7 +231,7 @@ export function RecipeHome({
 
                 {/* 底部配方數 */}
                 <p
-                  className="absolute bottom-2 left-0 right-0 text-center font-mono text-[9px] tracking-wider uppercase z-10"
+                  className="absolute bottom-2 left-0 right-0 text-center font-mono text-xs tracking-wider tabular-nums uppercase z-10"
                   style={{
                     color: hasImg ? 'rgba(255,255,255,0.8)' : '#6B6459',
                   }}
@@ -242,7 +242,7 @@ export function RecipeHome({
                 {/* 上傳封面按鈕（右下角，避開右上角點） */}
                 <button
                   onClick={(e) => handleImgClick(cat, e)}
-                  className="absolute bottom-2 right-2 w-7 h-7 bg-bg/70 flex items-center justify-center text-ink-2 type-micro z-20 hover:bg-bg transition-colors"
+                  className="absolute bottom-0 right-0 min-w-[44px] min-h-[44px] bg-bg/70 flex items-center justify-center text-ink-2 type-micro z-20 hover:bg-bg transition-colors"
                   title="上傳封面圖"
                   aria-label={`為「${FRAG_CATS[cat].label}」上傳封面圖`}
                 >

@@ -69,7 +69,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={() => dismiss(t.id)}
-              className="flex-1 text-left text-xs font-light tracking-label px-4 py-2.5"
+              className="flex-1 text-left text-xs tracking-label px-4 py-2.5"
               aria-label={`關閉通知：${t.message}`}
             >
               {t.message}

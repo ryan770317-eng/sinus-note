@@ -153,7 +153,7 @@ export function Dashboard({
       {/* ── Empty state ───────────────────────────────────────── */}
       {empty && (
         <div className="text-center py-16">
-          <p className="font-serif text-2xl text-ink-4 mb-3">引香筆記</p>
+          <p className="font-serif text-2xl text-ink-2 mb-3">引香筆記</p>
           <p className="type-body text-ink-3">從下方選單開始新增配方或工序</p>
         </div>
       )}

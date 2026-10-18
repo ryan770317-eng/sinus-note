@@ -25,7 +25,7 @@ export function SectionHeader({ title, count, color, onMore, moreLabel = '全部
       {onMore && (
         <button
           onClick={onMore}
-          className="type-meta hover:text-ink px-2 py-2 min-w-[44px] text-right"
+          className="type-meta hover:text-ink px-2 min-w-[44px] min-h-[44px] text-right"
           aria-label={`${title} — ${moreLabel}`}
         >
           {moreLabel}

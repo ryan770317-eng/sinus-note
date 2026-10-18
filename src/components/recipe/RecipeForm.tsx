@@ -210,7 +210,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
               className={`input-field ${nameError ? 'border-error' : ''}`}
             />
             {nameError && (
-              <p className="text-xs text-error font-light mt-1">請填寫配方名稱</p>
+              <p className="text-xs text-error mt-1">請填寫配方名稱</p>
             )}
           </div>
           <div>
@@ -297,7 +297,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
                   key={i}
                   type="button"
                   onClick={() => setVIdx(i)}
-                  className={`px-3 py-2 text-xs font-light tracking-label whitespace-nowrap ${i === vIdx ? 'border-b-2 border-ink text-ink -mb-px' : 'text-ink-2'}`}
+                  className={`px-3 py-2 text-xs tracking-label whitespace-nowrap ${i === vIdx ? 'border-b-2 border-ink text-ink -mb-px' : 'text-ink-2'}`}
                 >
                   {v.label}
                 </button>
@@ -358,7 +358,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
                         >
                           <div className="flex items-center gap-2">
                             <span className="type-micro text-ink-3">{s.material.id}</span>
-                            <span className="text-xs font-light text-ink truncate">
+                            <span className="text-xs text-ink truncate">
                               {s.material.displayShort ?? s.material.name}
                             </span>
                             {s.material.supplier && (
@@ -394,7 +394,7 @@ export function RecipeForm({ initial, nextId, materials, fragCat, onSave, onCanc
                 <button
                   type="button"
                   onClick={() => removeIngredient(i)}
-                  className="text-ink-4 hover:text-error text-sm min-w-[28px] min-h-[28px]"
+                  className="text-ink-2 hover:text-error text-sm min-w-[44px] min-h-[44px]"
                   aria-label={`移除第 ${i + 1} 項材料`}
                 >
                   ×

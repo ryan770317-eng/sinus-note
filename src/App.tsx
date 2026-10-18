@@ -94,7 +94,7 @@ export default function App() {
         aria-label="載入中"
       >
         <p className="font-serif text-2xl text-ink tracking-wide">SINUS NOTE</p>
-        <p className="text-xs text-ink-3 font-light tracking-label">載入中…</p>
+        <p className="text-xs text-ink-3 tracking-label">載入中…</p>
       </div>
     );
   }
@@ -131,7 +131,7 @@ export default function App() {
         aria-label="資料載入中"
       >
         <p className="font-serif text-2xl text-ink tracking-wide">SINUS NOTE</p>
-        <p className="text-xs text-ink-3 font-light tracking-label">資料載入中…</p>
+        <p className="text-xs text-ink-3 tracking-label">資料載入中…</p>
       </div>
     );
   }

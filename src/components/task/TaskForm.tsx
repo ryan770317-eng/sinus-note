@@ -98,7 +98,7 @@ export function TaskForm({ initial, recipes, materialNames, onSave, onCancel }: 
           aria-invalid={titleError}
           className={`input-field ${titleError ? 'border-error' : ''}`}
         />
-        {titleError && <p className="text-xs text-error font-light mt-1">請填寫標題</p>}
+        {titleError && <p className="text-xs text-error mt-1">請填寫標題</p>}
       </div>
 
       <div>

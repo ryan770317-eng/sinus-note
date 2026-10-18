@@ -293,7 +293,7 @@ export function BatchImport({
                         <span className="text-xs text-accent">✓ 已寫入</span>
                       )}
                       {item.status === 'skipped' && (
-                        <span className="text-xs text-ink-4">已跳過</span>
+                        <span className="text-xs text-ink-2 line-through">已跳過</span>
                       )}
                       {item.action.type === 'journal' && item.status === 'pending' && (
                         <button onClick={() => skipAction(idx)} className="btn text-xs">關閉</button>

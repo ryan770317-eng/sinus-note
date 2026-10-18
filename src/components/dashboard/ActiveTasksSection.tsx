@@ -36,7 +36,7 @@ export function ActiveTasksSection({ tasks, recipes, onOpen }: Props) {
                 <div className="flex-1 min-w-0">
                   <p className="type-micro tracking-label mb-0.5" style={{ color: phaseColor }}>
                     {tt.icon} {tt.label}
-                    {recipe && <span className="text-ink-4 ml-1">· {recipe.name}</span>}
+                    {recipe && <span className="text-ink-2 ml-1">· {recipe.name}</span>}
                   </p>
                   <p className="type-name truncate">{t.title}</p>
                 </div>
@@ -51,7 +51,7 @@ export function ActiveTasksSection({ tasks, recipes, onOpen }: Props) {
               </div>
               {progress !== null && (
                 <div>
-                  <div className="flex justify-between type-micro text-ink-4 mb-1">
+                  <div className="flex justify-between type-micro text-ink-2 mb-1">
                     <span>{fmtDate(t.startDate)} → {fmtDate(t.dueDate)}</span>
                     <span>{progress}%</span>
                   </div>

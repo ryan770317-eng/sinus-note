@@ -55,7 +55,7 @@ export function TaskAlert({ tasks, recipes, onEdit }: Props) {
                     <p className="text-xs text-ink-3 mt-0.5">{fmtDate(task.startDate)} → {fmtDate(task.dueDate)}</p>
                   )}
                 </div>
-                <span className={`text-xs font-light shrink-0 ${badgeColor}`}>{badge}</span>
+                <span className={`text-xs shrink-0 ${badgeColor}`}>{badge}</span>
               </div>
             </button>
           );

@@ -199,7 +199,7 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
             <button
               key={i}
               onClick={() => setVIdx(i)}
-              className={`px-4 py-2 text-xs font-light tracking-label transition-colors ${
+              className={`px-4 py-2 text-xs tracking-label transition-colors ${
                 i === vIdx ? 'border-b-2 border-ink text-ink -mb-px' : 'text-ink-2 hover:text-ink'
               }`}
             >
@@ -295,7 +295,7 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
                     <button
                       type="button"
                       onClick={() => setTargetWeight(null)}
-                      className="type-micro text-ink-3 hover:text-ink px-1"
+                      className="type-micro text-ink-3 hover:text-ink min-w-[44px] min-h-[44px]"
                       aria-label="清除換算"
                     >
                       ×
@@ -400,7 +400,7 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
                                 </>
                               )}
                               {pct > 0 && (
-                                <span className={`text-xs opacity-60 ml-1 ${overCeiling ? 'text-error font-normal opacity-100' : 'text-ink-2'}`}>
+                                <span className={`text-xs ml-1 tabular-nums ${overCeiling ? 'text-error font-medium' : 'text-ink-2'}`}>
                                   {pct.toFixed(1)}%
                                 </span>
                               )}
@@ -467,25 +467,25 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
             {recipe.timeline.makeDate && (
               <div>
                 <p className="text-xs text-ink-3">製作日期</p>
-                <p className="font-light text-ink">{recipe.timeline.makeDate}</p>
+                <p className="text-ink">{recipe.timeline.makeDate}</p>
               </div>
             )}
             {(recipe.timeline.dryDays ?? 0) > 0 && (
               <div>
                 <p className="text-xs text-ink-3">乾燥天數</p>
-                <p className="font-light text-ink">{recipe.timeline.dryDays} 天</p>
+                <p className="text-ink">{recipe.timeline.dryDays} 天</p>
               </div>
             )}
             {recipe.timeline.agingStart && (
               <div>
                 <p className="text-xs text-ink-3">陳化開始</p>
-                <p className="font-light text-ink">{recipe.timeline.agingStart}</p>
+                <p className="text-ink">{recipe.timeline.agingStart}</p>
               </div>
             )}
             {recipe.timeline.agingNotes && (
               <div className="col-span-2">
                 <p className="text-xs text-ink-3">陳化備註</p>
-                <p className="font-light text-ink">{recipe.timeline.agingNotes}</p>
+                <p className="text-ink">{recipe.timeline.agingNotes}</p>
               </div>
             )}
           </div>
@@ -517,7 +517,7 @@ export function RecipeDetail({ recipe, tasks, materials, onBack, onEdit, onDelet
         <button onClick={() => onEdit(recipe)} className="btn text-xs" aria-label={`編輯配方 ${recipe.name}`}>編輯</button>
         <button onClick={() => onDelete(recipe.id)} className="btn text-xs text-error border-error" aria-label={`刪除配方 ${recipe.name}`}>刪除</button>
         <div className="flex-1" />
-        <p className="text-xs text-ink-2 opacity-60 font-light self-end">
+        <p className="text-xs text-ink-2 self-end">
           {RECIPE_STATUS[recipe.status].label}
         </p>
       </div>

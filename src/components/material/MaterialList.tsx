@@ -309,7 +309,7 @@ export function MaterialList({ materials, initialSearch, onAdd, onUpdate, onDele
             <button
               key={cat}
               onClick={() => setActiveCat(cat)}
-              className="px-3 py-2 text-xs font-light tracking-label whitespace-nowrap transition-colors flex items-center gap-1 -mb-px"
+              className="px-3 py-2 text-xs tracking-label whitespace-nowrap transition-colors flex items-center gap-1 -mb-px"
               style={{
                 borderBottom: isActive ? `2px solid ${catColor}` : '2px solid transparent',
                 color: isActive ? catColor : undefined,
@@ -370,7 +370,7 @@ export function MaterialList({ materials, initialSearch, onAdd, onUpdate, onDele
                 placeholder="例：乳香"
                 className={`input-field ${nameError ? 'border-error' : ''}`}
               />
-              {nameError && <p className="text-xs text-error font-light mt-1">{nameError}</p>}
+              {nameError && <p className="text-xs text-error mt-1">{nameError}</p>}
             </div>
           </div>
 
@@ -944,7 +944,7 @@ function MaterialCard({
               <span className="type-micro tracking-label">同物種其他條目</span>
               <div className="mt-1 space-y-1">
                 {similarMembers.map((sm) => (
-                  <div key={sm.id} className="flex items-center gap-2 text-xs font-light">
+                  <div key={sm.id} className="flex items-center gap-2 text-xs">
                     <span
                       className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
                       style={{ background: ING_CAT_COLORS[sm.cat] }}

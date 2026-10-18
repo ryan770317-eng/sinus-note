@@ -58,10 +58,10 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRestor
   return (
     <>
       <div
-        className={`border border-border flex transition-all ${isDone ? 'opacity-40' : ''}`}
+        className="border border-border flex transition-all"
         style={{
           borderLeftWidth: 3,
-          borderLeftColor: isDone ? '#D6CFC4' : phaseColor,
+          borderLeftColor: isDone ? '#6B6459' : phaseColor,
           background: isDone ? 'transparent' : TASK_STATUS_BG[task.status],
         }}
       >
@@ -103,7 +103,7 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRestor
         >
           {/* Type + status + menu */}
           <div className="flex items-start justify-between gap-2 mb-1">
-            <span className="type-micro tracking-label" style={{ color: isDone ? '#D6CFC4' : phaseColor }}>
+            <span className="type-micro tracking-label" style={{ color: isDone ? '#6B6459' : phaseColor }}>
               {tt.icon} {tt.label}
             </span>
             <div className="flex items-center gap-1 shrink-0">
@@ -111,7 +111,7 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRestor
                 className="type-micro px-1.5 py-0.5"
                 style={{
                   background: isDone ? 'transparent' : `${phaseColor}18`,
-                  color: isDone ? '#D6CFC4' : phaseColor,
+                  color: isDone ? '#6B6459' : phaseColor,
                 }}
               >
                 {TASK_STATUS[task.status].label}
@@ -142,7 +142,7 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRestor
           </div>
 
           {/* Title */}
-          <p className={`font-serif text-[15px] text-ink ${isDone ? 'line-through text-ink-3' : ''}`}>
+          <p className={`font-serif text-[15px] text-ink ${isDone ? 'line-through text-ink-2' : ''}`}>
             {task.title}
           </p>
 
@@ -170,7 +170,7 @@ export function TaskCard({ task, recipes, onEdit, onComplete, onDelete, onRestor
                   <div className="flex items-center justify-between mb-2">
                     <p className="type-micro">
                       {fmtDate(task.startDate)} → {fmtDate(task.dueDate)}
-                      <span className="ml-1 text-ink-4">
+                      <span className="ml-1 text-ink-2 tabular-nums">
                         ({Math.round((new Date(task.dueDate).getTime() - new Date(task.startDate).getTime()) / 86400000)} 天)
                       </span>
                     </p>

@@ -20,8 +20,8 @@ export function BurnLog({ burnLog }: Props) {
         className="flex items-center gap-2 type-body text-ink-2 w-full text-left"
       >
         <span className="section-label">試燒紀錄</span>
-        <span className="text-ink-4 text-xs ml-1">{burnLog.length} 筆</span>
-        <span className="ml-auto text-ink-4">{open ? '▲' : '▼'}</span>
+        <span className="text-ink-2 text-xs ml-1 tabular-nums">{burnLog.length} 筆</span>
+        <span className="ml-auto text-ink-2">{open ? '▲' : '▼'}</span>
       </button>
 
       {open && (

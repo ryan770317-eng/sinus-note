@@ -32,7 +32,7 @@ export function EditableField({
 
   const isEmpty = !val;
   return (
-    <span className="text-xs font-light">
+    <span className="text-xs">
       <span className="text-ink-2">{label}</span>{' '}
       <input
         type="text"
@@ -41,7 +41,7 @@ export function EditableField({
         onBlur={handleBlur}
         placeholder={placeholder}
         aria-label={`${label}${isEmpty ? '（待補充）' : ''}`}
-        className={`text-xs px-1.5 py-0.5 border rounded font-light outline-none ${
+        className={`text-xs px-1.5 py-0.5 border rounded outline-none ${
           isEmpty ? 'border-dashed border-amber-400' : 'border-border'
         }`}
         style={{ background: isEmpty ? MISSING_BG : 'transparent', minWidth: 80 }}
